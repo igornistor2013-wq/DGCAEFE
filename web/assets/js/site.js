@@ -23,8 +23,8 @@
   var admin = { on: false, user: '', csrf: '' };
 
   var LEVELS = {
-    cross: { name: 'Transfrontalier', desc: 'Cooperare între regiuni vecine, de o parte și de alta a frontierei. Proiecte comune ale autorităților și organizațiilor de pe ambele maluri ale Prutului.' },
-    trans: { name: 'Transnațional', desc: 'Cooperare în spații geografice largi, care reunesc mai multe state cu provocări comune: bazinul Mării Negre și regiunea Dunării.' },
+    cross: { name: 'Transfrontalier', desc: 'Cooperare între regiuni vecine, de o parte și de alta a frontierei.' },
+    trans: { name: 'Transnațional', desc: 'Cooperare între mai multe state dintr-un spațiu larg, cu provocări comune: bazinul Mării Negre și regiunea Dunării.' },
     inter: { name: 'Interregional', desc: 'Schimb de experiență și de bune practici între autorități regionale și orașe din toată Europa.' }
   };
   var LEVEL_ORDER = ['cross', 'trans', 'inter'];
@@ -128,93 +128,44 @@
     }).join('');
   }
 
-  /* ================= Diagrama programelor ================= */
-  var RING_R = { cross: 95, trans: 170, inter: 245 };
-  var ANGLE = { romd: -35, drp: -55, bsb: 160, ie: 35, urbact: -145 };
-  var BASE_ANGLE = { cross: -35, trans: -55, inter: 35 };
-  var orbitLevel = null;
+  /* ================= Diagrama nivelurilor de cooperare ================= */
+  // Trei cadre încuibate în jurul Republicii Moldova: cu cât cadrul este mai larg, cu atât aria cooperării este mai mare.
+  // Fiecare cadru își poartă propriul titlu și butoanele programelor, în aceeași ordine ca în secțiunea „Programe”.
+  var ALIAS = { drp: 'Dunărea Dunăre Danube', bsb: 'Marea Neagră Black Sea' }; // forme pe care le caută oamenii și care nu apar în nume
 
   function shortName(p) { return p.short || p.name.replace(/^Interreg\s+(NEXT\s+)?/i, '').replace(/\s+20\d\d.*$/, ''); }
+  function levelOf(p) { return LEVELS[p.level] ? p.level : 'inter'; }
+  // „1 program”, „5 programe”, „20 de programe”
+  function countRo(n, one, many) { return n === 1 ? '1 ' + one : n + (n > 19 && (n % 100 === 0 || n % 100 > 19) ? ' de ' : ' ') + many; }
 
-  function renderOrbit() {
-    var box = $('#orbit');
-    var perLevel = {};
-    var nodes = D.programs.map(function (p) {
-      var list = perLevel[p.level] = perLevel[p.level] || [];
-      var idx = list.length;
-      list.push(p);
-      var a = ANGLE[p.id];
-      if (a === undefined) a = BASE_ANGLE[p.level] + idx * 120;
-      var rad = (a * Math.PI) / 180;
-      var r = RING_R[p.level] || RING_R.inter;
-      var x = ((280 + r * Math.cos(rad)) / 560) * 100;
-      var y = ((280 + r * Math.sin(rad)) / 560) * 100;
-      return '<button class="node" type="button" data-prog="' + esc(p.id) + '" data-level="' + p.level + '" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" aria-label="' + esc(p.name + ', nivel ' + (LEVELS[p.level] || LEVELS.inter).name.toLowerCase() + '. Vezi documentele') + '"><span class="dot"></span><span class="lbl">' + esc(shortName(p)) + '</span></button>';
-    }).join('');
-
-    box.innerHTML =
-      '<svg viewBox="0 0 560 560" role="img" aria-label="Niveluri de cooperare: transfrontalier, transnațional și interregional, cu Republica Moldova în centru">' +
-      '<circle class="ring" data-level="inter" cx="280" cy="280" r="245" pathLength="1" transform="rotate(-90 280 280)"/>' +
-      '<circle class="ring" data-level="trans" cx="280" cy="280" r="170" pathLength="1" transform="rotate(-90 280 280)"/>' +
-      '<circle class="ring" data-level="cross" cx="280" cy="280" r="95" pathLength="1" transform="rotate(-90 280 280)"/>' +
-      '<text class="ring-label" data-level="inter" x="280" y="58">Interregional</text>' +
-      '<text class="ring-label" data-level="trans" x="280" y="133">Transnațional</text>' +
-      '<text class="ring-label" data-level="cross" x="280" y="208">Transfrontalier</text>' +
-      '<circle class="core" cx="280" cy="280" r="46"/><text class="core-t" x="280" y="277">Republica</text><text class="core-t" x="280" y="293">Moldova</text></svg>' + nodes;
-
-    $('#orbitLegend').innerHTML = LEVEL_ORDER.map(function (l) {
-      return '<button class="lg" type="button" data-level="' + l + '" aria-pressed="false">' + LEVELS[l].name + '</button>';
-    }).join('');
-
-    $$('.ring', box).forEach(function (r) {
-      r.addEventListener('mouseenter', function () { showLevel(r.getAttribute('data-level')); });
-      r.addEventListener('click', function () { toggleLevel(r.getAttribute('data-level')); });
-    });
-    $$('.node', box).forEach(function (n) {
-      var enter = function () { showLevel(n.getAttribute('data-level'), n.getAttribute('data-prog')); };
-      n.addEventListener('mouseenter', enter);
-      n.addEventListener('focus', enter);
-      n.addEventListener('blur', function () { showLevel(orbitLevel); });
-      n.addEventListener('click', function () { goProgram(n.getAttribute('data-prog')); });
-    });
-    box.onmouseleave = function () { showLevel(orbitLevel); };
-    $$('#orbitLegend .lg').forEach(function (b) {
-      b.addEventListener('click', function () { toggleLevel(b.getAttribute('data-level')); });
-    });
-    showLevel(orbitLevel);
-    layoutNodes();
+  function levelCaption(lv) {
+    var list = D.programs.filter(function (p) { return levelOf(p) === lv; });
+    var strands = [];
+    list.forEach(function (p) { if (p.strand && strands.indexOf(p.strand) < 0) strands.push(p.strand); });
+    return '<div class="lv-cap"><div class="lv-head"><h3 class="lv-name" id="lvh-' + lv + '">' + LEVELS[lv].name + '</h3>' +
+      (strands.length ? '<span class="lv-strand">' + esc(strands.join(', ')) + '</span>' : '') + '</div>' +
+      '<p class="lv-scope">' + LEVELS[lv].desc + '</p>' +
+      (list.length ? '<ul class="lv-progs" aria-labelledby="lvh-' + lv + '">' + list.map(function (p) {
+        return '<li><a class="lv-chip" href="#program/' + esc(p.id) + '" data-prog="' + esc(p.id) + '" title="' + esc(p.name) + '">' + esc(shortName(p)) + '<span class="sr">, vezi documentele</span></a></li>';
+      }).join('') + '</ul>' : '') + '</div>';
   }
 
-  // Etichetele care ar ieși din chenar sunt mutate în partea stângă a punctului.
-  function layoutNodes() {
-    var box = $('#orbit');
-    var right = box.getBoundingClientRect().right;
-    $$('.node', box).forEach(function (n) {
-      n.classList.remove('left');
-      if (n.getBoundingClientRect().right > right + 2) n.classList.add('left');
-    });
+  function renderLevels() {
+    var n = D.programs.length;
+    $('#levels').innerHTML =
+      '<div class="lv lv-inter"><div class="lv lv-trans"><div class="lv lv-cross">' +
+      '<div class="lv-core"><p class="lv-core-name">Republica Moldova</p>' +
+      (n ? '<p class="lv-core-sub">Participă la ' + countRo(n, 'program', 'programe') + ' Interreg <span class="nb">2021–2027</span></p>' : '') + '</div>' +
+      levelCaption('cross') + '</div>' + levelCaption('trans') + '</div>' + levelCaption('inter') + '</div>';
   }
 
-  function toggleLevel(l) {
-    orbitLevel = orbitLevel === l ? null : l;
-    showLevel(orbitLevel);
-  }
-
-  function showLevel(lv, hoverProg) {
-    $$('#orbit .ring, #orbit .ring-label').forEach(function (r) { r.classList.toggle('on', r.getAttribute('data-level') === lv); });
-    $$('#orbit .node').forEach(function (n) {
-      n.classList.toggle('dim', !!lv && n.getAttribute('data-level') !== lv);
-      n.classList.toggle('on', n.getAttribute('data-prog') === hoverProg);
-    });
-    $$('#orbitLegend .lg').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-level') === orbitLevel)); });
-    var info = $('#orbitInfo');
-    if (!lv) {
-      info.innerHTML = '<h3>' + D.programs.length + ' programe Interreg 2021–2027</h3><p>Republica Moldova participă la programe de cooperare pe trei niveluri. Alegeți un cerc sau un program pentru detalii.</p>';
-      return;
-    }
-    var progs = D.programs.filter(function (p) { return p.level === lv; });
-    info.innerHTML = '<h3>' + LEVELS[lv].name + '</h3><p>' + LEVELS[lv].desc + '</p><div class="links">' +
-      progs.map(function (p) { return '<button type="button" data-go="' + esc(p.id) + '">' + esc(p.name) + '</button>'; }).join('') + '</div>';
+  // Butonul unui program deschide secțiunea „Programe”; adresa #program/… rămâne bună de copiat sau de deschis într-o filă nouă.
+  function onLevelClick(e) {
+    var a = e.target.closest('[data-prog]');
+    if (!a || e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    var id = a.getAttribute('data-prog');
+    if (location.hash === '#program/' + id) goProgram(id); else location.hash = '#program/' + id;
   }
 
   /* ================= Noutăți ================= */
@@ -350,11 +301,13 @@
 
   function progDocs(p) { return D.documents.filter(function (d) { return d.section === 'program' && d.program === p.id; }).sort(cmpDocs); }
 
+  // Pictograma nivelului: aceleași cadre încuibate ca în diagrama de pe prima pagină; cadrul nivelului programului este desenat apăsat.
   function levelGlyph(lv, size) {
     return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 44 44" aria-hidden="true" class="lglyph">' +
-      [['inter', 20], ['trans', 13.5], ['cross', 7]].map(function (x) {
-        return '<circle cx="22" cy="22" r="' + x[1] + '" fill="none" stroke="currentColor" stroke-width="' + (x[0] === lv ? 3 : 1.4) + '" opacity="' + (x[0] === lv ? 1 : 0.45) + '"/>';
-      }).join('') + '<circle cx="22" cy="22" r="2.5" fill="currentColor"/></svg>';
+      [['inter', 3, 38, 3], ['trans', 10, 24, 2.5], ['cross', 17, 10, 2]].map(function (f) {
+        var on = f[0] === lv;
+        return '<rect x="' + f[1] + '" y="' + f[1] + '" width="' + f[2] + '" height="' + f[2] + '" rx="' + f[3] + '" fill="none" stroke="currentColor" stroke-width="' + (on ? 3 : 1.4) + '" opacity="' + (on ? 1 : 0.45) + '"/>';
+      }).join('') + '<rect x="20" y="20" width="4" height="4" rx="1" fill="currentColor"/></svg>';
   }
 
   function renderProgNav() {
@@ -649,7 +602,7 @@
       var p = d.section === 'program' ? progOf(d.program) : null;
       idx.push({ cat: SECTION_LABEL[d.section] || 'Documente', t: d.title, s: [p ? p.name : '', docMeta(d)].filter(Boolean).join(', '), k: (d.description || '') + ' ' + (d.kind || ''), u: docHref(d) });
     });
-    D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: (LEVELS[p.level] || LEVELS.inter).name + ', ' + (p.strand || '') + '. Deschide pagina programului', k: 'interreg program ' + (p.desc || ''), go: function () { goProgram(p.id); } }); });
+    D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: (LEVELS[p.level] || LEVELS.inter).name + ', ' + (p.strand || '') + '. Deschide pagina programului', k: 'interreg program ' + (p.desc || '') + ' ' + (ALIAS[p.id] || ''), go: function () { goProgram(p.id); } }); });
     D.events.forEach(function (e) { idx.push({ cat: 'Evenimente', t: e.title, s: [DG.fmtDate(evDate(e)), e.place].filter(Boolean).join(', '), k: (e.prog || '') + ' ' + e.summary, go: function () { goEvent(e.id); } }); });
     D.gallery.forEach(function (g) { idx.push({ cat: 'Galerie foto', t: g.title || 'Fotografie', s: [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · '), k: g.alt || '', go: function () { gal.album = 'all'; renderGallery(); var i = D.gallery.indexOf(g); gal.shown = Math.max(gal.shown, i + 1); renderGallery(); openLightbox(i); } }); });
     idx.push({ cat: 'Platforme', t: 'Platforma pentru gestionarea asistenței externe (AMP)', s: 'amp.gov.md', k: 'aid management platform proiecte donatori', u: 'https://amp.gov.md/portal/' });
@@ -821,7 +774,6 @@
         fs = v === 0 ? 0 : Math.max(-1, Math.min(2, fs + v));
         pref('dg-fs', String(fs));
         applyFs();
-        layoutNodes();
       });
     });
     var contrast = pref('dg-contrast') === '1';
@@ -859,16 +811,12 @@
     var toTop = $('#toTop');
     window.addEventListener('scroll', function () { toTop.classList.toggle('show', window.scrollY > 900); }, { passive: true });
     toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' }); });
-    window.addEventListener('resize', DG.debounce(layoutNodes, 120));
   }
 
   /* ================= Evenimente de interfață ================= */
   function setupEvents() {
-    // orbită
-    $('#orbitInfo').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-go]');
-      if (b) goProgram(b.getAttribute('data-go'));
-    });
+    // diagrama nivelurilor
+    $('#levels').addEventListener('click', onLevelClick);
 
     // noutăți
     $('#newsGrid').addEventListener('click', function (e) {
@@ -1031,7 +979,7 @@
   /* ================= Pornire ================= */
   function renderAll() {
     renderIntro();
-    renderOrbit();
+    renderLevels();
     renderNews();
     renderAbout();
     renderLegal();
@@ -1053,7 +1001,6 @@
     setupForm();
     renderAll();
     window.addEventListener('hashchange', route);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutNodes);
     route();
     // dacă adresa conține un ancoraj (#programe etc.), îl recalculăm după ce s-a construit conținutul
     if (location.hash && /^#[a-z-]+$/.test(location.hash) && document.getElementById(location.hash.slice(1))) {

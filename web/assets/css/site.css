@@ -109,43 +109,32 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .quick a{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.65rem .15rem;text-decoration:none;font-weight:600;color:var(--blue-dd)}
 .quick a:hover{color:var(--blue);background:rgba(255,255,255,.6)}
 
-/* Diagrama programelor (singurul element grafic mai îndrăzneț) */
-.orbit-card{background:#fff;border:1px solid var(--line-d);border-radius:6px;padding:1.25rem 1.25rem 1.1rem;box-shadow:0 1px 0 rgba(7,42,80,.06)}
-.orbit-title{font-size:1.05rem;margin-bottom:.5rem;text-align:center}
-.orbit{position:relative;width:100%;max-width:30rem;margin:0 auto;aspect-ratio:1/1}
-.orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.ring{fill:rgba(14,76,144,.035);stroke:rgba(14,76,144,.4);stroke-width:1.5;cursor:pointer;transition:fill .2s,stroke .2s,stroke-width .2s}
-.ring.on{fill:rgba(14,76,144,.11);stroke:var(--blue);stroke-width:2.5}
-.ring-label{fill:var(--muted);font-size:13px;font-family:var(--sans);font-weight:700;text-anchor:middle;pointer-events:none;transition:fill .2s}
-.ring-label.on{fill:var(--blue)}
-.core{fill:var(--blue)}
-.core-t{fill:#fff;font-family:var(--serif);font-weight:600;font-size:13px;text-anchor:middle;pointer-events:none}
-.node{position:absolute;display:flex;align-items:center;gap:.4rem;background:none;border:0;padding:0;cursor:pointer;transform:translate(-9px,-50%);transition:opacity .2s}
-.node .dot{width:18px;height:18px;border-radius:50%;background:var(--blue);border:3px solid #fff;box-shadow:0 0 0 1.5px var(--blue);flex:none}
-.node .lbl{font-size:.75rem;font-weight:700;background:#fff;color:var(--ink);padding:.2rem .5rem;border-radius:3px;border:1px solid var(--line-d);white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
-.node.left{flex-direction:row-reverse;transform:translate(calc(-100% + 9px),-50%)}
-.node:hover .lbl,.node:focus-visible .lbl,.node.on .lbl{background:var(--blue);color:#fff;border-color:var(--blue)}
-.node.dim{opacity:.35}
-.orbit-legend{display:flex;justify-content:center;margin-top:.9rem;border:1px solid var(--line-d);border-radius:var(--r);overflow:hidden}
-.lg{flex:1;font-size:.875rem;font-weight:600;padding:.5rem .4rem;background:#fff;border:0;border-right:1px solid var(--line-d);cursor:pointer;color:var(--ink)}
-.lg:last-child{border-right:0}
-.lg:hover{background:var(--blue-l)}
-.lg[aria-pressed="true"]{background:var(--blue);color:#fff}
-.orbit-info{margin-top:.8rem;padding:.9rem 1rem;background:var(--blue-l);border-left:4px solid var(--blue);border-radius:0 var(--r) var(--r) 0;min-height:7.5rem}
-.orbit-info h3{font-size:1rem;margin-bottom:.3rem}
-.orbit-info p{font-size:.9375rem;margin:0 0 .5rem}
-.orbit-info .links{display:flex;flex-wrap:wrap;gap:.25rem 1.1rem}
-.orbit-info .links button{font-size:.9rem;font-weight:600;background:none;border:0;padding:0;color:var(--blue);cursor:pointer;text-decoration:underline;text-underline-offset:.2em;text-align:left}
-
-@media (prefers-reduced-motion:no-preference){
-  .ring{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.2s cubic-bezier(.3,.6,.2,1) forwards}
-  .ring[data-level="cross"]{animation-delay:.05s}
-  .ring[data-level="trans"]{animation-delay:.2s}
-  .ring[data-level="inter"]{animation-delay:.35s}
-  .node{animation:pop .4s ease-out .9s backwards}
+/* Diagrama nivelurilor de cooperare: trei cadre încuibate în jurul Republicii Moldova (singurul element grafic mai îndrăzneț).
+   Tonul se adâncește spre centru, ca aria cooperării să se citească dintr-o privire; textul rămâne mereu la contrast plin. */
+.levels-title{font-size:1.25rem;margin-bottom:.9rem}
+.levels{--lv-line:#8EA7C8}
+.lv{border:1px solid var(--lv-line);padding:.625rem .625rem 0}
+.lv-inter{background:#fff;border-radius:6px}
+.lv-trans{background:#E9EFF7;border-radius:5px}
+.lv-cross{background:#D3E1F1;border-radius:4px}
+.lv-core{background:var(--blue);color:#fff;border:1px solid transparent;border-radius:3px;padding:.8rem 1rem}
+.lv-core-name,.lv-core-sub{margin:0}
+.lv-core-name{font-family:var(--serif);font-weight:600;font-size:1.25rem;line-height:1.2}
+.lv-core-sub{margin-top:.2rem;font-size:.9375rem;line-height:1.4}
+.nb{white-space:nowrap}
+.lv-cap{padding:.85rem .25rem 1rem}
+.lv-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.1rem .75rem}
+.lv-name{font-size:1.125rem}
+.lv-strand{font-size:.8125rem;color:var(--muted);white-space:nowrap}
+.lv-scope{max-width:38em;margin:.25rem 0 .75rem;font-size:.9375rem;line-height:1.45}
+.lv-progs{display:flex;flex-wrap:wrap;gap:.5rem}
+.lv-chip{display:inline-flex;align-items:center;min-height:2.5rem;padding:.3rem .8rem;background:#fff;border:1px solid var(--blue);border-radius:3px;color:var(--blue);font-size:.9375rem;font-weight:700;line-height:1.2;text-decoration:none;transition:background-color .15s,color .15s}
+.lv-chip:hover{background:var(--blue);color:#fff}
+@media (max-width:480px){
+  .lv{padding:.5rem .5rem 0}
+  .lv-cap{padding:.75rem .15rem .9rem}
+  .lv-core{padding:.7rem .8rem}
 }
-@keyframes draw{to{stroke-dashoffset:0}}
-@keyframes pop{from{opacity:0}to{opacity:1}}
 
 /* ---------- Secțiuni ---------- */
 .sec{padding-block:clamp(2.75rem,6vw,4.5rem);scroll-margin-top:3.5rem}
@@ -458,9 +447,9 @@ dialog.search-dlg[open]{display:flex}
   .mainnav a.on{border-bottom-color:rgba(255,255,255,.16);box-shadow:inset 4px 0 0 var(--accent);padding-left:.9rem}
 }
 @media (max-width:980px){
-  .intro-in,.about,.coop,.contact{grid-template-columns:1fr}
+  .intro-in,.about,.coop,.contact{grid-template-columns:minmax(0,1fr)}
   .news-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .prog{grid-template-columns:1fr;gap:1rem}
+  .prog{grid-template-columns:minmax(0,1fr);gap:1rem}
   .prog-nav{position:static;display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.4rem}
   .prog-nav h4{display:none}
   .prog-btn{width:auto;white-space:nowrap;border:1px solid var(--line-d);border-radius:999px;background:#fff;padding:.45rem .9rem}
@@ -481,11 +470,11 @@ dialog.search-dlg[open]{display:flex}
   .tools{width:100%}
   .field-icon{flex:1 1 100%;min-width:0}
   .select{flex:1 1 45%;min-width:0}
-  .news-grid,.platforms,.foot-grid,.frow{grid-template-columns:1fr}
+  .news-grid,.platforms,.foot-grid,.frow{grid-template-columns:minmax(0,1fr)}
   .plat+.plat{border-left:0;border-top:1px solid var(--line)}
-  .report-panel{grid-template-columns:1fr}
+  .report-panel{grid-template-columns:minmax(0,1fr)}
   .rp-year{border-right:0;padding-right:0;border-bottom:3px solid var(--blue-m);padding-bottom:.5rem}
-  .event{grid-template-columns:1fr;gap:.5rem}
+  .event{grid-template-columns:minmax(0,1fr);gap:.5rem}
   .ev-date{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
   .ev-date .d{font-size:1.8rem}
   .prog-top{flex-direction:column;align-items:flex-start;gap:.75rem}
@@ -509,17 +498,20 @@ html[data-fs="2"] .brand-name{font-size:clamp(1.1rem,2vw,1.5rem)}
 /* ---------- Contrast ridicat ---------- */
 html[data-contrast="high"]{--blue:#00305F;--blue-d:#001A38;--blue-dd:#000;--blue-l:#fff;--blue-m:#000;--ink:#000;--muted:#000;--line:#000;--line-d:#000;--paper:#fff;--focus:#000;--focus-dark:#FFE24D}
 html[data-contrast="high"] a{text-decoration:underline}
-html[data-contrast="high"] .mainnav a,html[data-contrast="high"] .utility a,html[data-contrast="high"] .foot a,html[data-contrast="high"] .btn,html[data-contrast="high"] .news-card h3 a,html[data-contrast="high"] .brand,html[data-contrast="high"] .doc,html[data-contrast="high"] .quick a,html[data-contrast="high"] .g-btn,html[data-contrast="high"] .steps a,html[data-contrast="high"] .plat{text-decoration:none}
+html[data-contrast="high"] .mainnav a,html[data-contrast="high"] .utility a,html[data-contrast="high"] .foot a,html[data-contrast="high"] .btn,html[data-contrast="high"] .news-card h3 a,html[data-contrast="high"] .brand,html[data-contrast="high"] .doc,html[data-contrast="high"] .quick a,html[data-contrast="high"] .g-btn,html[data-contrast="high"] .steps a,html[data-contrast="high"] .plat,html[data-contrast="high"] .lv-chip{text-decoration:none}
 html[data-contrast="high"] .sec-alt,html[data-contrast="high"] .intro{background:#fff}
-html[data-contrast="high"] .news-card,html[data-contrast="high"] .panel,html[data-contrast="high"] .prog-panel,html[data-contrast="high"] .table-wrap,html[data-contrast="high"] .orbit-card,html[data-contrast="high"] .doc-list{border-width:2px}
+html[data-contrast="high"] .news-card,html[data-contrast="high"] .panel,html[data-contrast="high"] .prog-panel,html[data-contrast="high"] .table-wrap,html[data-contrast="high"] .doc-list{border-width:2px}
 html[data-contrast="high"] .foot,html[data-contrast="high"] .utility{background:#000;color:#fff}
 html[data-contrast="high"] .tag{border:1px solid #000}
-html[data-contrast="high"] .ring{stroke:#000}
+html[data-contrast="high"] .lv{background:#fff;border:2px solid #000}
+html[data-contrast="high"] .lv-core{background:#000}
+html[data-contrast="high"] .lv-chip{border:2px solid #000;color:#000;background:#fff}
+html[data-contrast="high"] .lv-chip:hover{background:#000;color:#fff}
 html[data-contrast="high"] .st-past{border-color:#000}
 
 /* ---------- Tipărire ---------- */
 @media print{
-  .utility,.mainnav,.adminbar,.search-open,.search-box,.quick,.orbit-card,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.map,.maplink,.form,.skip,.flagstrip,.foot-admin{display:none!important}
+  .utility,.mainnav,.adminbar,.search-open,.search-box,.quick,.intro-levels,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.map,.maplink,.form,.skip,.flagstrip,.foot-admin{display:none!important}
   body{font-size:11pt;color:#000;background:#fff}
   .sec,.sec-alt{padding:1rem 0;background:#fff;border:0;break-inside:avoid-page}
   .intro{background:#fff;border:0}
