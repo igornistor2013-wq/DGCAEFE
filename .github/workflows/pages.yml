@@ -1,0 +1,46 @@
+# Publică versiunea statică (doar citire) a paginii pe GitHub Pages, la fiecare "push" pe ramura principală.
+#
+# Conținutul se ia din folderul "storage/" (dacă l-ați încărcat în depozit după ce ați lucrat în panoul de
+# administrare local), altfel din conținutul de pornire din "seed/".
+#
+# Activare, o singură dată: în depozitul GitHub, Settings > Pages > Build and deployment > Source: "GitHub Actions".
+name: Publică pe GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Construiește versiunea statică
+        run: node scripts/build-static.js --out dist
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
