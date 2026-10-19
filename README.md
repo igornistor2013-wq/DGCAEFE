@@ -177,13 +177,26 @@ Pagina publică se actualizează singură în 1–2 minute. (Nu adăugați `stor
 
 Aplicația trebuie să ruleze pe un server Node.js (sau în Docker) cu **un disc persistent** montat la folderul de date (`DATA_DIR`). Fără disc persistent, tot ce se introduce din panou se pierde la reînnoirea serviciului. Pagina trebuie servită de la **rădăcina unui domeniu sau subdomeniu** (de ex. `https://exemplu.md/`), nu dintr-un subfolder.
 
-**Render** (cel mai simplu, direct din depozitul GitHub):
+**Render** (cel mai simplu, direct din depozitul GitHub). Cost orientativ în octombrie 2026: aproximativ 7 USD pe lună pentru serviciu (0,5 CPU, 512 MB) și aproximativ 0,25 USD pe lună pentru discul de 1 GB; Render cere un card bancar. Verificați prețul curent pe [render.com/pricing](https://render.com/pricing) înainte de a confirma.
 
-1. Pe [render.com](https://render.com): **New → Blueprint**, alegeți depozitul. Fișierul `render.yaml` configurează serviciul, discul de 1 GB la `/var/data` și variabilele.
-2. Când vi se cere, introduceți `ADMIN_PASSWORD` (minimum 10 caractere).
-3. După publicare, intrați la `https://NUME-SERVICIU.onrender.com/admin/`.
+1. Depozitul GitHub trebuie să conțină versiunea curentă a proiectului, inclusiv fișierul `render.yaml` din rădăcină.
+2. Deschideți `https://render.com/deploy?repo=https://github.com/NUME-UTILIZATOR/NUME-DEPOZIT` (cu adresa depozitului dumneavoastră) sau, în Render, **New → Blueprint** și alegeți depozitul. Vă autentificați cu contul GitHub sau cu e-mail. Depozitele private cer instalarea aplicației Render pentru GitHub.
+3. Render afișează serviciul `dgaefe-site` (Web Service, regiunea Frankfurt, 0,5 CPU / 512 MB, disc de 1 GB). Completați `ADMIN_PASSWORD` (minimum 10 caractere; cu ea veți intra în administrare) și adăugați cardul când vi se cere.
+4. Confirmați cu butonul de la finalul paginii (de obicei **Deploy Blueprint**). Prima construire durează 3–5 minute, apoi starea serviciului devine **Live**.
+5. Deschideți adresa serviciului (de forma `https://dgaefe-site.onrender.com`, afișată în partea de sus a paginii serviciului) și intrați la `/admin/` cu utilizatorul `admin` și parola de la pasul 3. Schimbați apoi parola din „Cont și parolă”.
+6. Opțional, adresă proprie: în Render, **Settings → Custom Domains**.
 
-Discurile persistente sunt disponibile doar pentru servicii cu plan plătit, iar un serviciu cu disc nu poate rula pe mai multe instanțe. Verificați planul și prețul curent pe Render înainte de a confirma. Pe un plan fără disc, administrarea ar funcționa, dar modificările s-ar pierde. Serviciul se poate crea și manual (Web Service, `npm ci` / `npm start`, variabilele din secțiunea 6, un Disk montat la `/var/data`). Alte platforme cu volume persistente (Railway, Fly.io) funcționează după același model.
+Ce trebuie știut despre Render:
+
+- Discurile persistente sunt disponibile doar pentru servicii cu plan plătit, iar un serviciu cu disc nu poate rula pe mai multe instanțe. Pe planul gratuit administrarea ar funcționa, dar modificările s-ar pierde la fiecare repornire (serviciul gratuit adoarme după 15 minute fără vizite).
+- Discul se poate mări ulterior din pagina serviciului, dar nu se poate micșora.
+- La o reînnoire a serviciului (de exemplu după o modificare trimisă pe GitHub) site-ul este indisponibil câteva secunde. Conținutul din panou rămâne pe disc.
+- Regiunea (Frankfurt) nu se mai poate schimba după crearea serviciului.
+- `TRUST_PROXY=render` (deja setat în `render.yaml`) este necesar: Render trimite vizitatorii printr-un lanț de proxy-uri, iar fără această setare toți vizitatorii ar apărea cu aceeași adresă, deci câteva parole greșite ale unor roboți ar bloca temporar autentificarea tuturor.
+- Pe Render, adresa de pe GitHub Pages (dacă o folosiți) **nu se actualizează singură** cu ce editați în panou. Alegeți una dintre adrese ca pagină oficială. Dacă nu mai doriți versiunea de pe GitHub Pages, dezactivați fluxul „Publică pe GitHub Pages” din fila Actions a depozitului.
+- Faceți periodic o copie de siguranță din panou („Publicare și copii”).
+
+Serviciul se poate crea și manual (Web Service, `npm ci` / `npm start`, variabilele din secțiunea 6, un Disk montat la `/var/data`). Alte platforme cu volume persistente (Railway, Fly.io) funcționează după același model, cu `TRUST_PROXY=1`.
 
 **Docker** (pe orice server):
 
@@ -214,7 +227,7 @@ Se setează în mediul de execuție (panoul găzduirii, `docker-compose.yml`) sa
 | `DATA_DIR` | `storage/` din proiect | Folderul datelor (conținut, fișiere încărcate, conturi). Pe găzduire: un folder de pe discul persistent |
 | `ADMIN_USER` | `admin` | Numele primului cont, doar la prima pornire |
 | `ADMIN_PASSWORD` | generată și afișată în consolă | Parola primului cont (minimum 10 caractere), doar la prima pornire |
-| `TRUST_PROXY` | gol | Setați `1` în spatele unui proxy cu HTTPS. Fără el, cookie-ul de sesiune nu este marcat „Secure”, iar limitarea încercărilor de autentificare se aplică proxy-ului |
+| `TRUST_PROXY` | gol | Setați `1` în spatele unui proxy cu HTTPS (nginx, Caddy, Railway, Fly.io) și `render` pe Render. Fără el, cookie-ul de sesiune nu este marcat „Secure”, iar limitarea încercărilor de autentificare se aplică proxy-ului, nu fiecărui vizitator |
 | `COOKIE_SECURE` | automat | `true` / `false` forțează sau dezactivează atributul „Secure” al cookie-ului |
 | `SESSION_HOURS` | `8` | Durata sesiunii de administrare |
 | `MAX_IMAGE_MB` | `15` | Dimensiunea maximă a unei fotografii |

@@ -7,6 +7,7 @@ const cfg = require('./lib/config');
 const store = require('./lib/store');
 const auth = require('./lib/auth');
 const { buildApi } = require('./lib/api');
+const { trustProxySetting } = require('./lib/proxy');
 
 const NOT_FOUND = `<!doctype html><html lang="ro"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagina nu a fost găsită</title>
 <body style="font:18px/1.6 system-ui,sans-serif;max-width:36em;margin:15vh auto;padding:0 24px;color:#1b2535"><h1 style="font-size:1.6rem">Pagina nu a fost găsită</h1><p>Adresa nu există sau a fost mutată.</p><p><a href="/">Înapoi la prima pagină</a></p></body></html>`;
@@ -17,10 +18,8 @@ function createApp() {
 
   const app = express();
   app.disable('x-powered-by');
-  if (cfg.TRUST_PROXY) {
-    const v = cfg.TRUST_PROXY;
-    app.set('trust proxy', /^\d+$/.test(v) ? Number(v) : v === 'true' ? 1 : v);
-  }
+  const trust = trustProxySetting(cfg.TRUST_PROXY);
+  if (trust !== false) app.set('trust proxy', trust);
 
   app.use(
     helmet({

@@ -1,25 +1,36 @@
-# Model pentru găzduirea pe Render (https://render.com): New > Blueprint > alegeți depozitul GitHub.
-# Discul persistent este obligatoriu, altfel conținutul introdus din panou se pierde la fiecare reînnoire,
-# iar discurile persistente sunt disponibile doar pentru servicii cu plan plătit.
-# Verificați planul și prețul curent în panoul Render înainte de a confirma.
+# Model pentru găzduirea pe Render (https://render.com): New > Blueprint > alegeți depozitul GitHub
+# (sau deschideți https://render.com/deploy?repo=ADRESA-DEPOZITULUI-GITHUB).
+#
+# Cost orientativ (octombrie 2026): serviciul de 0,5 CPU / 512 MB costă aproximativ 7 USD pe lună,
+# iar discul de 1 GB aproximativ 0,25 USD pe lună. Verificați prețul curent pe Render înainte de a confirma.
+# Discul persistent este obligatoriu: fără el, tot ce se introduce din panou se pierde la fiecare reînnoire.
+# Discurile persistente sunt disponibile doar pentru servicii cu plan plătit (nu pentru planul gratuit).
 services:
   - type: web
     name: dgaefe-site
     runtime: node
+    # Frankfurt este cea mai apropiată regiune de Moldova. Regiunea nu se mai poate schimba după creare.
+    region: frankfurt
     plan: 0.5c-512mb
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /healthz
+    # La fiecare modificare trimisă pe GitHub, serviciul se reînnoiește singur (durează câteva zeci de secunde).
+    # Datele din panou nu se pierd: ele sunt pe disc. Pentru a opri reînnoirea automată, schimbați în „off”.
+    autoDeployTrigger: commit
     envVars:
       - key: NODE_VERSION
         value: "22"
       - key: DATA_DIR
         value: /var/data
+      # Render trimite vizitatorii printr-un lanț de proxy-uri (Cloudflare și servere interne).
+      # Valoarea „render” face ca aplicația să rețină adresa reală a vizitatorului și să marcheze cookie-ul „Secure”.
       - key: TRUST_PROXY
-        value: "1"
+        value: render
       - key: ADMIN_USER
         value: admin
       # Se cere o singură dată, la crearea serviciului (minimum 10 caractere). Nu o scrieți în acest fișier.
+      # Este folosită doar la prima pornire; după aceea parola se schimbă din panou (Cont și parolă).
       - key: ADMIN_PASSWORD
         sync: false
     disk:
