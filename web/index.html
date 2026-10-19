@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Direcția Generală Asistență Externă și Fonduri Europene | Cancelaria de Stat</title>
 <meta name="description" content="Acte normative, rapoarte privind asistența externă, programe de cooperare Interreg 2021–2027, evenimente și galerie foto ale Direcției Generale Asistență Externă și Fonduri Europene din cadrul Cancelariei de Stat a Republicii Moldova.">
-<meta name="theme-color" content="#0E4C90">
+<meta name="theme-color" content="#063295">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Direcția Generală Asistență Externă și Fonduri Europene">
 <meta property="og:description" content="Cancelaria de Stat a Republicii Moldova">
 <link rel="icon" href="assets/img/gov-logo.svg" type="image/svg+xml">
-<link rel="preload" href="assets/fonts/literata-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/atkinson-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/raleway-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/raleway-latin-ext.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/roboto-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/roboto-latin-ext.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
@@ -36,39 +38,36 @@
   </div>
 </div>
 
-<header class="masthead">
+<header class="masthead" id="masthead">
   <div class="wrap masthead-in">
-    <a class="brand" href="#top" aria-label="Prima pagină a direcției">
+    <a class="brand" href="#" aria-label="Prima pagină a direcției">
       <img class="brand-logo" src="assets/img/gov-logo.svg" alt="Stema Guvernului Republicii Moldova" width="58" height="67">
       <span class="brand-text">
         <span class="brand-parent" id="brandParent">Cancelaria de Stat a Republicii Moldova</span>
         <span class="brand-name" id="brandName">Direcția Generală Asistență Externă și Fonduri Europene</span>
       </span>
     </a>
-    <button class="search-open" id="openSearch" type="button" aria-haspopup="dialog">
-      <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span>Căutare</span><kbd id="kbdHint">Ctrl K</kbd>
+    <nav class="mainnav" id="mainnav" aria-label="Meniu principal">
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navList">
+        <svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg><span>Meniu</span>
+      </button>
+      <ul id="navList">
+        <li><a href="#noutati">Noutăți</a></li>
+        <li><a href="#despre">Despre</a></li>
+        <li><a href="#cadrul-legal">Cadrul legal</a></li>
+        <li><a href="#cooperare-externa">Cooperare</a></li>
+        <li><a href="#programe">Programe</a></li>
+        <li><a href="#documente">Documente</a></li>
+        <li><a href="#evenimente">Evenimente</a></li>
+        <li><a href="#galerie">Galerie</a></li>
+        <li><a href="#contacte">Contacte</a></li>
+      </ul>
+    </nav>
+    <button class="search-open" id="openSearch" type="button" aria-haspopup="dialog" title="Căutare în pagină">
+      <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">Căutare</span><kbd class="sr" id="kbdHint"></kbd>
     </button>
   </div>
 </header>
-
-<nav class="mainnav" id="mainnav" aria-label="Meniu principal">
-  <div class="wrap mainnav-in">
-    <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navList">
-      <svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg><span>Meniu</span>
-    </button>
-    <ul id="navList">
-      <li><a href="#noutati">Noutăți</a></li>
-      <li><a href="#despre">Despre direcție</a></li>
-      <li><a href="#cadrul-legal">Cadrul legal</a></li>
-      <li><a href="#cooperare-externa">Cooperare externă</a></li>
-      <li><a href="#programe">Programe</a></li>
-      <li><a href="#documente">Documente</a></li>
-      <li><a href="#evenimente">Evenimente</a></li>
-      <li><a href="#galerie">Galerie foto</a></li>
-      <li><a href="#contacte">Contacte</a></li>
-    </ul>
-  </div>
-</nav>
 
 <main id="main">
   <noscript><div class="wrap"><p class="notice">Pentru a vedea conținutul acestei pagini este necesar JavaScript.</p></div></noscript>
@@ -271,9 +270,10 @@
         <div><h2 id="h-contact">Contacte</h2><p>Cancelaria de Stat, Casa Guvernului. Pentru petiții, cereri și audiențe folosiți adresa dedicată.</p></div>
         <p class="src">Sursa: <a href="https://gov.md/ro/contacte" target="_blank" rel="noopener">gov.md/ro/contacte</a></p>
       </header>
+      <div class="contact-map" id="contactMap" hidden></div>
       <div class="contact">
-        <div class="panel" id="contactInfo"></div>
-        <form class="panel form" id="contactForm" novalidate>
+        <div class="cinfo" id="contactInfo"></div>
+        <form class="form" id="contactForm" novalidate>
           <h3>Scrieți-ne</h3>
           <p class="panel-intro">Completați formularul, iar mesajul se va deschide gata scris în aplicația dvs. de e-mail.</p>
           <div class="frow">
@@ -350,7 +350,7 @@
   </div>
 </footer>
 
-<button class="totop" id="toTop" type="button" aria-label="Înapoi sus"><svg class="ico" aria-hidden="true"><use href="#i-chev-u"/></svg></button>
+<button class="totop" id="toTop" type="button" aria-label="Înapoi sus"><svg class="ico" aria-hidden="true"><use href="#i-arrow-u"/></svg></button>
 
 <dialog class="dlg news-dlg" id="newsDlg" aria-labelledby="newsDlgTitle"></dialog>
 

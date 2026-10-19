@@ -23,7 +23,7 @@ Conținutul de pornire provine din paginile oficiale [gov.md](https://gov.md) (c
 
 ## 1. Ce conține
 
-**Pagina publică** (`/`): stil instituțional, cu sigla Guvernului, bară de accesibilitate (mărire text, contrast ridicat) și secțiunile Noutăți, Despre direcție, Cadrul legal, Cooperare externă, Programe, Documente (cu filtre și căutare), Evenimente, **Galerie foto** (cu vizualizare mărită) și Contacte, plus căutare în tot conținutul (`Ctrl + K`).
+**Pagina publică** (`/`): stil instituțional (albastru regal, bandă de prezentare cu titlu mare, secțiuni alternate alb / gri deschis, carduri cu margine albastră, cronologie la evenimente), cu sigla Guvernului, bară de accesibilitate (mărire text, contrast ridicat) și secțiunile Noutăți, Despre direcție, Cadrul legal, Cooperare externă, Programe, Documente (cu filtre și căutare), Evenimente, **Galerie foto** (cu vizualizare mărită) și Contacte, plus căutare în tot conținutul (`Ctrl + K`).
 
 **Panoul de administrare** (`/admin/`): autentificare cu utilizator și parolă, apoi:
 
@@ -268,7 +268,7 @@ lib/                   logica serverului: api.js (rutele de administrare), auth.
                        public.js (datele publice), static-site.js (versiunea statică), audit.js, config.js
 web/index.html         pagina publică
 web/admin/             panoul de administrare (index.html)
-web/assets/            css/, js/ (site.js, common.js, admin-*.js), fonts/ (Literata, Atkinson), img/ (sigla)
+web/assets/            css/, js/ (site.js, common.js, admin-*.js), fonts/ (Raleway, Roboto), img/ (sigla)
 seed/                  conținutul de pornire (copiat în DATA_DIR la prima pornire)
 scripts/               build-static.js (versiunea statică), set-password.js (resetarea parolei)
 test/                  teste automate
@@ -303,6 +303,6 @@ Cele peste 25 de teste automate pornesc serverul cu un folder de date temporar �
 
 - **Conținut:** paginile oficiale [gov.md](https://gov.md), disponibile sub licența [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.ro) (atribuire, distribuire în condiții identice). Mențiunea apare în subsolul paginii; păstrați-o.
 - **Sigla:** emblema Guvernului Republicii Moldova (fișier furnizat de beneficiar); drepturile aparțin Guvernului.
-- **Fonturi:** [Literata](https://fonts.google.com/specimen/Literata) și [Atkinson Hyperlegible Next](https://www.brailleinstitute.org/freefont/), ambele sub licența SIL Open Font License 1.1 (textele licențelor sunt în `web/assets/fonts/`).
+- **Fonturi:** [Raleway](https://fonts.google.com/specimen/Raleway) (titluri, meniu, butoane) și [Roboto](https://fonts.google.com/specimen/Roboto) (text), ambele sub licența SIL Open Font License 1.1 (textele licențelor sunt în `web/assets/fonts/`). Fișierele se servesc din proiect; pagina nu se conectează la Google Fonts.
 - **Dependențe:** Express, helmet, compression, multer, express-rate-limit, bcryptjs, archiver, fiecare cu licența proprie (MIT sau similară).
 - **Codul aplicației:** nu are o licență alocată (`UNLICENSED` în `package.json`). Dacă îl publicați într-un depozit public și doriți să permiteți reutilizarea, adăugați un fișier `LICENSE`.

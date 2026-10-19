@@ -113,11 +113,18 @@
   }
 
   /* ================= Prezentare ================= */
+  // Ultimele două cuvinte ale titlului se scriu cu galben (ca pe ie.mf.gov.md); un titlu foarte scurt rămâne alb.
+  function heroTitleHtml(t) {
+    var w = String(t || '').trim().split(/\s+/).filter(Boolean);
+    if (w.length < 4) return esc(w.join(' '));
+    return esc(w.slice(0, -2).join(' ')) + ' <span class="h1-b">' + esc(w.slice(-2).join(' ')) + '</span>';
+  }
+
   function renderIntro() {
     var s = D.settings;
     $('#brandName').textContent = s.orgName;
     $('#brandParent').textContent = s.parentName;
-    $('#introTitle').textContent = s.heroTitle || s.orgName;
+    $('#introTitle').innerHTML = heroTitleHtml(s.heroTitle || s.orgName);
     $('#introLead').textContent = s.heroLead || '';
     document.title = s.orgName + ' | ' + s.parentName;
     var q = s.quickLinks || [];
@@ -217,7 +224,7 @@
     $('#aboutText').innerHTML = (s.aboutP1 ? '<p>' + esc(s.aboutP1) + '</p>' : '') + (s.aboutP2 ? '<p>' + esc(s.aboutP2) + '</p>' : '') +
       '<div class="about-cta"><a class="btn btn-primary" href="#cadrul-legal">Vezi cadrul legal</a><a class="btn btn-line" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">Platforma AMP ' + ico('ext') + '</a></div>';
     $('#dutiesList').innerHTML = (s.duties || []).map(function (d) {
-      return '<li><div><h4>' + esc(d.title) + '</h4><p>' + esc(d.text) + '</p></div></li>';
+      return '<li>' + ico('check-circle') + '<div><h4>' + esc(d.title) + '</h4><p>' + esc(d.text) + '</p></div></li>';
     }).join('');
   }
 
@@ -535,13 +542,18 @@
     var c = D.settings.contact || {};
     var emails = c.emails || [];
     contactTo = c.mailTo || (emails[0] && emails[0].addr) || '';
-    $('#contactInfo').innerHTML = '<div class="cinfo"><dl>' +
-      (c.address ? '<dt>' + ico('pin') + 'Adresa</dt><dd>' + esc(c.address) + '</dd>' : '') +
-      ((c.phones && c.phones.length) ? '<dt>' + ico('phone') + 'Telefon</dt><dd class="phones">' + c.phones.map(function (p) { return '<a href="' + esc(telHref(p)) + '">' + esc(p) + '</a>'; }).join('') + '</dd>' : '') +
-      (emails.length ? '<dt>' + ico('mail') + 'E-mail</dt><dd>' + emails.map(function (m) { return '<a href="mailto:' + esc(m.addr) + '">' + esc(m.addr) + '</a>' + (m.note ? ' (' + esc(m.note) + ')' : ''); }).join('<br>') + '</dd>' : '') +
-      (c.hotlinePhone ? '<dt>' + ico('shield') + 'Linia anticorupție</dt><dd><a href="' + esc(telHref(c.hotlinePhone)) + '">' + esc(c.hotlinePhone) + '</a>' + (c.hotlineHours ? ', ' + esc(c.hotlineHours) : '') + '</dd>' : '') +
-      '</dl>' + (c.mapEmbed ? '<iframe class="map" title="Harta: sediul Cancelariei de Stat, Chișinău" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="' + esc(c.mapEmbed) + '"></iframe>' : '') +
-      (c.mapLink ? '<a class="maplink" href="' + esc(c.mapLink) + '" target="_blank" rel="noopener">Deschide în Google Maps ' + ico('ext') + '</a>' : '') + '</div>';
+    // Fiecare rând: pătrat albastru cu pictogramă, titlu și text (ca pe ie.mf.gov.md).
+    function item(icon, title, body) {
+      return '<div class="ci"><span class="ci-ico">' + ico(icon) + '</span><div class="ci-body"><p class="ci-t">' + title + '</p>' + body + '</div></div>';
+    }
+    $('#contactInfo').innerHTML =
+      (c.address ? item('pin', 'Adresa', '<p>' + esc(c.address) + '</p>' + (c.mapLink ? '<p><a class="maplink" href="' + esc(c.mapLink) + '" target="_blank" rel="noopener">Deschide în Google Maps ' + ico('ext') + '</a></p>' : '')) : '') +
+      ((c.phones && c.phones.length) ? item('phone', 'Telefon', '<p class="phones">' + c.phones.map(function (p) { return '<a href="' + esc(telHref(p)) + '">' + esc(p) + '</a>'; }).join('') + '</p>') : '') +
+      (emails.length ? item('mail', 'E-mail', '<p>' + emails.map(function (m) { return '<a href="mailto:' + esc(m.addr) + '">' + esc(m.addr) + '</a>' + (m.note ? ' (' + esc(m.note) + ')' : ''); }).join('<br>') + '</p>') : '') +
+      (c.hotlinePhone ? item('shield', 'Linia anticorupție', '<p><a href="' + esc(telHref(c.hotlinePhone)) + '">' + esc(c.hotlinePhone) + '</a>' + (c.hotlineHours ? ', ' + esc(c.hotlineHours) : '') + '</p>') : '');
+    var map = $('#contactMap');
+    map.hidden = !c.mapEmbed;
+    map.innerHTML = c.mapEmbed ? '<iframe class="map" title="Harta: sediul Cancelariei de Stat, Chișinău" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="' + esc(c.mapEmbed) + '"></iframe>' : '';
     $('#toAddr').textContent = contactTo;
     $('#contactForm').hidden = !contactTo;
   }

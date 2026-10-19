@@ -174,6 +174,8 @@
     'chev-r': '<path d="m9 18 6-6-6-6"/>',
     'chev-d': '<path d="m6 9 6 6 6-6"/>',
     'chev-u': '<path d="m18 15-6-6-6 6"/>',
+    'arrow-u': '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+    'check-circle': '<circle cx="12" cy="12" r="10"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>',
     history: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
     home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
     lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
