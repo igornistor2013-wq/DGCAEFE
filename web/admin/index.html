@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0E4C90">
+<title>Administrare | Direcția Generală Asistență Externă și Fonduri Europene</title>
+<link rel="icon" href="../assets/img/gov-logo.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/literata-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/atkinson-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+
+<noscript><p class="noscript">Panoul de administrare funcționează doar cu JavaScript activat în browser.</p></noscript>
+
+<div class="boot" id="boot" role="status">Se încarcă…</div>
+
+<!-- ================= Autentificare ================= -->
+<div class="login" id="loginView" hidden>
+  <div class="flagstrip" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="login-box">
+    <div class="login-card">
+      <img class="login-logo" src="../assets/img/gov-logo.svg" alt="" width="64" height="64">
+      <p class="login-org">Cancelaria de Stat a Republicii Moldova</p>
+      <h1>Administrare</h1>
+      <p class="login-sub">Direcția Generală Asistență Externă și Fonduri Europene</p>
+
+      <form id="loginForm" novalidate>
+        <div class="fld">
+          <label for="lUser">Utilizator</label>
+          <input id="lUser" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+        </div>
+        <div class="fld">
+          <label for="lPass">Parolă</label>
+          <div class="pw">
+            <input id="lPass" name="password" type="password" autocomplete="current-password" required>
+            <button type="button" id="lShow" aria-pressed="false" aria-controls="lPass">Arată</button>
+          </div>
+        </div>
+        <p class="alert alert-error" id="lErr" role="alert" hidden></p>
+        <button class="btn btn-primary btn-block" id="lBtn" type="submit">Autentificare</button>
+      </form>
+
+      <p class="login-foot"><a href="../">← Înapoi la pagina publică</a></p>
+    </div>
+    <p class="login-note">Accesul este rezervat administratorilor. Activitatea este înregistrată.</p>
+  </div>
+</div>
+
+<!-- ================= Aplicația ================= -->
+<div class="app" id="app" hidden>
+  <a class="skip" href="#main">Salt la conținut</a>
+  <div class="flagstrip" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="topbar">
+    <button type="button" class="icon-btn menu-btn" id="menuBtn" aria-label="Meniu" aria-expanded="false" aria-controls="side">
+      <svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg>
+    </button>
+    <a class="tb-brand" href="#/">
+      <img src="../assets/img/gov-logo.svg" alt="" width="36" height="36">
+      <span class="tb-text"><strong>Administrare</strong><small id="tbOrg">Direcția Generală Asistență Externă și Fonduri Europene</small></span>
+    </a>
+    <div class="tb-right">
+      <a class="btn btn-line btn-sm tb-view" href="../" target="_blank" rel="noopener"><svg class="ico" aria-hidden="true"><use href="#i-ext"/></svg><span>Vezi pagina publică</span></a>
+      <span class="tb-user"><svg class="ico" aria-hidden="true"><use href="#i-user"/></svg><span id="tbUser"></span></span>
+      <button type="button" class="btn btn-ghost btn-sm" id="logoutBtn"><svg class="ico" aria-hidden="true"><use href="#i-logout"/></svg><span>Ieșire</span></button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="side" id="side" aria-label="Secțiuni de administrare">
+      <ul>
+        <li><a href="#/" data-page=""><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg>Panou de control</a></li>
+      </ul>
+      <p class="side-h" id="sideH1">Conținut</p>
+      <ul aria-labelledby="sideH1">
+        <li><a href="#/news" data-page="news"><svg class="ico" aria-hidden="true"><use href="#i-news"/></svg>Știri</a></li>
+        <li><a href="#/documents" data-page="documents"><svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>Documente</a></li>
+        <li><a href="#/gallery" data-page="gallery"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg>Galerie foto</a></li>
+        <li><a href="#/events" data-page="events"><svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg>Evenimente</a></li>
+        <li><a href="#/legal" data-page="legal"><svg class="ico" aria-hidden="true"><use href="#i-scale"/></svg>Cadrul legal</a></li>
+        <li><a href="#/programs" data-page="programs"><svg class="ico" aria-hidden="true"><use href="#i-orbit"/></svg>Programe</a></li>
+        <li><a href="#/texts" data-page="texts"><svg class="ico" aria-hidden="true"><use href="#i-sliders"/></svg>Texte pagină</a></li>
+      </ul>
+      <p class="side-h" id="sideH2">Sistem</p>
+      <ul aria-labelledby="sideH2">
+        <li><a href="#/export" data-page="export"><svg class="ico" aria-hidden="true"><use href="#i-database"/></svg>Publicare și copii</a></li>
+        <li><a href="#/audit" data-page="audit"><svg class="ico" aria-hidden="true"><use href="#i-history"/></svg>Jurnal de activitate</a></li>
+        <li><a href="#/account" data-page="account"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg>Cont și parolă</a></li>
+      </ul>
+    </nav>
+    <div class="side-shade" id="sideShade" hidden></div>
+
+    <main class="main" id="main" tabindex="-1"></main>
+  </div>
+</div>
+
+<!-- ================= Dialoguri ================= -->
+<dialog class="dlg" id="recordDlg" aria-labelledby="recTitle">
+  <div class="dlg-head">
+    <h2 id="recTitle"></h2>
+    <button type="button" class="icon-btn" id="recClose" aria-label="Închide"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <form class="dlg-form" id="recForm" novalidate>
+    <div class="dlg-body" id="recBody"></div>
+    <div class="dlg-foot">
+      <button type="button" class="btn btn-danger" id="recDelete" hidden><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>Șterge</button>
+      <span class="grow"></span>
+      <button type="button" class="btn btn-line" id="recCancel">Anulează</button>
+      <button type="submit" class="btn btn-primary" id="recSave">Salvează</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dlg dlg-sm" id="askDlg" aria-labelledby="askTitle">
+  <div class="dlg-head">
+    <h2 id="askTitle"></h2>
+    <button type="button" class="icon-btn" id="askClose" aria-label="Închide"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <form class="dlg-form" id="askForm" novalidate>
+    <div class="dlg-body" id="askBody"></div>
+    <div class="dlg-foot">
+      <span class="grow"></span>
+      <button type="button" class="btn btn-line" id="askCancel">Anulează</button>
+      <button type="submit" class="btn btn-primary" id="askOk">Aplică</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dlg dlg-sm" id="confirmDlg" aria-labelledby="cfTitle" aria-describedby="cfMsg">
+  <form class="dlg-form" method="dialog">
+    <div class="dlg-body">
+      <h2 id="cfTitle"></h2>
+      <p id="cfMsg"></p>
+    </div>
+    <div class="dlg-foot">
+      <span class="grow"></span>
+      <button type="submit" value="cancel" class="btn btn-line" id="cfCancel">Anulează</button>
+      <button type="submit" value="ok" class="btn btn-primary" id="cfOk">Confirmă</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dlg dlg-sm" id="reauthDlg" aria-labelledby="raTitle" aria-describedby="raMsg">
+  <form class="dlg-form" id="raForm" novalidate>
+    <div class="dlg-body">
+      <h2 id="raTitle">Sesiunea a expirat</h2>
+      <p id="raMsg">Din motive de securitate ați fost deconectat. Introduceți din nou parola ca să continuați — ce ați completat nu se pierde.</p>
+      <div class="fld">
+        <label for="raUser">Utilizator</label>
+        <input id="raUser" type="text" autocomplete="username" readonly>
+      </div>
+      <div class="fld">
+        <label for="raPass">Parolă</label>
+        <input id="raPass" type="password" autocomplete="current-password" required>
+      </div>
+      <p class="alert alert-error" id="raErr" role="alert" hidden></p>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn btn-line" id="raCancel">Ieșire</button>
+      <span class="grow"></span>
+      <button type="submit" class="btn btn-primary" id="raOk">Autentificare</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="../assets/js/common.js" defer></script>
+<script src="../assets/js/admin-core.js" defer></script>
+<script src="../assets/js/admin-forms.js" defer></script>
+<script src="../assets/js/admin-pages.js" defer></script>
+<script src="../assets/js/admin-system.js" defer></script>
+<script src="../assets/js/admin.js" defer></script>
+</body>
+</html>

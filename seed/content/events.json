@@ -1,0 +1,147 @@
+[
+  {
+    "id": "ev-urbact-info",
+    "prog": "URBACT",
+    "start": "2025-05-05",
+    "end": "",
+    "pub": "2025-04-24",
+    "time": "10:00",
+    "place": "Casa Guvernului, sala de ședințe, etajul 1, Chișinău",
+    "title": "Sesiune de informare dedicată Apelului pentru Rețelele de Transfer URBACT",
+    "summary": "Cancelaria de Stat, în calitate de Autoritate Națională și Punct Național de Contact URBACT, a prezentat apelul potențialilor beneficiari și tuturor celor implicați în dezvoltarea urbană sustenabilă.",
+    "details": [
+      "Apelul pentru Rețelele de Transfer URBACT IV a fost deschis între 1 aprilie și 30 iunie 2025.",
+      "Se adresează orașelor, municipiilor, agențiilor locale, sectoarelor și autorităților metropolitane, precum și universităților, centrelor de cercetare și autorităților regionale sau naționale implicate în dezvoltarea urbană."
+    ],
+    "links": [
+      {
+        "t": "Formularul de înregistrare",
+        "u": "https://docs.google.com/forms/d/10wbo_keMEeydMEz3n1a3ee7VxVtruCmeAqZ1egRym-k/viewform"
+      }
+    ],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "ev-urbact-call",
+    "prog": "URBACT",
+    "start": "2025-04-01",
+    "end": "2025-06-30",
+    "pub": "2025-04-02",
+    "time": "",
+    "place": "Apel online",
+    "title": "Apel deschis pentru orașele din Moldova: Rețele de Transfer URBACT",
+    "summary": "Orașele din Republica Moldova au putut accesa sprijin financiar și expertiză pentru a prelua soluții inovatoare din alte orașe europene și a-și îmbunătăți politicile locale.",
+    "details": [
+      "Bugetul total al unei rețele este de 750.000 EUR, cu o alocare suplimentară de 120.000 EUR pentru expertiză externă.",
+      "Pentru orașele din Moldova, cofinanțarea poate ajunge până la 95% prin fondurile NDICI."
+    ],
+    "links": [
+      {
+        "t": "Cum vă implicați, pe urbact.eu",
+        "u": "https://urbact.eu/get-involved"
+      }
+    ],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "ev-urbact-gender",
+    "prog": "URBACT",
+    "start": "2025-02-01",
+    "end": "2025-03-31",
+    "pub": "2025-02-10",
+    "time": "",
+    "place": "Online",
+    "title": "Două inițiative URBACT pentru egalitatea de gen în politicile locale",
+    "summary": "Un curs online și un webinar pentru autorități publice, experți și practicieni urbani interesați de soluții incluzive și sustenabile.",
+    "details": [
+      "Cursul online „Orașe egale de gen”: cinci module despre integrarea perspectivei de gen în planificarea urbană, cu sesiuni bilunare. Rezervat beneficiarilor URBACT din Rețelele de Planificare a Acțiunilor și Rețelele de Transfer al Inovației. Înscrieri până la 28 februarie 2025; certificat pentru cei care finalizează cel puțin patru module.",
+      "Webinarul „Mobilitatea incluzivă de gen în orașe”: 5 martie 2025, 14:00–15:30 CET, deschis tuturor celor interesați de mobilitatea urbană.",
+      "Inițiativele pornesc de la rapoartele URBACT privind egalitatea de gen în orașe (2019, 2022)."
+    ],
+    "links": [
+      {
+        "t": "Înscriere la curs",
+        "u": "https://forms.office.com/pages/responsepage.aspx?id=obcUcqOfhUCV2nxSQJYI7Y69SnkGbWZNgVxyUfZpLJ5UOTJQVDZIRUlHWDRXQzExVkU5TTg4SFNUQyQlQCN0PWcu&route=shorturl"
+      },
+      {
+        "t": "urbact.eu",
+        "u": "https://urbact.eu/"
+      }
+    ],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "ev-citylab",
+    "prog": "URBACT",
+    "start": "2024-10-23",
+    "end": "2024-10-24",
+    "pub": "",
+    "time": "",
+    "place": "Milano, Italia",
+    "title": "EU City Lab on Land Strategies to Feed the City",
+    "summary": "Laborator european dedicat strategiilor funciare pentru aprovizionarea cu alimente a orașelor.",
+    "details": [],
+    "links": [
+      {
+        "t": "Prezentarea evenimentului (PDF)",
+        "u": "https://gov.md/sites/default/files/Filepdf/eu_city_lab_on_land_strategies_to_feed_the_city1.pdf"
+      },
+      {
+        "t": "Programul evenimentului (PDF)",
+        "u": "https://gov.md/sites/default/files/Filepdf/eu_city_lab_milan_-_public_programme.pdf"
+      }
+    ],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "ev-bike",
+    "prog": "Regiunea Dunărea",
+    "start": "2024-09-18",
+    "end": "2024-10-23",
+    "pub": "2024-10-04",
+    "time": "",
+    "place": "Sondaj online",
+    "title": "Studiu privind turismul pe bicicletă 2024",
+    "summary": "Un sondaj anonim de circa 10 minute despre experiențele de cicloturism și folosirea transportului public pentru distanțe lungi, cu accent pe Regiunea Dunării.",
+    "details": [
+      "Realizat de Federația Europeană a Bicicliștilor, în cadrul inițiativei EuroVelo, ca parte a proiectului Interreg Regiunea Dunării Active2Public Transport, cofinanțat de UE.",
+      "Răspunsurile sunt confidențiale și sunt folosite doar pentru analize agregate."
+    ],
+    "links": [
+      {
+        "t": "Sondajul",
+        "u": "https://eucyclistsfed.questionpro.com/a/TakeSurvey?tt=FFSxQ5YVrkoECHrPeIW9eQ%3D%3D"
+      }
+    ],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "ev-ie-forum",
+    "prog": "Interreg Europe",
+    "start": "",
+    "end": "",
+    "pub": "2024-03-12",
+    "time": "",
+    "place": "Anvers, Belgia",
+    "title": "Forumul de cooperare interregională Interreg Europe „Europa, hai să cooperăm!”",
+    "summary": "Forumul a marcat extinderea programului Interreg Europe către șapte țări noi, până la 36 de țări, și lansarea celui de-al treilea apel pentru propuneri de proiecte.",
+    "details": [
+      "Prezentarea oportunităților de cofinanțare a proiectelor și a serviciilor Platformei de Învățare a Politicilor.",
+      "Networking pentru identificarea partenerilor de proiect și discuții directe cu secretariatul comun.",
+      "Circa 500 de participanți: factori de decizie naționali, regionali și locali, reprezentanți ai Comisiei Europene și ai altor instituții europene."
+    ],
+    "links": [
+      {
+        "t": "Pagina evenimentului",
+        "u": "https://www.interregeurope.eu/event/europecooperates2024"
+      }
+    ],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  }
+]

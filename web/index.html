@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direcția Generală Asistență Externă și Fonduri Europene | Cancelaria de Stat</title>
+<meta name="description" content="Acte normative, rapoarte privind asistența externă, programe de cooperare Interreg 2021–2027, evenimente și galerie foto ale Direcției Generale Asistență Externă și Fonduri Europene din cadrul Cancelariei de Stat a Republicii Moldova.">
+<meta name="theme-color" content="#0E4C90">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Direcția Generală Asistență Externă și Fonduri Europene">
+<meta property="og:description" content="Cancelaria de Stat a Republicii Moldova">
+<link rel="icon" href="assets/img/gov-logo.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/literata-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Salt la conținut</a>
+
+<div class="adminbar" id="adminbar" hidden></div>
+
+<div class="flagstrip" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<div class="utility">
+  <div class="wrap utility-in">
+    <p class="utility-links">
+      <a href="https://gov.md/ro" target="_blank" rel="noopener">Guvernul Republicii Moldova</a>
+      <a href="https://gov.md/ro/coordonarea-asistentei-externe-si-fonduri-europene" target="_blank" rel="noopener">Pagina pe gov.md</a>
+    </p>
+    <div class="a11y" role="group" aria-label="Opțiuni de afișare">
+      <button type="button" data-fs="-1" aria-label="Micșorează textul">A<span aria-hidden="true">−</span></button>
+      <button type="button" data-fs="0" aria-label="Dimensiunea implicită a textului">A</button>
+      <button type="button" data-fs="1" aria-label="Mărește textul">A<span aria-hidden="true">+</span></button>
+      <button type="button" id="contrastBtn" aria-pressed="false" class="a11y-wide">Contrast ridicat</button>
+    </div>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap masthead-in">
+    <a class="brand" href="#top" aria-label="Prima pagină a direcției">
+      <img class="brand-logo" src="assets/img/gov-logo.svg" alt="Stema Guvernului Republicii Moldova" width="58" height="67">
+      <span class="brand-text">
+        <span class="brand-parent" id="brandParent">Cancelaria de Stat a Republicii Moldova</span>
+        <span class="brand-name" id="brandName">Direcția Generală Asistență Externă și Fonduri Europene</span>
+      </span>
+    </a>
+    <button class="search-open" id="openSearch" type="button" aria-haspopup="dialog">
+      <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span>Căutare</span><kbd id="kbdHint">Ctrl K</kbd>
+    </button>
+  </div>
+</header>
+
+<nav class="mainnav" id="mainnav" aria-label="Meniu principal">
+  <div class="wrap mainnav-in">
+    <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navList">
+      <svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg><span>Meniu</span>
+    </button>
+    <ul id="navList">
+      <li><a href="#noutati">Noutăți</a></li>
+      <li><a href="#despre">Despre direcție</a></li>
+      <li><a href="#cadrul-legal">Cadrul legal</a></li>
+      <li><a href="#cooperare-externa">Cooperare externă</a></li>
+      <li><a href="#programe">Programe</a></li>
+      <li><a href="#documente">Documente</a></li>
+      <li><a href="#evenimente">Evenimente</a></li>
+      <li><a href="#galerie">Galerie foto</a></li>
+      <li><a href="#contacte">Contacte</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main">
+  <noscript><div class="wrap"><p class="notice">Pentru a vedea conținutul acestei pagini este necesar JavaScript.</p></div></noscript>
+  <div class="wrap" id="loadError" hidden></div>
+
+  <!-- PREZENTARE -->
+  <section class="intro" id="top" aria-labelledby="introTitle">
+    <div class="wrap intro-in">
+      <div class="intro-text">
+        <nav class="crumbs" aria-label="Poziția în site">
+          <ol>
+            <li><a href="https://gov.md/ro" target="_blank" rel="noopener">Guvernul Republicii Moldova</a></li>
+            <li>Cancelaria de Stat</li>
+            <li aria-current="page">Asistență externă și fonduri europene</li>
+          </ol>
+        </nav>
+        <h1 id="introTitle"></h1>
+        <p class="lead" id="introLead"></p>
+        <form class="search-box" id="heroSearch" role="search">
+          <label class="sr" for="heroQ">Căutare în toate secțiunile paginii</label>
+          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+          <input id="heroQ" type="search" placeholder="Ex.: URBACT, HG 377/2018, raport 2024" autocomplete="off">
+          <button class="btn btn-primary" type="submit">Caută</button>
+        </form>
+        <div class="quick">
+          <h2 class="quick-title">Acces rapid</h2>
+          <ul id="quickLinks"></ul>
+        </div>
+      </div>
+
+      <div class="intro-orbit">
+        <div class="orbit-card">
+          <h2 class="orbit-title">Programe de cooperare, pe niveluri</h2>
+          <div class="orbit" id="orbit"></div>
+          <div class="orbit-legend" role="group" aria-label="Alegeți nivelul de cooperare" id="orbitLegend"></div>
+          <div class="orbit-info" id="orbitInfo" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOUTĂȚI -->
+  <section class="sec" id="noutati" aria-labelledby="h-noutati">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-noutati">Noutăți</h2><p>Anunțuri, buletine informative și vești despre programele de cooperare și asistența externă.</p></div>
+      </header>
+      <div class="news-grid" id="newsGrid"></div>
+      <p class="more"><button class="btn btn-line" type="button" id="newsMore" hidden>Arată mai multe noutăți</button></p>
+    </div>
+  </section>
+
+  <!-- DESPRE -->
+  <section class="sec sec-alt" id="despre" aria-labelledby="h-despre">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-despre">Despre direcție</h2></div>
+      </header>
+      <div class="about">
+        <div class="about-text" id="aboutText"></div>
+        <div>
+          <h3 class="about-h">Atribuții principale</h3>
+          <ol class="duties" id="dutiesList"></ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CADRUL LEGAL -->
+  <section class="sec" id="cadrul-legal" aria-labelledby="h-legal">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-legal">Cadrul legal</h2><p>Legile și hotărârile de Guvern care reglementează tratatele internaționale, datoria publică și coordonarea asistenței externe. Actele se deschid în Registrul de stat al actelor juridice (legis.md).</p></div>
+        <p class="src">Sursa: <a href="https://gov.md/ro/cadrul-legal" target="_blank" rel="noopener">gov.md/ro/cadrul-legal</a></p>
+      </header>
+      <div class="toolbar">
+        <div class="chips" id="lawChips" role="group" aria-label="Filtrare după tipul actului"></div>
+        <div class="tools">
+          <div class="field-icon">
+            <label class="sr" for="lawQ">Căutare în actele normative</label>
+            <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+            <input class="input" id="lawQ" type="search" placeholder="Număr sau cuvânt din titlu" autocomplete="off">
+          </div>
+          <label class="sr" for="lawSort">Ordonare</label>
+          <select class="select" id="lawSort">
+            <option value="year-desc">Cele mai noi întâi</option>
+            <option value="year-asc">Cele mai vechi întâi</option>
+            <option value="type">După tipul actului</option>
+          </select>
+        </div>
+      </div>
+      <p class="count" id="lawCount" aria-live="polite"></p>
+      <div class="table-wrap">
+        <table class="table legal-table">
+          <caption class="sr">Acte normative</caption>
+          <thead><tr><th scope="col">Act normativ</th><th scope="col">Denumire</th><th scope="col">Domeniu</th><th scope="col"><span class="sr">Acțiuni</span></th></tr></thead>
+          <tbody id="lawBody"></tbody>
+        </table>
+      </div>
+      <div id="planBox"></div>
+    </div>
+  </section>
+
+  <!-- COOPERARE EXTERNĂ -->
+  <section class="sec sec-alt" id="cooperare-externa" aria-labelledby="h-coop">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-coop">Cooperare externă</h2><p>Rapoartele anuale privind asistența externă, acordul de asistență nerambursabilă cu România și platformele de monitorizare a finanțărilor.</p></div>
+        <p class="src">Sursa: <a href="https://gov.md/ro/cooperarea-externa" target="_blank" rel="noopener">gov.md/ro/cooperarea-externa</a></p>
+      </header>
+      <div class="coop">
+        <div class="panel">
+          <h3>Rapoarte anuale privind asistența externă</h3>
+          <p class="panel-intro">Alegeți anul pentru a deschide raportul.</p>
+          <div class="years" role="tablist" aria-label="Anul raportului" id="years"></div>
+          <div class="report-panel" role="tabpanel" id="reportPanel" aria-live="polite"></div>
+        </div>
+        <div class="panel panel-accent" id="acordBox"></div>
+      </div>
+      <div class="platforms">
+        <a class="plat" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">
+          <strong>Platforma pentru gestionarea asistenței externe (AMP) <svg class="ico" aria-hidden="true"><use href="#i-ext"/></svg></strong>
+          <span>Proiectele și finanțările partenerilor de dezvoltare, într-un singur portal.</span>
+        </a>
+        <a class="plat" href="https://gov.md/ro/platforma-de-parteneriat-pentru-moldova" target="_blank" rel="noopener">
+          <strong>Platforma de Parteneriat pentru Moldova <svg class="ico" aria-hidden="true"><use href="#i-ext"/></svg></strong>
+          <span>Documentele reuniunilor dintre Guvern și partenerii internaționali ai Republicii Moldova.</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROGRAME -->
+  <section class="sec" id="programe" aria-labelledby="h-prog">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-prog">Programe de cooperare transfrontalieră, transnațională și interregională</h2><p>Acordurile de finanțare, documentele de program și materialele informative pentru cele cinci programe Interreg 2021–2027 la care participă Republica Moldova.</p></div>
+        <p class="src">Sursa: <a href="https://gov.md/ro/programe-de-cooperare-transfrontaliera-transnationala-si-interregionala" target="_blank" rel="noopener">gov.md</a></p>
+      </header>
+      <div id="auditBox"></div>
+      <div class="prog">
+        <div class="prog-nav" id="progNav" role="tablist" aria-label="Programe" aria-orientation="vertical"></div>
+        <div class="prog-panel" id="progPanel" role="tabpanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCUMENTE -->
+  <section class="sec sec-alt" id="documente" aria-labelledby="h-doc">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-doc">Documente și publicații</h2><p>Toate documentele publicate de direcție, într-un singur loc: rapoarte, acorduri, documente de program, liste și materiale informative.</p></div>
+      </header>
+      <div class="toolbar toolbar-docs">
+        <div class="field-icon grow">
+          <label class="sr" for="docQ">Căutare în documente</label>
+          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+          <input class="input" id="docQ" type="search" placeholder="Căutați după titlu, tip sau cuvânt-cheie" autocomplete="off">
+        </div>
+        <div class="tools">
+          <label class="sr" for="docSection">Secțiunea</label>
+          <select class="select" id="docSection"></select>
+          <label class="sr" for="docYear">Anul</label>
+          <select class="select" id="docYear"></select>
+        </div>
+      </div>
+      <p class="count" id="docCount" aria-live="polite"></p>
+      <ul class="doc-list" id="docList"></ul>
+      <p class="more"><button class="btn btn-line" type="button" id="docMore" hidden>Arată mai multe documente</button></p>
+    </div>
+  </section>
+
+  <!-- EVENIMENTE -->
+  <section class="sec" id="evenimente" aria-labelledby="h-ev">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-ev">Evenimente</h2><p>Sesiuni de informare, apeluri pentru proiecte, cursuri și sondaje organizate în cadrul programelor de cooperare.</p></div>
+        <p class="src">Sursa: <a href="https://gov.md/ro/evenimente" target="_blank" rel="noopener">gov.md/ro/evenimente</a></p>
+      </header>
+      <div class="ev-filters">
+        <fieldset><legend>Anul</legend><div class="chips" id="evYear"></div></fieldset>
+        <fieldset><legend>Programul</legend><div class="chips" id="evProg"></div></fieldset>
+      </div>
+      <ol class="events" id="timeline"></ol>
+    </div>
+  </section>
+
+  <!-- GALERIE FOTO -->
+  <section class="sec sec-alt" id="galerie" aria-labelledby="h-gal">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-gal">Galerie foto</h2><p>Fotografii de la evenimente, întâlniri și vizite de lucru.</p></div>
+      </header>
+      <div class="chips" id="galChips" role="group" aria-label="Filtrare după album"></div>
+      <ul class="gallery" id="galGrid"></ul>
+      <p class="more"><button class="btn btn-line" type="button" id="galMore" hidden>Arată mai multe fotografii</button></p>
+    </div>
+  </section>
+
+  <!-- CONTACTE -->
+  <section class="sec" id="contacte" aria-labelledby="h-contact">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-contact">Contacte</h2><p>Cancelaria de Stat, Casa Guvernului. Pentru petiții, cereri și audiențe folosiți adresa dedicată.</p></div>
+        <p class="src">Sursa: <a href="https://gov.md/ro/contacte" target="_blank" rel="noopener">gov.md/ro/contacte</a></p>
+      </header>
+      <div class="contact">
+        <div class="panel" id="contactInfo"></div>
+        <form class="panel form" id="contactForm" novalidate>
+          <h3>Scrieți-ne</h3>
+          <p class="panel-intro">Completați formularul, iar mesajul se va deschide gata scris în aplicația dvs. de e-mail.</p>
+          <div class="frow">
+            <div class="fgroup">
+              <label for="fName">Nume și prenume</label>
+              <input id="fName" name="name" autocomplete="name" aria-describedby="eName">
+              <div class="err" id="eName"></div>
+            </div>
+            <div class="fgroup">
+              <label for="fEmail">E-mail</label>
+              <input id="fEmail" name="email" type="email" autocomplete="email" aria-describedby="eEmail">
+              <div class="err" id="eEmail"></div>
+            </div>
+          </div>
+          <div class="fgroup">
+            <label for="fTopic">Subiect</label>
+            <select id="fTopic" name="topic">
+              <option>Asistență externă</option>
+              <option>Programe Interreg</option>
+              <option>URBACT</option>
+              <option>Verificarea cheltuielilor (auditori)</option>
+              <option>Altele</option>
+            </select>
+          </div>
+          <div class="fgroup">
+            <label for="fMsg">Mesaj</label>
+            <textarea id="fMsg" name="message" aria-describedby="eMsg"></textarea>
+            <div class="err" id="eMsg"></div>
+          </div>
+          <button class="btn btn-primary" type="submit"><svg class="ico" aria-hidden="true"><use href="#i-mail"/></svg> Deschide mesajul în e-mail</button>
+          <p class="form-note">Destinatar: <span id="toAddr"></span></p>
+          <div id="formOk" class="form-ok" hidden></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <img src="assets/img/gov-logo-white.svg" alt="" width="62" height="72">
+        <div>
+          <p class="foot-name" id="footName"></p>
+          <p id="footParent"></p>
+          <p id="footAddress"></p>
+        </div>
+      </div>
+      <div>
+        <h2 class="foot-h">Pe această pagină</h2>
+        <ul>
+          <li><a href="#noutati">Noutăți</a></li>
+          <li><a href="#cadrul-legal">Cadrul legal</a></li>
+          <li><a href="#programe">Programe de cooperare</a></li>
+          <li><a href="#documente">Documente</a></li>
+          <li><a href="#galerie">Galerie foto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="foot-h">Resurse</h2>
+        <ul>
+          <li><a href="https://gov.md/ro" target="_blank" rel="noopener">Guvernul Republicii Moldova</a></li>
+          <li><a href="https://gov.md/ro/coordonarea-asistentei-externe-si-fonduri-europene" target="_blank" rel="noopener">Coordonarea asistenței externe</a></li>
+          <li><a href="https://amp.gov.md/portal/" target="_blank" rel="noopener">Platforma AMP</a></li>
+          <li><a href="https://gov.md/ro/node/1030" target="_blank" rel="noopener">Petiții, cereri și audiențe</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p id="footNote"></p>
+      <p><span id="updated"></span><a class="foot-admin" id="footAdmin" href="/admin/" hidden>Administrare</a></p>
+    </div>
+  </div>
+</footer>
+
+<button class="totop" id="toTop" type="button" aria-label="Înapoi sus"><svg class="ico" aria-hidden="true"><use href="#i-chev-u"/></svg></button>
+
+<dialog class="dlg news-dlg" id="newsDlg" aria-labelledby="newsDlgTitle"></dialog>
+
+<dialog class="lightbox" id="lightbox" aria-label="Vizualizare fotografie"></dialog>
+
+<dialog class="dlg search-dlg" id="searchDlg" aria-label="Căutare în pagină">
+  <div class="sd-in">
+    <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+    <input id="sq" type="search" role="combobox" aria-expanded="true" aria-controls="sres" aria-autocomplete="list" placeholder="Căutați acte, rapoarte, programe, știri, evenimente…" autocomplete="off">
+    <button class="icon-btn" type="button" data-close aria-label="Închide căutarea"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="sd-res" id="sres" role="listbox" aria-label="Rezultate"></div>
+  <div class="sd-foot"><span><kbd>↑</kbd> <kbd>↓</kbd> navigare</span><span><kbd>Enter</kbd> deschide</span><span><kbd>Esc</kbd> închide</span></div>
+</dialog>
+
+<script src="assets/js/common.js" defer></script>
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>
