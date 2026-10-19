@@ -1,0 +1,19 @@
+# Dependențe și rezultatul construirii versiunii statice
+node_modules/
+dist/
+
+# Configurări locale cu parole (modelul este .env.example)
+.env
+.env.*
+!.env.example
+
+# DATE PRIVATE: parolele (în formă criptată), cheia sesiunilor și jurnalul de activitate.
+# Nu se pun niciodată pe GitHub.
+storage/private/
+*.log
+
+# Fișiere de sistem și de editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

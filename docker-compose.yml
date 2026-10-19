@@ -1,0 +1,21 @@
+# Pornire: docker compose up -d --build
+# Parola de administrator generată la prima pornire apare în jurnal: docker compose logs site
+services:
+  site:
+    build: .
+    image: dgaefe-site
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Folosite doar la prima pornire. Dacă ADMIN_PASSWORD lipsește, se generează o parolă aleatorie.
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Setați TRUST_PROXY=1 dacă în fața aplicației există un proxy cu HTTPS (nginx, Caddy, Traefik).
+      TRUST_PROXY: ${TRUST_PROXY:-}
+    volumes:
+      # Volum cu nume: păstrează conținutul, fotografiile, documentele și conturile
+      - date:/data
+
+volumes:
+  date:

@@ -1,0 +1,28 @@
+# Model pentru găzduirea pe Render (https://render.com): New > Blueprint > alegeți depozitul GitHub.
+# Discul persistent este obligatoriu, altfel conținutul introdus din panou se pierde la fiecare reînnoire,
+# iar discurile persistente sunt disponibile doar pentru servicii cu plan plătit.
+# Verificați planul și prețul curent în panoul Render înainte de a confirma.
+services:
+  - type: web
+    name: dgaefe-site
+    runtime: node
+    plan: 0.5c-512mb
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATA_DIR
+        value: /var/data
+      - key: TRUST_PROXY
+        value: "1"
+      - key: ADMIN_USER
+        value: admin
+      # Se cere o singură dată, la crearea serviciului (minimum 10 caractere). Nu o scrieți în acest fișier.
+      - key: ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: date
+      mountPath: /var/data
+      sizeGB: 1
