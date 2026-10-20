@@ -95,7 +95,9 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 
 /* ---------- Prezentare: câmp albastru cu cercuri translucide, ca pe ie.mf.gov.md ----------
    Totul curge într-o singură coloană, pe toată lățimea paginii (titlu, prezentare, căutare, acces rapid), fără împărțire în
-   jumătăți. Nivelurile de cooperare urmează într-un panou lat, care urcă peste marginea de jos a câmpului albastru. */
+   jumătăți. Pe ecrane late conținutul este centrat, iar modelul cu cercuri este simetric, pe ambele margini; pe telefon textul
+   rămâne aliniat la stânga, ca să se citească ușor. Nivelurile de cooperare urmează într-un panou lat, care urcă peste marginea
+   de jos a câmpului albastru. */
 :root{--overlap:clamp(3.5rem,7vw,5.5rem)}
 .intro{position:relative;isolation:isolate;overflow:hidden;background:var(--blue);color:#fff}
 .intro::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
@@ -108,9 +110,9 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .crumbs a{color:rgba(255,255,255,.8)}
 .crumbs a:hover{color:#fff}
 .crumbs [aria-current]{color:#fff;font-weight:700}
-.intro h1{color:#fff;font-weight:800;text-transform:uppercase;font-size:clamp(1.85rem,3.6vw,2.85rem);line-height:1.1;letter-spacing:.005em;max-width:24em;margin-bottom:1.25rem}
+.intro h1{color:#fff;font-weight:800;text-transform:uppercase;font-size:clamp(1.85rem,3.8vw,3.05rem);line-height:1.1;letter-spacing:.005em;max-width:24em;margin-bottom:1.25rem}
 .h1-b{color:var(--accent)}
-.lead{font-size:1.125rem;line-height:1.6;color:rgba(255,255,255,.93);max-width:46rem;margin-bottom:1.75rem}
+.lead{font-size:1.125rem;line-height:1.6;color:rgba(255,255,255,.93);max-width:46rem;margin-bottom:1.75rem;text-wrap:pretty}
 .search-box{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:6px;padding:.4rem .4rem .4rem 1.1rem;box-shadow:0 10px 28px rgba(0,8,50,.28)}
 .search-box:focus-within{box-shadow:0 0 0 3px var(--focus-dark),0 10px 28px rgba(0,8,50,.28)}
 .search-box .ico{color:var(--muted)}
@@ -121,6 +123,16 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .quick a{display:inline-flex;align-items:center;gap:.5rem;padding:.38rem .85rem;border:1px solid rgba(255,255,255,.42);border-radius:999px;background:rgba(255,255,255,.08);color:#fff;font-size:.9rem;font-weight:500;line-height:1.35;text-decoration:none;transition:background-color .15s,border-color .15s}
 .quick a .ico{color:var(--accent)}
 .quick a:hover{background:rgba(255,255,255,.18);border-color:#fff;color:#fff}
+@media (min-width:48rem){
+  .intro::before{background-position:50% 1rem;
+    -webkit-mask-image:linear-gradient(90deg,#000 0,transparent 32%,transparent 68%,#000 100%);
+    mask-image:linear-gradient(90deg,#000 0,transparent 32%,transparent 68%,#000 100%)}
+  .intro-text{text-align:center}
+  .crumbs ol{justify-content:center}
+  .intro h1,.lead{margin-inline:auto}
+  .lead{text-wrap:balance}
+  .quick,.quick ul{justify-content:center}
+}
 
 /* Panoul nivelurilor de cooperare */
 .levels-sec{position:relative;z-index:2;margin-top:calc(-1 * var(--overlap))}
@@ -178,7 +190,7 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .sec-alt{background:var(--paper)}
 .sec-head{margin-bottom:clamp(1.75rem,3.5vw,2.75rem)}
 .sec-head h2{font-size:clamp(1.45rem,2.6vw,2rem);font-weight:800;text-transform:uppercase;letter-spacing:.005em;margin-bottom:.7rem}
-.sec-head p{margin:0;color:var(--muted);max-width:68ch}
+.sec-head p{margin:0;color:var(--muted);max-width:68ch;text-wrap:pretty}
 .sec-head .src{margin-top:.55rem;font-size:.875rem}
 .sec-head .src a{color:var(--muted)}
 .more{text-align:center;margin:2rem 0 0}
