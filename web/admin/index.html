@@ -41,9 +41,22 @@
             <button type="button" id="lShow" aria-pressed="false" aria-controls="lPass">Arată</button>
           </div>
         </div>
+        <label class="check gh-keep" id="lKeepWrap" hidden><input type="checkbox" id="lKeep"><span>Păstrează conectarea pe acest calculator</span></label>
         <p class="alert alert-error" id="lErr" role="alert" hidden></p>
         <button class="btn btn-primary btn-block" id="lBtn" type="submit">Autentificare</button>
       </form>
+
+      <!-- Apare doar în administrarea direct pe GitHub (admin-github.js) -->
+      <details class="gh-help" id="lGh" hidden>
+        <summary>Cum obțin jetonul de acces?</summary>
+        <ol class="gh-steps">
+          <li>Intrați în GitHub cu contul care are acces la depozitul <strong data-gh-repo></strong>.</li>
+          <li><a id="lTokenLink" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Deschideți formularul pentru jeton</a> — câmpurile principale sunt deja completate.</li>
+          <li>La „Repository access” alegeți <strong>Only select repositories</strong> și bifați <strong data-gh-repo></strong>.</li>
+          <li>Apăsați „Generate token”, copiați jetonul (începe cu <span class="code">github_pat_</span>) și lipiți-l mai sus.</li>
+        </ol>
+        <p class="hint">Dacă contul dumneavoastră este doar colaborator în depozit (nu proprietar), GitHub nu permite jetoanele de acest tip. Folosiți atunci un <a id="lClassicLink" href="https://github.com/settings/tokens/new?scopes=public_repo" target="_blank" rel="noopener">jeton clasic</a> cu permisiunea „public_repo”.</p>
+      </details>
 
       <p class="login-foot"><a href="../">← Înapoi la pagina publică</a></p>
     </div>

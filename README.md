@@ -25,15 +25,15 @@ Conținutul de pornire provine din paginile oficiale [gov.md](https://gov.md) (c
 
 **Pagina publică** (`/`): stil instituțional (albastru regal, bandă de prezentare cu titlu mare, secțiuni alternate alb / gri deschis, carduri cu margine albastră, cronologie la evenimente), cu sigla Guvernului, bară de accesibilitate (mărire text, contrast ridicat) și secțiunile Noutăți, Despre direcție, Cadrul legal, Cooperare externă, Programe, Documente (cu filtre și căutare), Evenimente, **Galerie foto** (cu vizualizare mărită) și Contacte, plus căutare în tot conținutul (`Ctrl + K`).
 
-**Panoul de administrare** (`/admin/`): autentificare cu utilizator și parolă, apoi:
+**Panoul de administrare** (`/admin/`): autentificare cu utilizator și parolă pe server sau, **gratuit, direct pe GitHub Pages**, cu un jeton de acces GitHub (vezi 5.3). Apoi:
 
 - gestionarea știrilor, documentelor (cu încărcare de fișiere), fotografiilor, evenimentelor, actelor normative și programelor;
 - editarea textelor paginii (titlu, prezentare, contacte, subsol);
 - schimbarea parolei, jurnal de activitate, copie de siguranță și export pentru GitHub Pages.
 
-**Versiunea statică** (doar citire): aceeași pagină publică, fără server, pentru GitHub Pages sau orice găzduire de fișiere (`npm run build:static`).
+**Versiunea statică** (doar citire): aceeași pagină publică, fără server, pentru GitHub Pages sau orice găzduire de fișiere (`npm run build:static`). Cu opțiunea `--github-repo`, aceeași construire include și panoul de administrare care salvează direct în depozitul GitHub (fluxul `pages.yml` o folosește).
 
-Tehnologie: Node.js și Express; datele se păstrează în fișiere JSON, fără bază de date. Singurul serviciu extern este harta Google din secțiunea Contacte; fonturile și sigla sunt incluse în proiect.
+Tehnologie: Node.js și Express (pe server); datele se păstrează în fișiere JSON, fără bază de date. Pe GitHub Pages panoul rulează numai în browser și scrie aceleași fișiere JSON în depozit. Pagina publică folosește un singur serviciu extern, harta Google din secțiunea Contacte; fonturile și sigla sunt incluse în proiect. Panoul de pe GitHub Pages comunică, în plus, doar cu `api.github.com`.
 
 ---
 
@@ -58,6 +58,8 @@ Pentru a limita accesul la calculatorul dumneavoastră (nu la rețeaua locală),
 ---
 
 ## 3. Autentificarea ca administrator
+
+Acest capitol privește varianta cu server (pe calculator, Render, Docker). Pe **GitHub Pages** nu există utilizator și parolă: conectarea se face cu un jeton GitHub (vezi 5.3).
 
 La prima pornire se creează contul **`admin`**.
 
@@ -112,15 +114,15 @@ Când un administrator este autentificat și deschide pagina publică, apare o b
 
 ### 5.1 Ce poate și ce nu poate GitHub
 
-GitHub păstrează codul și îl poate publica gratuit ca **site static** (GitHub Pages). Un site static nu poate verifica parole și nu poate primi fișiere încărcate, deci **panoul de administrare nu poate rula pe GitHub Pages**. Administrarea are nevoie de un server Node.js cu un disc care păstrează datele.
+GitHub păstrează codul și îl publică gratuit ca **site static** (GitHub Pages). Un site static nu are server și nu poate verifica parole, dar panoul de administrare nu are nevoie de unul: rulează în browser și **salvează modificările direct în depozitul GitHub**, prin API-ul GitHub, după care GitHub reconstruiește singur pagina publică (1–2 minute).
 
 Aveți trei variante:
 
 | Varianta | Administrare online | Cost | Potrivită când |
 |---|---|---|---|
-| **A. GitHub Pages** (publicare automată) | Nu. Se administrează local, apoi se trimite pe GitHub | Gratuit | Conținutul se schimbă rar, de către o singură persoană |
-| **B. Server Node cu disc persistent** (Render, Docker pe un server) | Da, la adresa `/admin/` | De regulă plătit (disc persistent) | Mai mulți editori, modificări frecvente |
-| **C. Ambele** | Da, pe server; pagina publică și pe Pages | — | Se dorește și o copie statică |
+| **A. GitHub Pages cu administrare direct în depozit** (recomandată) | Da, la `…/admin/` pe adresa paginii, cu un jeton de acces GitHub | Gratuit | Una sau mai multe persoane modifică conținutul, fără server |
+| **B. GitHub Pages, administrare locală** | Nu: se lucrează pe calculator, apoi se trimit modificările pe GitHub | Gratuit | Conținutul se schimbă rar, de către o singură persoană |
+| **C. Server Node cu disc persistent** (Render, Docker pe un server) | Da, la `/admin/`, cu utilizator și parolă | De regulă plătit (disc persistent) | Se dorește autentificare cu parolă proprie, fără conturi GitHub, sau date care nu pot sta într-un depozit |
 
 ### 5.2 Încărcarea proiectului pe GitHub
 
@@ -142,15 +144,82 @@ Aveți trei variante:
 
 Cele două fluxuri de lucru din `.github/workflows/` pornesc singure:
 
-- **Teste** (`ci.yml`): rulează testele automate la fiecare trimitere de modificări.
-- **Publică pe GitHub Pages** (`pages.yml`): construiește și publică versiunea statică (vezi mai jos).
+- **Teste** (`ci.yml`): rulează testele automate la fiecare trimitere de modificări de cod (nu și la cele de conținut din `storage/`).
+- **Publică pe GitHub Pages** (`pages.yml`): construiește și publică pagina, cu panoul de administrare pentru acest depozit (vezi mai jos).
 
-### 5.3 Varianta A — GitHub Pages
+### 5.3 Varianta A — GitHub Pages cu administrare direct în depozit (gratuit)
+
+Pagina publicată pe GitHub Pages include panoul de administrare, la adresa `https://NUME-UTILIZATOR.github.io/NUME-DEPOZIT/admin/`. Conectarea se face cu un **jeton de acces GitHub** (în loc de utilizator și parolă). Fiecare salvare devine o modificare („commit”) în folderul `storage/` al depozitului, iar fluxul „Publică pe GitHub Pages” reconstruiește pagina în 1–2 minute. Nu este nevoie de server, de card bancar sau de plată.
+
+**Configurare, o singură dată**
+
+1. Aduceți versiunea curentă a proiectului în depozit (vezi 5.2; cu GitHub Desktop: copiați fișierele peste folderul depozitului, apoi **Commit to main** și **Push origin**).
+2. În depozit: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+3. Așteptați să se termine fluxul „Publică pe GitHub Pages” (fila **Actions**, bifă verde, 2–3 minute). De acum funcționează pagina publică și `…/admin/`.
+4. Creați un jeton de acces (mai jos).
+5. Deschideți `…/admin/`, lipiți jetonul și apăsați „Autentificare”.
+
+**Crearea jetonului (pentru proprietarul depozitului)**
+
+1. Intrați în GitHub, apoi deschideți linkul „Deschideți formularul pentru jeton” din ecranul de conectare al panoului (sau: **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**).
+2. **Resource owner**: contul dumneavoastră (sau organizația care deține depozitul). **Expiration**: cel mult un an; după expirare, panoul cere un jeton nou.
+3. **Repository access → Only select repositories** și alegeți depozitul paginii.
+4. **Permissions → Repository permissions → Contents: Read and write** (**Metadata: Read-only** se adaugă singur). Nu adăugați alte drepturi.
+5. **Generate token** și copiați imediat jetonul (începe cu `github_pat_`): GitHub îl arată o singură dată.
+
+**Alți editori.** Fiecare editor are nevoie de un cont GitHub cu drept de scriere în depozit (**Settings → Collaborators → Add people**) și își creează propriul jeton; în istoric, modificările apar pe numele lui. Jetoanele „fine-grained” pot fi create doar pentru depozitele pe care le dețineți (sau care aparțin unei organizații din care faceți parte); un colaborator la depozitul altcuiva folosește un **jeton clasic** (**Settings → Developer settings → Personal access tokens → Tokens (classic)**, permisiunea `public_repo` pentru un depozit public, `repo` pentru unul privat). Dacă mai mulți oameni editează regulat, mutați depozitul într-o organizație GitHub gratuită.
+
+**Ce se întâmplă la o salvare**
+
+- Indicatorul din bara de sus arată „Se salvează…”, apoi „Se publică…” și, după 1–2 minute, „Publicat”. Pagina „Publicare și copii” arată starea publicării și are butonul „Republică pagina”.
+- Prima salvare creează folderul `storage/` din conținutul de pornire; de atunci, pagina se construiește din `storage/`.
+- Mai multe modificări făcute odată (ștergerea sau mutarea mai multor fotografii) se salvează într-o singură modificare în depozit; încărcarea mai multor fotografii creează câteva.
+- Dacă altcineva modifică depozitul în același timp (alt editor sau un `push` de pe calculator), panoul îmbină singur modificările; dacă nu reușește, spune ce să faceți.
+- Jurnalul de activitate arată ultimele modificări din istoricul depozitului: cine, când, ce.
+
+**Dacă ați greșit.** Nimic nu se pierde: fiecare versiune rămâne în istoricul GitHub. În GitHub Desktop: fila **History** → clic dreapta pe modificarea greșită → **Revert Changes in Commit** → **Push origin**. Pe github.com: **Commits** → modificarea → **Revert**.
+
+**Lucrul pe calculator în paralel.** Dacă modificați și fișiere de pe calculator (cod sau texte), faceți mai întâi **Fetch origin / Pull origin** în GitHub Desktop, ca să aduceți modificările făcute din panou. Altfel, trimiterea poate fi refuzată.
+
+**Securitate**
+
+- Jetonul este ca o parolă pentru depozit: oricine îl are poate modifica pagina. Nu îl trimiteți nimănui și nu îl scrieți în documente. Alegeți expirare și drepturi doar pentru acest depozit.
+- Jetonul se păstrează doar în browserul dumneavoastră (în fila curentă sau, dacă bifați „Păstrează conectarea”, pe acel calculator) și se trimite doar către `api.github.com`. Nu bifați „Păstrează conectarea” pe un calculator folosit de mai multe persoane. „Ieșire” îl șterge din browser.
+- Toate paginile publicate pe același cont (`NUME-UTILIZATOR.github.io`) împart același spațiu de stocare al browserului. Nu găzduiți pe același cont pagini în care nu aveți încredere.
+- Dacă ați pierdut jetonul sau credeți că a ajuns la altcineva, ștergeți-l în GitHub (**Settings → Developer settings → Personal access tokens**); încetează imediat să mai funcționeze.
+- Într-un **depozit public**, tot ce se află în `storage/` (inclusiv ciornele de știri) poate fi citit de oricine, direct în depozit. Pagina publicată arată însă doar elementele publicate.
+
+**Limite**
+
+- Autentificarea este cea a GitHub: nu există conturi sau parole proprii ale paginii. Secțiunea „Cont și parolă” devine „Cont GitHub”.
+- Fotografiile (până la 15 MB) se pregătesc în browser (maximum 2000 px), documentele pot avea până la 25 MB. Un depozit GitHub ar trebui să rămână sub 1 GB, iar un site GitHub Pages poate avea cel mult 1 GB.
+- GitHub limitează numărul de cereri; la încărcări foarte mari panoul așteaptă singur câteva secunde și continuă.
+- Panoul nu funcționează fără conexiune la internet. Ce nu s-a salvat încă se pierde dacă închideți fila (panoul vă avertizează).
+- Pentru depozite private, GitHub Pages cere un plan plătit GitHub, iar fluxurile GitHub Actions consumă din cota lunară gratuită a contului.
+
+> Această variantă a fost verificată automat pe un simulator al API-ului GitHub (`test-support/mock-github.js`) și în browser, nu pe github.com. La prima utilizare, faceți o modificare de probă (de exemplu o știre de test) și urmăriți indicatorul „Publicat”.
+
+**Pagina arată în continuare versiunea veche?** Verificați în fila **Actions** că ultimul flux „Publică pe GitHub Pages” s-a terminat cu bifă verde, apoi reîncărcați pagina cu `Ctrl + F5`. Dacă fluxul a eșuat, deschideți-l și citiți mesajul roșu; apăsați „Re-run all jobs” după ce îl rezolvați.
+
+**Mesaje frecvente din panou**
+
+| Mesaj | Ce înseamnă |
+|---|---|
+| „Jetonul GitHub nu este valabil” | Jetonul este greșit, a expirat sau a fost șters. Creați altul. |
+| „Nu am găsit pe GitHub depozitul …” | Jetonul nu are acces la depozitul paginii: la „Repository access” alegeți depozitul. |
+| „Jetonul nu are voie să modifice depozitul” | Lipsește permisiunea **Contents: Read and write**. |
+| „Depozitul a fost modificat în același timp de altcineva …” | Mai mulți editori au salvat deodată; reîncercați peste câteva secunde. |
+| „Ramura … este protejată” | Pe ramura publicată există reguli care cer „pull request”; dezactivați-le pentru administratori. |
+| „GitHub a limitat temporar numărul de cereri …” | GitHub a pus o scurtă pauză (indicatorul arată „Pauză GitHub”). Panoul reia singur; dacă mesajul rămâne, reîncercați peste câteva minute. |
+| „Organizația cere autorizarea jetonului … (SSO)” | Depozitul aparține unei organizații cu conectare unică: în GitHub, la lista de jetoane, apăsați „Configure SSO” → „Authorize”. |
+| „GitHub nu răspunde momentan” | Problemă temporară la GitHub; reîncercați peste câteva minute. Ce ați completat rămâne în formular. |
+
+### 5.4 Varianta B — GitHub Pages, administrare locală
 
 1. În depozitul GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions** (o singură dată).
 2. La următorul `push` pe ramura `main`, fluxul „Publică pe GitHub Pages” construiește pagina și o publică. Adresa apare în **Settings → Pages**, de regulă `https://NUME-UTILIZATOR.github.io/NUME-DEPOZIT/`. Prima publicare durează câteva minute.
 
-Fluxul publică conținutul din folderul `storage/` dacă acesta există în depozit, altfel conținutul de pornire din `seed/`.
+Fluxul publică conținutul din folderul `storage/` dacă acesta există în depozit, altfel conținutul de pornire din `seed/`. Pagina publicată include și panoul de administrare de la `…/admin/` (varianta A); dacă nu îl folosiți, pur și simplu nu vă conectați la el.
 
 **Cum se actualizează pagina:**
 
@@ -164,7 +233,7 @@ git push
 
 Pagina publică se actualizează singură în 1–2 minute. (Nu adăugați `storage/private/`; este exclus automat.)
 
-**Variantă fără GitHub Actions:** în panou, secțiunea „Publicare și copii” → „Descarcă exportul static (ZIP)”. Dezarhivați și încărcați conținutul în rădăcina unui depozit separat, apoi **Settings → Pages → Deploy from a branch → `main` / `/ (root)`**. Același export se poate face din linia de comandă: `npm run build:static` (rezultatul apare în `dist/`; opțiuni: `--data <folder>` și `--out <folder>`).
+**Variantă fără GitHub Actions:** în panou, secțiunea „Publicare și copii” → „Descarcă exportul static (ZIP)”. Dezarhivați și încărcați conținutul în rădăcina unui depozit separat, apoi **Settings → Pages → Deploy from a branch → `main` / `/ (root)`**. Același export se poate face din linia de comandă: `npm run build:static` (rezultatul apare în `dist/`; opțiuni: `--data <folder>` și `--out <folder>`). Cu `--github-repo UTILIZATOR/DEPOZIT` (și, după caz, `--github-branch`) exportul include panoul de administrare care salvează direct în acel depozit, exact ca fluxul `pages.yml`.
 
 **De știut:**
 
@@ -173,7 +242,7 @@ Pagina publică se actualizează singură în 1–2 minute. (Nu adăugați `stor
 - Site-urile GitHub Pages sunt publice. Pentru depozite private, GitHub Pages cere un plan plătit GitHub.
 - Căutarea, galeria, filtrele și formularul de contact funcționează și în versiunea statică. Fișierele încărcate din panou ajung în `uploads/`.
 
-### 5.4 Varianta B — server cu administrare online
+### 5.5 Varianta C — server cu administrare online
 
 Aplicația trebuie să ruleze pe un server Node.js (sau în Docker) cu **un disc persistent** montat la folderul de date (`DATA_DIR`). Fără disc persistent, tot ce se introduce din panou se pierde la reînnoirea serviciului. Pagina trebuie servită de la **rădăcina unui domeniu sau subdomeniu** (de ex. `https://exemplu.md/`), nu dintr-un subfolder.
 
@@ -252,6 +321,7 @@ storage/
 
 - **Copie de siguranță:** în panou, „Publicare și copii” → „Descarcă copia de siguranță (ZIP)”. Conține `content/` și `uploads/` (inclusiv ciornele), fără parole. Faceți o copie periodic, mai ales înainte de modificări mari.
 - **Restaurare:** opriți aplicația, dezarhivați copia peste `DATA_DIR`, porniți din nou aplicația.
+- **Pe GitHub Pages (varianta A)** datele se află în depozit, în `storage/content` și `storage/uploads`, iar copia de siguranță este istoricul GitHub: orice versiune anterioară se poate reface (vezi 5.3). Pagina „Publicare și copii” oferă și descărcarea întregului depozit (ZIP) de la GitHub.
 - Fișierele încărcate și nefolosite (de exemplu o fotografie încărcată și abandonată fără a salva) se șterg automat după 24 de ore. Un fișier șters din panou este eliminat și de pe disc.
 - Scrierea fișierelor este atomică: o oprire bruscă a serverului nu corupe conținutul.
 
@@ -266,7 +336,8 @@ storage/
 - Fișierele încărcate sunt verificate după conținut (nu doar după extensie), primesc nume aleatorii și sunt acceptate doar tipurile din lista de mai sus. **Fișierele SVG nu sunt acceptate** (pot conține cod).
 - Antete de securitate (Content-Security-Policy fără JavaScript inline, `nosniff`, `frame-ancestors` etc.) prin `helmet`; pagina `/admin/` nu este indexată de motoarele de căutare.
 - Textul introdus în panou este curățat la afișare: se acceptă doar formatarea simplă (paragrafe, liste, titluri, text aldin, legături). HTML-ul nu este interpretat, deci nu poate executa cod în pagină.
-- Orice acțiune de administrare se înregistrează în jurnalul de activitate.
+- Orice acțiune de administrare se înregistrează în jurnalul de activitate (pe GitHub Pages: în istoricul depozitului).
+- Pe GitHub Pages panoul rulează cu o politică de securitate proprie (scripturi doar din pagină, conexiuni doar către `api.github.com`), se ascunde singur dacă este încadrat în altă pagină și păstrează jetonul doar în browser (vezi 5.3).
 
 Bune practici: schimbați parola generată, folosiți o parolă lungă și unică, serviți pagina doar prin HTTPS, faceți copii de siguranță și țineți Node.js și dependențele actualizate (`npm audit`, `npm update`).
 
@@ -282,9 +353,12 @@ lib/                   logica serverului: api.js (rutele de administrare), auth.
 web/index.html         pagina publică
 web/admin/             panoul de administrare (index.html)
 web/assets/            css/, js/ (site.js, common.js, admin-*.js), fonts/ (Raleway, Roboto), img/ (sigla)
+                       admin-schemas.js (validările, comune serverului și browserului), admin-github-core.js
+                       (salvarea în depozitul GitHub) și admin-github.js (conectarea, indicatorul de publicare)
 seed/                  conținutul de pornire (copiat în DATA_DIR la prima pornire)
 scripts/               build-static.js (versiunea statică), set-password.js (resetarea parolei)
 test/                  teste automate
+test-support/          simulatorul API-ului GitHub folosit de teste
 .github/workflows/     teste și publicare pe GitHub Pages
 Dockerfile, docker-compose.yml, render.yaml, .env.example
 ```
@@ -297,18 +371,21 @@ Dockerfile, docker-compose.yml, render.yaml, .env.example
 npm test
 ```
 
-Cele peste 25 de teste automate pornesc serverul cu un folder de date temporar și verifică, printre altele: autentificarea și limitarea încercărilor, protecția CSRF, validările în română, încărcările periculoase (fișiere false, SVG, nume cu `../`), curățarea fișierelor la ștergere, accesul interzis la datele private, copia de siguranță, exportul static (fără ciorne, cu căi relative), scripturile din `scripts/` și citirea fișierului `.env`.
+Cele peste 60 de teste automate pornesc serverul cu un folder de date temporar și verifică, printre altele: autentificarea și limitarea încercărilor, protecția CSRF, validările în română, încărcările periculoase (fișiere false, SVG, nume cu `../`), curățarea fișierelor la ștergere, accesul interzis la datele private, copia de siguranță, exportul static (fără ciorne, cu căi relative), scripturile din `scripts/` și citirea fișierului `.env`.
+
+Administrarea direct pe GitHub se verifică pe un simulator al API-ului GitHub (`test-support/mock-github.js`): conectare, bootstrap la prima salvare, fișiere încărcate, operațiuni în bloc într-un singur commit, modificări simultane ale altcuiva, limitări și erori ale GitHub, jeton expirat, jurnal și starea publicării. Un test rulează aceeași succesiune de operațiuni pe serverul real și pe varianta GitHub și compară rezultatele și conținutul salvat.
 
 ---
 
 ## 11. Limite cunoscute
 
+- Pe GitHub Pages (varianta A) fiecare salvare este o modificare în depozit și depinde de disponibilitatea GitHub; panoul respectă limitele de cereri ale GitHub. Varianta a fost verificată pe un simulator, nu pe github.com.
 - Aplicația rulează într-un singur proces, cu date în fișiere JSON. Este potrivită pentru o pagină instituțională (sute sau mii de înregistrări), nu pentru mai multe instanțe care scriu în același folder de date.
 - Toți administratorii au aceleași drepturi; nu există roluri sau flux de aprobare.
 - Fișierele încărcate nu sunt scanate cu antivirus; se verifică doar tipul lor.
 - Textele de prezentare scrise special pentru această pagină (titlul de pe prima pagină, descrierile nivelurilor de cooperare și ale programelor) trebuie revizuite și aprobate de instituție; restul conținutului provine din gov.md, preluat în octombrie 2026, și trebuie verificat periodic față de sursa oficială.
 - Formularul de contact deschide programul de e-mail al vizitatorului (`mailto:`); nu trimite mesaje de pe server.
-- Harta din secțiunea Contacte este încorporată de la Google; este singurul serviciu extern al paginii.
+- Harta din secțiunea Contacte este încorporată de la Google; este singurul serviciu extern al paginii publice.
 
 ---
 

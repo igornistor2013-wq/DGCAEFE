@@ -289,8 +289,8 @@
 
     function paint() {
       const fl = wrap.__file;
-      prev.innerHTML = fl && kind === 'image' ? '<img src="' + esc(blobUrl || fl.thumb || fl.path) + '" alt="">' : DG.icon(kind === 'image' ? 'image' : 'file');
-      nameEl.innerHTML = fl ? (kind === 'doc' ? '<a href="' + esc(fl.path) + '" target="_blank" rel="noopener">' + esc(fl.name) + '</a>' : esc(fl.name)) : '<span class="muted">Niciun fișier ales</span>';
+      prev.innerHTML = fl && kind === 'image' ? '<img src="' + esc(blobUrl || ADM.fileUrl(fl.thumb || fl.path)) + '" alt="">' : DG.icon(kind === 'image' ? 'image' : 'file');
+      nameEl.innerHTML = fl ? (kind === 'doc' ? '<a href="' + esc(ADM.fileUrl(fl.path)) + '" target="_blank" rel="noopener">' + esc(fl.name) + '</a>' : esc(fl.name)) : '<span class="muted">Niciun fișier ales</span>';
       meta.textContent = fl
         ? [kind === 'doc' ? DG.fileKind(fl.name).label : 'Imagine', DG.formatSize(fl.size)].filter(Boolean).join(' · ')
         : kind === 'image' ? 'JPG, PNG, WebP sau GIF. Imaginea este redimensionată automat.' : 'PDF, Word, Excel, PowerPoint, ODF, TXT, CSV sau ZIP, până la ' + ADM.limits.docMb + ' MB.';

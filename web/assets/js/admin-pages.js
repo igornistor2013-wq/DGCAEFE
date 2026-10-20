@@ -72,14 +72,14 @@
         {
           label: 'Titlu',
           cell: n => {
-            const img = n.image ? '<img class="thumb-sm" src="' + esc(n.image.thumb || n.image.path) + '" alt="" loading="lazy">' : '';
+            const img = n.image ? '<img class="thumb-sm" src="' + esc(ADM.fileUrl(n.image.thumb || n.image.path)) + '" alt="" loading="lazy">' : '';
             return '<div class="cell-media">' + img + '<div><div class="t"><a href="#/news/' + esc(n.id) + '">' + esc(n.title) + '</a></div><div class="s">' + esc(snippet([n.tag, n.summary].filter(Boolean).join(' · '), 140)) + '</div></div></div>';
           }
         },
         { label: 'Data', cls: 'nowrap', cell: n => esc(DG.dateText(n)) },
         { label: 'Stare', cls: 'nowrap', cell: n => (n.published === false ? '<span class="badge badge-draft">Ciornă</span>' : '<span class="badge badge-ok">Publicată</span>') }
       ],
-      view: n => (n.published === false ? '' : '/#stire/' + n.id),
+      view: n => (n.published === false ? '' : ADM.pubUrl('/#stire/' + n.id)),
       fields: () => [
         { name: 'title', label: 'Titlu', type: 'text', required: true, max: 200 },
         { name: 'date', label: 'Data', type: 'date', required: true, w: 'third' },
@@ -135,7 +135,7 @@
           }
         }
       ],
-      view: d => (d.file ? d.file.path : d.url || ''),
+      view: d => (d.file ? ADM.pubUrl(d.file.path) : d.url || ''),
       viewLabel: 'Deschide documentul',
       fields: () => {
         const progs = ADM.data.programs || [];
@@ -189,7 +189,7 @@
         },
         { label: 'Locul', cell: e => esc(e.place || '') }
       ],
-      view: e => '/#eveniment/' + e.id,
+      view: e => ADM.pubUrl('/#eveniment/' + e.id),
       fields: () => [
         { name: 'title', label: 'Titlu', type: 'text', required: true, max: 300 },
         { name: 'prog', label: 'Programul sau tema', type: 'text', max: 80, w: 'twothirds', list: ADM.distinct(ADM.data.events || [], 'prog'), hint: 'Se folosește la filtrarea evenimentelor. Ex.: URBACT, Interreg Europe.' },
@@ -233,7 +233,7 @@
         { label: 'Denumirea', cell: l => esc(l.title) + (l.topic ? '<div class="s">' + esc(l.topic) + '</div>' : '') },
         { label: 'Sursă', cls: 'nowrap', cell: l => (l.file ? '<span class="badge badge-info">Fișier</span>' : l.url ? '<span class="badge badge-info">Adresă web</span>' : '<span class="muted">—</span>') }
       ],
-      view: l => (l.file ? l.file.path : l.url || ''),
+      view: l => (l.file ? ADM.pubUrl(l.file.path) : l.url || ''),
       viewLabel: 'Deschide actul',
       fields: () => [
         { name: 'type', label: 'Tipul actului', type: 'select', options: LEGAL_TYPES, w: 'third' },
@@ -264,7 +264,7 @@
         { label: 'Nivel', cls: 'nowrap', cell: p => esc(LEVEL_LABEL[p.level] || '') },
         { label: 'Componenta', cls: 'nowrap', cell: p => esc(p.strand || '') }
       ],
-      view: p => '/#program/' + p.id,
+      view: p => ADM.pubUrl('/#program/' + p.id),
       fields: () => [
         { name: 'name', label: 'Denumirea completă', type: 'text', required: true, max: 200 },
         { name: 'short', label: 'Denumirea scurtă', type: 'text', max: 40, w: 'half', hint: 'Folosită în butoane și în diagramă.' },
@@ -487,7 +487,7 @@
           return (
             '<li class="g-card' + (sel.has(g.id) ? ' sel' : '') + '" data-id="' + esc(g.id) + '">' +
             '<label class="g-pick"><input type="checkbox" data-pick="' + esc(g.id) + '"' + (sel.has(g.id) ? ' checked' : '') + ' aria-label="Selectează: ' + esc(t) + '"></label>' +
-            '<a class="g-open" href="#/gallery/' + esc(g.id) + '" aria-label="Editează fotografia: ' + esc(t) + '"><img src="' + esc(g.file.thumb || g.file.path) + '" alt="" loading="lazy"></a>' +
+            '<a class="g-open" href="#/gallery/' + esc(g.id) + '" aria-label="Editează fotografia: ' + esc(t) + '"><img src="' + esc(ADM.fileUrl(g.file.thumb || g.file.path)) + '" alt="" loading="lazy"></a>' +
             '<div class="g-cap"><b>' + esc(t) + '</b><small>' + esc([g.album, DG.fmtDate(g.date)].filter(Boolean).join(' · ') || ' ') + '</small>' +
             (g.sample ? '<span class="badge badge-warn">Imagine de exemplu</span>' : !g.alt ? '<span class="badge badge-draft" title="Adăugați o descriere pentru persoanele care nu văd imaginea">Fără descriere</span>' : '') + '</div></li>'
           );
@@ -580,7 +580,7 @@
     }
 
     async function pump() {
-      while (running < 2) {
+      while (running < ADM.uploadSlots) {
         const next = queue.find(x => x.st === 'wait');
         if (!next) break;
         running++;
@@ -592,7 +592,8 @@
             drawAlbumSelect();
             drawGrid();
           }
-          if (!guard() && el.queue) {
+          // un singur mesaj de rezumat, când s-a terminat și ultima încărcare (mai multe pot ajunge la capăt deodată)
+          if (running === 0 && !guard() && el.queue) {
             const ok = queue.filter(x => x.st === 'ok').length;
             const bad = queue.filter(x => x.st === 'err').length;
             if (ok || bad) DG.toast(bad ? ok + ' încărcate, ' + bad + ' cu erori. Verificați lista.' : ADM.plural(ok, 'fotografie încărcată', 'fotografii încărcate') + '.', bad ? 'error' : undefined);
@@ -636,7 +637,7 @@
         saveLabel: 'Salvează modificările',
         onSave: data => ADM.api('PUT', '/api/admin/gallery/' + g.id, data),
         onDelete: async () => {
-          const ok = await ADM.confirm({ title: 'Ștergeți fotografia?', message: 'Fotografia va fi ștearsă definitiv de pe server și din galerie.', ok: 'Șterge definitiv', danger: true });
+          const ok = await ADM.confirm({ title: 'Ștergeți fotografia?', message: 'Fotografia va fi ștearsă definitiv ' + ADM.where + ' și din galerie.', ok: 'Șterge definitiv', danger: true });
           if (!ok) return false;
           await ADM.api('DELETE', '/api/admin/gallery/' + g.id);
           items = items.filter(x => x.id !== g.id);
@@ -661,15 +662,28 @@
       if (!ok) return;
       let done = 0;
       let failed = '';
-      for (const g of list) {
+      if (ADM.canBatch) {
+        // administrarea pe GitHub: toate ștergerile se salvează într-un singur commit, deci reușesc sau eșuează împreună
         try {
-          await ADM.api('DELETE', '/api/admin/gallery/' + g.id);
-          items = items.filter(x => x.id !== g.id);
-          sel.delete(g.id);
-          done++;
+          await ADM.batch(list.map(g => ({ method: 'DELETE', url: '/api/admin/gallery/' + g.id })));
+          const gone = new Set(list.map(g => g.id));
+          items = items.filter(x => !gone.has(x.id));
+          gone.forEach(id => sel.delete(id));
+          done = list.length;
         } catch (e) {
           failed = e.message;
-          break;
+        }
+      } else {
+        for (const g of list) {
+          try {
+            await ADM.api('DELETE', '/api/admin/gallery/' + g.id);
+            items = items.filter(x => x.id !== g.id);
+            sel.delete(g.id);
+            done++;
+          } catch (e) {
+            failed = e.message;
+            break;
+          }
         }
       }
       ADM.data.gallery = items;
@@ -692,10 +706,17 @@
       if (!r) return;
       let done = 0;
       try {
-        for (const g of list) {
-          const rec = await ADM.api('PUT', '/api/admin/gallery/' + g.id, { title: g.title, album: r.album, date: g.date, alt: g.alt, file: g.file });
-          items[items.findIndex(x => x.id === g.id)] = rec;
-          done++;
+        const body = g => ({ title: g.title, album: r.album, date: g.date, alt: g.alt, file: g.file });
+        if (ADM.canBatch) {
+          const recs = await ADM.batch(list.map(g => ({ method: 'PUT', url: '/api/admin/gallery/' + g.id, body: body(g) })));
+          recs.forEach(rec => (items[items.findIndex(x => x.id === rec.id)] = rec));
+          done = recs.length;
+        } else {
+          for (const g of list) {
+            const rec = await ADM.api('PUT', '/api/admin/gallery/' + g.id, body(g));
+            items[items.findIndex(x => x.id === g.id)] = rec;
+            done++;
+          }
         }
         sel.clear();
         DG.toast(ADM.plural(done, 'fotografie mutată', 'fotografii mutate') + '.');
@@ -825,7 +846,7 @@
         el.move.addEventListener('click', moveSelected);
         el.delSel.addEventListener('click', () => {
           const list = items.filter(g => sel.has(g.id));
-          if (list.length) deleteMany(list, 'Fotografiile selectate vor fi șterse definitiv de pe server. Acțiunea nu poate fi anulată.');
+          if (list.length) deleteMany(list, 'Fotografiile selectate vor fi șterse definitiv ' + ADM.where + '. Acțiunea nu poate fi anulată.');
         });
         $('#gSampleDel', root).addEventListener('click', () => {
           const list = items.filter(g => g.sample);

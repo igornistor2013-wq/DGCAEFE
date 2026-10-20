@@ -1,7 +1,9 @@
-# Publică versiunea statică (doar citire) a paginii pe GitHub Pages, la fiecare "push" pe ramura principală.
+# Publică pagina pe GitHub Pages, la fiecare "push" pe ramura principală.
 #
-# Conținutul se ia din folderul "storage/" (dacă l-ați încărcat în depozit după ce ați lucrat în panoul de
-# administrare local), altfel din conținutul de pornire din "seed/".
+# Conținutul se ia din folderul "storage/" (scris de panoul de administrare de la adresa /admin/ a paginii publicate,
+# sau încărcat în depozit după ce ați lucrat în panoul de administrare local), altfel din conținutul de pornire din "seed/".
+# Pagina publicată include panoul de administrare (admin/), care salvează modificările direct în acest depozit:
+# fiecare salvare este un "push", deci pornește din nou această publicare (1-2 minute).
 #
 # Activare, o singură dată: în depozitul GitHub, Settings > Pages > Build and deployment > Source: "GitHub Actions".
 name: Publică pe GitHub Pages
@@ -28,8 +30,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Construiește versiunea statică
-        run: node scripts/build-static.js --out dist
+      - name: Construiește pagina (cu panoul de administrare pentru acest depozit)
+        run: >-
+          node scripts/build-static.js --out dist
+          --github-repo "$GITHUB_REPOSITORY" --github-branch "$GITHUB_REF_NAME" --commit "$GITHUB_SHA"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

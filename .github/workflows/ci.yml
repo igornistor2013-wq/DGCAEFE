@@ -3,6 +3,8 @@ name: Teste
 on:
   push:
     branches: [main, master]
+    # modificările de conținut făcute din panoul de administrare nu schimbă codul: nu mai rulăm testele pentru ele
+    paths-ignore: ['storage/**']
   pull_request:
 
 permissions:

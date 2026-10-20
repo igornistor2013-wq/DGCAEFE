@@ -19,7 +19,9 @@
     logout: 'a ieșit din cont',
     password: 'a schimbat parola',
     backup: 'a descărcat o copie de siguranță',
-    export: 'a exportat versiunea statică a site-ului'
+    export: 'a exportat versiunea statică a site-ului',
+    republish: 'a republicat pagina',
+    commit: 'a trimis o modificare în depozit'
   };
   const TGT = { news: 'știrea', documents: 'documentul', events: 'evenimentul', legal: 'actul normativ', gallery: 'fotografia', programs: 'programul', settings: 'textele paginii' };
 
@@ -28,6 +30,7 @@
     if ((e.a === 'create' || e.a === 'update' || e.a === 'delete') && TGT[e.c]) {
       return esc(act + ' ' + TGT[e.c]) + (e.c === 'settings' || !e.d ? '' : ' „' + esc(e.d) + '”');
     }
+    if (e.a === 'commit' && e.d) return esc(act) + ' „' + esc(e.d) + '”';
     return esc(act);
   }
 
@@ -65,10 +68,12 @@
         '<a class="btn btn-line" href="#/export">' + ico('database') + 'Publicare și copii</a></div></div></section>' +
         '<section class="panel"><div class="panel-h"><h2>Activitate recentă</h2><a href="#/audit">Tot jurnalul</a></div><div class="panel-b">' + auditList(audit.slice(0, 8)) + '</div></section>' +
         '</div><div>' +
-        '<section class="panel"><div class="panel-h"><h2>Cum ajunge conținutul pe GitHub</h2></div><div class="panel-b">' +
-        '<p>Modificările făcute aici sunt vizibile imediat pe pagina publică, dacă aplicația rulează pe un server. GitHub Pages poate găzdui doar o copie statică, fără administrare.</p>' +
-        '<ol class="steps-ol"><li><p>Faceți modificările în acest panou.</p></li><li><p>Descărcați <strong>exportul static</strong> din secțiunea „Publicare și copii”.</p></li><li><p>Încărcați conținutul arhivei în depozitul GitHub și activați GitHub Pages.</p></li></ol>' +
-        '<p style="margin-top:1rem"><a class="btn btn-line btn-sm" href="#/export">Deschide „Publicare și copii”</a></p></div></section>' +
+        (ADM.gh
+          ? ADM.gh.publishPanel()
+          : '<section class="panel"><div class="panel-h"><h2>Cum ajunge conținutul pe GitHub</h2></div><div class="panel-b">' +
+            '<p>Modificările făcute aici sunt vizibile imediat pe pagina publică, dacă aplicația rulează pe un server. GitHub Pages poate găzdui doar o copie statică, fără administrare.</p>' +
+            '<ol class="steps-ol"><li><p>Faceți modificările în acest panou.</p></li><li><p>Descărcați <strong>exportul static</strong> din secțiunea „Publicare și copii”.</p></li><li><p>Încărcați conținutul arhivei în depozitul GitHub și activați GitHub Pages.</p></li></ol>' +
+            '<p style="margin-top:1rem"><a class="btn btn-line btn-sm" href="#/export">Deschide „Publicare și copii”</a></p></div></section>') +
         '</div></div>';
     }
   };
@@ -190,7 +195,7 @@
     async render(root) {
       const list = await ADM.get('/api/admin/audit');
       root.innerHTML =
-        '<div class="page-head"><div><h1>Jurnal de activitate</h1><p class="sub">Ultimele 100 de acțiuni ale administratorilor: autentificări, adăugări, modificări și ștergeri.</p></div></div>' +
+        '<div class="page-head"><div><h1>Jurnal de activitate</h1><p class="sub">' + (ADM.gh ? 'Ultimele modificări salvate în depozitul GitHub: adăugări, modificări și ștergeri. Istoricul complet este în GitHub, la „Commits”.' : 'Ultimele 100 de acțiuni ale administratorilor: autentificări, adăugări, modificări și ștergeri.') + '</p></div></div>' +
         '<section class="panel"><div class="panel-b">' + auditList(list) + '</div></section>';
     }
   };

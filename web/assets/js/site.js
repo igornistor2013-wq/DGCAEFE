@@ -6,6 +6,10 @@
   var esc = DG.esc;
   var ico = DG.icon;
   var STATIC = document.documentElement.getAttribute('data-static') === 'true';
+  // Versiunea publicată pe GitHub Pages cu administrare directă în depozit (data-github="proprietar/depozit"):
+  // panoul este la adresa relativă admin/, iar „sesiunea” este jetonul păstrat de browser după conectare.
+  var GH = document.documentElement.getAttribute('data-github') || '';
+  var ADMIN = GH ? 'admin/' : '/admin/';
 
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
@@ -71,7 +75,7 @@
   }
   function docsOf(section) { return D.documents.filter(function (d) { return d.section === section; }).sort(cmpDocs); }
   function editLink(coll, id) {
-    return admin.on ? '<a class="edit-link" href="/admin/#/' + coll + '/' + esc(id) + '">Editează</a>' : '';
+    return admin.on ? '<a class="edit-link" href="' + ADMIN + '#/' + coll + '/' + esc(id) + '">Editează</a>' : '';
   }
   function lawName(l) { return (LAW_TYPE[l.type] || LAW_TYPE.Altele).name + ' nr. ' + l.nr + '/' + l.year; }
   function progOf(id) { return byId(D.programs, id); }
@@ -194,7 +198,7 @@
   function renderNews() {
     var list = D.news;
     var grid = $('#newsGrid');
-    grid.innerHTML = list.length ? list.slice(0, newsShown).map(newsCard).join('') : '<p class="empty">Nu există noutăți publicate.' + (admin.on ? ' <a href="/admin/#/news/new">Adăugați prima știre</a>.' : '') + '</p>';
+    grid.innerHTML = list.length ? list.slice(0, newsShown).map(newsCard).join('') : '<p class="empty">Nu există noutăți publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/news/new">Adăugați prima știre</a>.' : '') + '</p>';
     $('#newsMore').hidden = list.length <= newsShown;
   }
 
@@ -495,7 +499,7 @@
       return '<li class="g-item"><button class="g-btn" type="button" data-g="' + i + '" aria-label="Deschide fotografia: ' + esc(label) + '"><span class="g-img"><img src="' + esc(g.file.thumb || g.file.path) + '" alt="" loading="lazy"></span>' +
         '<span class="g-cap"><strong>' + esc(label) + '</strong><span>' + esc([DG.fmtDate(g.date), g.album].filter(Boolean).join(' · ')) + '</span></span></button>' +
         (g.sample ? '<span class="g-sample">Imagine de exemplu</span>' : '') + editLink('gallery', g.id) + '</li>';
-    }).join('') : '<li class="empty">Nu există fotografii publicate.' + (admin.on ? ' <a href="/admin/#/gallery">Încărcați fotografii</a>.' : '') + '</li>';
+    }).join('') : '<li class="empty">Nu există fotografii publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/gallery">Încărcați fotografii</a>.' : '') + '</li>';
     $('#galMore').hidden = items.length <= gal.shown;
   }
 
@@ -598,8 +602,11 @@
     var u = D.lastUpdated ? new Date(D.lastUpdated) : null;
     $('#updated').textContent = u && !isNaN(u) ? 'Pagina a fost actualizată la ' + u.getDate() + ' ' + DG.MONTHS[u.getMonth()] + ' ' + u.getFullYear() + '. ' : '';
     var fa = $('#footAdmin');
-    if (STATIC) fa.remove(); // versiunea statică nu are administrare
-    else fa.hidden = false;
+    if (STATIC && !GH) fa.remove(); // versiunea statică simplă nu are administrare
+    else {
+      fa.setAttribute('href', ADMIN);
+      fa.hidden = false;
+    }
   }
 
   /* ================= Căutare globală ================= */
@@ -756,14 +763,48 @@
     if (!admin.on) { bar.hidden = true; bar.innerHTML = ''; return; }
     bar.hidden = false;
     bar.innerHTML = '<div class="wrap adminbar-in"><strong>Mod administrator</strong><span>Conectat ca ' + esc(admin.user) + '</span>' +
-      '<a href="/admin/">Panou de administrare</a><a href="/admin/#/news/new">Adaugă știre</a><a href="/admin/#/gallery">Adaugă fotografii</a><a href="/admin/#/documents/new">Adaugă document</a>' +
+      '<a href="' + ADMIN + '">Panou de administrare</a><a href="' + ADMIN + '#/news/new">Adaugă știre</a><a href="' + ADMIN + '#/gallery">Adaugă fotografii</a><a href="' + ADMIN + '#/documents/new">Adaugă document</a>' +
       '<button class="sp" type="button" id="adminLogout">Ieșire</button></div>';
     $('#adminLogout').addEventListener('click', function () {
+      if (GH) {
+        ghForget();
+        window.location.reload();
+        return;
+      }
       fetch('/api/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}', credentials: 'same-origin' }).then(function () { window.location.reload(); });
     });
   }
 
+  // GitHub Pages nu are sesiune pe server: administratorul este cel care s-a conectat în panou cu jetonul GitHub,
+  // păstrat de browser (doar numele contului este citit aici, nu și jetonul).
+  var GH_STORES = ['localStorage', 'sessionStorage'];
+  function ghKey() { return 'dgaefe.gh:' + GH; }
+  function ghStored() {
+    for (var i = 0; i < GH_STORES.length; i++) {
+      try {
+        var raw = window[GH_STORES[i]].getItem(ghKey());
+        var v = raw && JSON.parse(raw);
+        if (v && v.token) return { user: String(v.login || 'GitHub') };
+      } catch (e) { /* stocarea poate fi blocată sau goală */ }
+    }
+    return null;
+  }
+  function ghForget() {
+    for (var i = 0; i < GH_STORES.length; i++) {
+      try { window[GH_STORES[i]].removeItem(ghKey()); } catch (e) { /* nimic de șters */ }
+    }
+  }
+
   function checkAdmin() {
+    if (GH) {
+      var st = ghStored();
+      if (st) {
+        admin = { on: true, user: st.user, csrf: '' };
+        renderAdminBar();
+        renderAll();
+      }
+      return;
+    }
     if (STATIC || !window.fetch) return;
     fetch('/api/session', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (s) {
       if (s && s.authenticated) {

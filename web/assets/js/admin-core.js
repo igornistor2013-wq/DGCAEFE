@@ -43,7 +43,17 @@
   };
 
   /* ---------- cereri JSON ---------- */
+  // Administrarea direct pe GitHub (admin-github.js) preia toate cererile și le execută în browser, fără server.
+  const asApiError = e => (e instanceof ApiError ? e : new ApiError((e && e.status) || 0, (e && e.message) || 'Eroare neașteptată.'));
+
   async function send(method, url, body) {
+    if (ADM.local) {
+      try {
+        return await ADM.local.request(method, url, body);
+      } catch (e) {
+        throw asApiError(e);
+      }
+    }
     const headers = { Accept: 'application/json' };
     if (method !== 'GET') headers['X-CSRF-Token'] = ADM.csrf;
     const init = { method, headers, credentials: 'same-origin' };
@@ -120,7 +130,7 @@
       form.onsubmit = async e => {
         e.preventDefault();
         if (!pass.value) {
-          err.textContent = 'Introduceți parola.';
+          err.textContent = ADM.noUsername ? 'Introduceți jetonul GitHub.' : 'Introduceți parola.';
           err.hidden = false;
           pass.focus();
           return;
@@ -191,6 +201,7 @@
   };
 
   function xhrUpload(kind, file, onProgress) {
+    if (ADM.local) return ADM.local.upload(kind, file, onProgress).catch(e => Promise.reject(asApiError(e)));
     return new Promise((resolve, reject) => {
       const fd = new FormData();
       fd.append('file', file, file.name);
@@ -235,6 +246,21 @@
       }
     }
   };
+
+  // Adresa sub care se vede un fișier încărcat (previzualizare în panou) și adresa lui pe pagina publică.
+  // Pe server sunt chiar căile salvate; în administrarea pe GitHub ele diferă (admin-github.js le înlocuiește).
+  ADM.fileUrl = p => p;
+  ADM.pubUrl = p => p;
+  // Mai multe operațiuni deodată (în administrarea pe GitHub se salvează într-un singur commit).
+  ADM.canBatch = false;
+  ADM.batch = async function (ops) {
+    if (ADM.local && ADM.local.batch) return ADM.local.batch(ops);
+    const out = [];
+    for (const o of ops) out.push(await ADM.api(o.method, o.url, o.body));
+    return out;
+  };
+  ADM.uploadSlots = 2; // câte fotografii se încarcă în paralel în galerie
+  ADM.where = 'de pe server'; // unde se păstrează fișierele (pentru mesajele de confirmare)
 
   /* ---------- pregătirea fotografiilor în browser ----------
      Fotografiile se redimensionează și se salvează din nou ca JPEG: se elimină datele ascunse

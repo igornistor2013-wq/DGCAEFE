@@ -31,7 +31,7 @@
     document.title = 'Autentificare | Administrare';
     loginMessage(message);
     $('#lPass').value = '';
-    ($('#lUser').value ? $('#lPass') : $('#lUser')).focus();
+    (ADM.noUsername || $('#lUser').value ? $('#lPass') : $('#lUser')).focus();
   }
 
   $('#lShow').addEventListener('click', e => {
@@ -44,10 +44,11 @@
 
   $('#loginForm').addEventListener('submit', async e => {
     e.preventDefault();
-    const u = $('#lUser').value.trim();
+    // La administrarea pe GitHub nu există utilizator: se introduce doar jetonul de acces.
+    const u = ADM.noUsername ? 'github' : $('#lUser').value.trim();
     const p = $('#lPass').value;
     if (!u || !p) {
-      loginMessage('Introduceți utilizatorul și parola.');
+      loginMessage(ADM.noUsername ? 'Introduceți jetonul GitHub.' : 'Introduceți utilizatorul și parola.');
       (u ? $('#lPass') : $('#lUser')).focus();
       return;
     }
@@ -234,10 +235,10 @@
         ADM.applySession(s);
         await startApp();
       } else {
-        showLogin();
+        showLogin(s && s.message);
       }
     } catch (e) {
-      showLogin(e.status === 404 || e.status === 0 ? 'Panoul de administrare funcționează doar când aplicația rulează pe server (npm start). Versiunea statică nu include administrarea.' : e.message);
+      showLogin(!ADM.local && (e.status === 404 || e.status === 0) ? 'Panoul de administrare funcționează doar când aplicația rulează pe server (npm start). Versiunea statică nu include administrarea.' : e.message);
     }
   })();
 })();
