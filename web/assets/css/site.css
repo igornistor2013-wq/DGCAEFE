@@ -334,41 +334,62 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 :root{--m1:#D5DEF1;--m2:#A9BCE3;--m3:#7B97D2;--m4:#3F65B8;--m5:#063295}
 .gp-m1{--c:var(--m1);--cx:var(--ink)}
 .gp-m2{--c:var(--m2);--cx:var(--ink)}
-.gp-m3{--c:var(--m3);--cx:#fff}
+.gp-m3{--c:var(--m3);--cx:var(--ink)}
 .gp-m4{--c:var(--m4);--cx:#fff}
 .gp-m5{--c:var(--m5);--cx:#fff}
-.gp-over{background:#fff;border:1px solid var(--line);border-radius:var(--rc);box-shadow:var(--shadow);padding:clamp(1.15rem,2.5vw,1.75rem);margin-bottom:2rem}
-.gp-over-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.35rem 2rem;margin-bottom:1.15rem}
-.gp-over-head h3{font-size:1.25rem}
-.gp-over-head p{margin:0;color:var(--muted);font-size:.95rem;max-width:62ch}
-.gp-over-head b{color:var(--ink)}
-.gp-bar{display:flex;gap:3px;height:.9rem;margin-bottom:.85rem}
-.gp-seg{display:block;flex-basis:0;min-width:.6rem;background:var(--c);border-radius:3px}
-.gp-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.75rem}
-.gp-step{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"no num" "name name" "desc desc";align-content:start;gap:.15rem .6rem;width:100%;height:100%;text-align:left;padding:.85rem .95rem 1rem;background:#fff;border:1px solid var(--line);border-top:5px solid var(--c);border-radius:var(--r);cursor:pointer;color:var(--ink);transition:background-color .15s,border-color .15s,box-shadow .15s}
+/* căutare, ordonare și filtre (pe ecrane înguste filtrele se strâng sub butonul „Filtre”) */
+/* antetul: titlul și data situației pe un rând, apoi introducerea pe toată lățimea */
+.sec-head-inv{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:.2rem 1.5rem;margin-bottom:clamp(1.25rem,2.5vw,1.75rem)}
+.sec-head-inv h2{margin-bottom:.15rem}
+.sec-head-inv .src{margin:0;text-align:right}
+.sec-head-inv #growthIntro{grid-column:1/-1;max-width:112ch;font-size:1rem;line-height:1.6}
+/* comenzile listei: etapele de maturitate, starea, căutarea și ordonarea (pe ecrane înguste, sub butonul „Filtre”) */
+.inv-ctl{display:grid;grid-template-columns:minmax(0,1fr) minmax(14rem,21rem) auto;grid-template-areas:"strip strip strip" "chips search sort";gap:1rem .7rem;align-items:center;margin-bottom:1.1rem}
+.inv-fp{display:contents}
+.inv-strip{grid-area:strip}
+.inv-chips{grid-area:chips}
+.inv-search{grid-area:search;min-width:0}
+.inv-sort{grid-area:sort}
+.inv-ftoggle{grid-area:ftoggle;display:none}
+.inv-ftoggle .n{display:inline-grid;place-items:center;min-width:1.3rem;height:1.3rem;margin-left:.45rem;padding:0 .3rem;border-radius:999px;background:var(--blue);color:#fff;font-size:.75rem;font-weight:800;line-height:1}
+/* etapele de maturitate pe un singur rând: câte proiecte are fiecare etapă */
+.gp-cap{margin:0 0 .6rem;font-size:.9375rem;color:var(--muted)}
+.gp-cap b{color:var(--ink)}
+.gp-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.6rem}
+.gp-step{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"no num" "name name";align-content:start;gap:.3rem .6rem;width:100%;height:100%;text-align:left;padding:.7rem .85rem .8rem;background:#fff;border:1px solid var(--line);border-top:4px solid var(--c);border-radius:var(--r);cursor:pointer;color:var(--ink);transition:background-color .15s,border-color .15s,box-shadow .15s}
 .gp-step:hover:not(:disabled){background:var(--blue-l);border-color:var(--blue-m);border-top-color:var(--c)}
 .gp-step[aria-pressed="true"]{background:var(--blue-l);border-color:var(--blue);border-top-color:var(--c);box-shadow:inset 0 0 0 1px var(--blue)}
 .gp-step:disabled{cursor:default;opacity:.6}
 .gp-no{grid-area:no;display:grid;place-items:center;width:1.7rem;height:1.7rem;border-radius:50%;background:var(--c);color:var(--cx);font-weight:800;font-size:.85rem;align-self:center}
 .gp-num{grid-area:num;display:flex;align-items:baseline;gap:.5rem}
-.gp-num b{font-family:var(--head);font-weight:800;font-size:2rem;line-height:1;color:var(--blue-dd)}
-.gp-num small{font-size:.85rem;color:var(--muted)}
-.gp-name{grid-area:name;margin-top:.45rem;font-family:var(--head);font-weight:700;font-size:1rem;line-height:1.25;color:var(--blue-dd)}
-.gp-desc{grid-area:desc;font-size:.85rem;line-height:1.4;color:var(--muted)}
-.gp-toolbar{margin-bottom:.6rem}
-.gp-toolbar .field-icon{min-width:15rem}
-.inv-meta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.25rem 1.5rem;margin-bottom:.7rem}
-.inv-meta .count{margin:0}
-.inv-legend{display:flex;flex-wrap:wrap;gap:.2rem 1.25rem;margin:0;font-size:.85rem;color:var(--muted)}
+.gp-num b{font-family:var(--head);font-weight:800;font-size:1.6rem;line-height:1;color:var(--blue-dd)}
+.gp-num small{font-size:.8rem;color:var(--muted)}
+.gp-name{grid-area:name;font-family:var(--head);font-weight:700;font-size:.95rem;line-height:1.25;color:var(--blue-dd)}
+/* lista proiectelor: un rând pe proiect, cu aceleași coloane și în antet */
+.inv-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1.25rem;margin-bottom:.7rem}
+.inv-meta .count{margin:0;font-size:.95rem;font-weight:700;color:var(--ink)}
+.inv-legend{display:flex;flex-wrap:wrap;gap:.2rem 1.25rem;margin:0 auto 0 0;font-size:.85rem;color:var(--muted)}
 .lg{display:inline-flex;align-items:center;gap:.45rem}
 .lg-fill{display:block;width:1.5rem;height:.5rem;border-radius:999px;background:var(--blue)}
 .lg-mark{display:block;width:2px;height:1rem;background:var(--ink)}
+.inv-list,.inv-head{--inv-cols:2.6rem minmax(0,1fr) 8.5rem 11rem 1.5rem;--inv-gap:1.1rem}
+.inv-head{display:grid;grid-template-columns:var(--inv-cols);column-gap:var(--inv-gap);align-items:end;padding:0 calc(1rem + 1px) .45rem;font-size:.8125rem;font-weight:700;color:var(--muted)}
+.inv-head .h-no{text-align:center}
 .inv-list{display:grid;gap:.6rem}
 .inv{background:#fff;border:1px solid var(--line);border-radius:var(--rc);box-shadow:var(--shadow);scroll-margin-top:calc(var(--hdr) + 1rem);transition:background-color .6s}
 .inv.flash{background:#FFF6D6}
-.inv-btn{display:grid;grid-template-columns:2.6rem minmax(0,1fr) 8.75rem 12rem 1.5rem;gap:.5rem 1.1rem;align-items:center;width:100%;padding:.85rem 1rem;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink);border-radius:var(--rc)}
+.inv-btn{display:grid;grid-template-columns:var(--inv-cols);gap:.5rem var(--inv-gap);align-items:center;width:100%;padding:.85rem 1rem;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink);border-radius:var(--rc)}
 .inv-btn:hover{background:#F7F9FD}
 .inv-no{display:grid;place-items:center;width:2.6rem;height:2.6rem;background:var(--blue);color:#fff;border-radius:var(--r);font-family:var(--head);font-weight:800;font-size:1.1rem}
+.inv-stage,.h-stage{display:none}
+.inv-stage{align-items:center;gap:.55rem;font-size:.875rem;line-height:1.3;color:var(--ink)}
+.inv-cl{display:inline-flex;align-items:center;gap:.4rem}
+.inv-mb{display:inline-grid;place-items:center;flex:none;width:1.45rem;height:1.45rem;border-radius:50%;background:var(--c);color:var(--cx);font-style:normal;font-weight:800;font-size:.75rem;line-height:1;box-shadow:inset 0 0 0 1px rgba(16,41,122,.22)}
+@media (min-width:72rem){
+  .inv-list,.inv-head{--inv-cols:2.6rem minmax(0,1fr) 11.5rem 8.5rem 11rem 1.5rem}
+  .inv-stage,.h-stage{display:flex}
+  .inv-cl{display:none}
+}
 .inv-main{display:flex;flex-direction:column;gap:.2rem;min-width:0}
 .inv-name{font-family:var(--head);font-weight:700;font-size:1.05rem;line-height:1.3;color:var(--blue-dd);overflow-wrap:anywhere}
 .inv-sub{display:flex;flex-wrap:wrap;gap:.1rem 1rem;font-size:.875rem;color:var(--muted)}
@@ -407,6 +428,10 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .abbr-list dt{display:inline;font-weight:700;color:var(--blue-dd)}
 .abbr-list dt::after{content:" – ";font-weight:400}
 .abbr-list dd{display:inline;margin:0;color:var(--muted)}
+.stage-list{display:grid;gap:.8rem;padding:1rem 1.1rem 1.15rem;font-size:.92rem}
+.stage-list li{display:grid;grid-template-columns:1.45rem minmax(0,1fr);gap:.2rem .75rem;align-items:start}
+.stage-list b{display:block;font-family:var(--head);font-weight:700;color:var(--blue-dd)}
+.stage-list span{color:var(--muted)}
 #planBox .callout{margin-top:1.5rem}
 
 /* ---------- Tabele ---------- */
@@ -692,12 +717,18 @@ dialog.search-dlg[open]{display:flex}
   .about{grid-template-columns:minmax(0,1fr)}
   .about-two{grid-template-columns:minmax(0,1fr)}
   .gp-steps{grid-template-columns:minmax(0,1fr);gap:.5rem}
-  .gp-step{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"no name num" "no desc num";align-items:center;gap:.1rem 1rem;border-top:1px solid var(--line);border-left:5px solid var(--c);padding:.7rem 1rem}
+  .gp-step{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"no name num";align-items:center;gap:.1rem 1rem;border-top:1px solid var(--line);border-left:5px solid var(--c);padding:.6rem 1rem}
   .gp-step:hover:not(:disabled),.gp-step[aria-pressed="true"]{border-top-color:var(--blue-m)}
   .gp-step[aria-pressed="true"]{border-top-color:var(--blue)}
-  .gp-name{margin-top:0}
   .gp-num{flex-direction:column;align-items:flex-end;gap:.1rem}
-  .gp-num b{font-size:1.6rem}
+  .gp-num b{font-size:1.45rem}
+  .inv-head{display:none}
+  .inv-ctl{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"search search" "sort ftoggle" "filters filters";gap:.7rem}
+  .inv-ctl .select{width:100%}
+  .inv-ftoggle{display:inline-flex;align-items:center}
+  .inv-fp{display:grid;grid-area:filters;gap:.9rem}
+  .inv-strip,.inv-chips{grid-area:auto}
+  .inv-ctl[data-open="false"] .inv-fp{display:none}
   .inv-btn{grid-template-columns:2.6rem auto minmax(0,1fr) 1.5rem;grid-template-areas:"no main main chev" ". state prog prog"}
   .inv-no{grid-area:no}
   .inv-main{grid-area:main}
@@ -717,12 +748,26 @@ dialog.search-dlg[open]{display:flex}
   .org-t{grid-area:t}
   .org-n{grid-area:n}
   .org-sq{grid-area:sq}
-  .inv-btn{grid-template-columns:2.25rem minmax(0,1fr) 1.5rem;grid-template-areas:"no main chev" "state state state" "prog prog prog";padding:.8rem .8rem .9rem}
+  .inv-meta .count{flex:1 1 auto}
+  .inv-legend{order:3;flex:1 1 100%;margin:0}
+  .sec-head-inv{grid-template-columns:minmax(0,1fr)}
+  .inv-ftoggle,#invToggle{min-height:2.5rem;padding-inline:.95rem}
+  .sec-head-inv .src{text-align:left;order:2}
+  .sec-head-inv #growthIntro{order:3}
+  .inv-btn{grid-template-columns:2.25rem auto minmax(0,1fr) 1.5rem;grid-template-areas:"no main main chev" ". state prog prog";padding:.8rem .8rem .9rem;column-gap:.8rem}
   .inv-no{width:2.25rem;height:2.25rem;font-size:1rem}
   .inv-prog{margin-top:.1rem}
   .inv-panel{padding:.15rem .9rem 1.2rem}
   .inv-facts{grid-template-columns:minmax(0,1fr)}
   .abbr-list{grid-template-columns:minmax(0,1fr)}
+}
+
+/* telefoane foarte înguste sau cu text mărit: starea și progresul trec pe rânduri separate, sub numele proiectului */
+@media (max-width:30rem){
+  html[data-fs="1"] .inv-btn,html[data-fs="2"] .inv-btn{grid-template-columns:2.25rem minmax(0,1fr) 1.5rem;grid-template-areas:"no main chev" "state state state" "prog prog prog"}
+}
+@media (max-width:24rem){
+  .inv-btn{grid-template-columns:2.25rem minmax(0,1fr) 1.5rem;grid-template-areas:"no main chev" "state state state" "prog prog prog"}
 }
 
 /* ---------- Dimensiuni mari de text ---------- */
@@ -755,19 +800,21 @@ html[data-contrast="high"] .event::before{border-left-color:#000}
 html[data-contrast="high"] .ci-ico{background:#000}
 html[data-contrast="high"] .rp-year{border-right-color:#000}
 html[data-contrast="high"] .table th{background:#000;color:#fff}
-html[data-contrast="high"] .about-princ,html[data-contrast="high"] .fn-no,html[data-contrast="high"] .gp-no{background:#000;color:#fff}
+html[data-contrast="high"] .about-princ,html[data-contrast="high"] .fn-no,html[data-contrast="high"] .gp-no,html[data-contrast="high"] .inv-mb{background:#000;color:#fff;box-shadow:none}
 html[data-contrast="high"] .about-princ .ico{color:#FFE24D}
-html[data-contrast="high"] .fn,html[data-contrast="high"] .acc,html[data-contrast="high"] .inv,html[data-contrast="high"] .gp-over,html[data-contrast="high"] .stats a,html[data-contrast="high"] .fold,html[data-contrast="high"] .about-note,html[data-contrast="high"] .gp-note{border:2px solid #000;border-left-width:6px;box-shadow:none}
+html[data-contrast="high"] .fn,html[data-contrast="high"] .acc,html[data-contrast="high"] .inv,html[data-contrast="high"] .stats a,html[data-contrast="high"] .fold,html[data-contrast="high"] .about-note,html[data-contrast="high"] .gp-note{border:2px solid #000;border-left-width:6px;box-shadow:none}
 html[data-contrast="high"] .stats a{border-bottom-width:5px}
 html[data-contrast="high"] .fn[data-open="true"] .fn-no{background:#fff;color:#000;border-color:#000}
 html[data-contrast="high"] .fn-no{border:2px solid #000}
-html[data-contrast="high"] .gp-seg{background:#000}
 html[data-contrast="high"] .gp-step{border:2px solid #000;border-top-width:6px}
 html[data-contrast="high"] .gp-step[aria-pressed="true"]{background:#000;color:#fff}
-html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-name,html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-num b,html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-num small,html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-desc{color:#fff}
+html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-name,html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-num b,html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-num small{color:#fff}
 html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-no{background:#fff;color:#000}
 html[data-contrast="high"] .gp-step:disabled{opacity:1;border-style:dashed}
 html[data-contrast="high"] .inv-no{background:#000;border:2px solid #000}
+html[data-contrast="high"] .inv-ftoggle .n{background:#000}
+html[data-contrast="high"] .inv-head{color:#000}
+html[data-contrast="high"] .gp-step[aria-pressed="true"] .gp-no,html[data-contrast="high"] .stage-list .inv-mb{box-shadow:inset 0 0 0 2px #000}
 html[data-contrast="high"] .pill{background:#fff;color:#000;border:2px solid #000}
 html[data-contrast="high"] .pbar{background:#fff;box-shadow:inset 0 0 0 2px #000}
 html[data-contrast="high"] .pbar i,html[data-contrast="high"] .lg-fill,html[data-contrast="high"] .org-sq i{background:#000}
@@ -800,17 +847,23 @@ html[data-contrast="high"] .amount,html[data-contrast="high"] .h1-b,html[data-co
   .panel-accent h3,.prog-top h3,.amount,.steps a,.prog-top a{color:#000}
   .table th{background:#fff;color:#000;border-bottom:2px solid #000}
   .fn-panel,.acc-panel,.inv-panel{display:block!important}
-  .fn-chev,.inv-chev,#fnToggle,.inv-legend,.fold,.about-cta{display:none!important}
+  .fn-chev,.inv-chev,#fnToggle,#invToggle,.inv-ctl,.inv-head,.inv-stage,.inv-legend,.fold,.about-cta{display:none!important}
+  .inv-cl{display:inline-flex!important}
+  .inv-meta{break-after:avoid}
+  .inv-panel{padding:.1rem .9rem .8rem}
+  .inv-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem 1.5rem;margin:.7rem 0 .9rem}
+  .inv-cols{grid-template-columns:1fr;gap:.7rem}
+  .inv-act{margin-top:0;padding-top:0;border-top:0}
+  .inv-act:has(a){margin-top:.8rem;padding-top:.6rem;border-top:1px solid #999}
+  .inv-act [data-copy-inv]{display:none!important}
   .about,.about-two{grid-template-columns:1fr}
   .about-princ{background:#fff;color:#000;border:1px solid #000;box-shadow:none}
   .about-princ h3,.about-princ .ico{color:#000}
-  .inv,.stats a,.gp-over{box-shadow:none;break-inside:avoid}
+  .inv,.stats a{box-shadow:none;break-inside:avoid}
   .fn,.acc{box-shadow:none}
   .inv-btn,.fn-btn{grid-template-columns:2.6rem minmax(0,1fr) auto auto 0}
   .acc-btn{grid-template-columns:minmax(0,1fr) auto}
-  .gp-seg{background:#999!important;print-color-adjust:exact}
-  .gp-step{border-top-color:#000}
-  .pbar i,.org-sq i,.inv-no{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .pbar i,.org-sq i,.inv-no,.inv-mb{print-color-adjust:exact;-webkit-print-color-adjust:exact}
   a{color:#000;text-decoration:none}
   .foot{background:#fff;color:#000;border-top:1px solid #000}
   .foot a,.foot-name,.foot-h{color:#000}

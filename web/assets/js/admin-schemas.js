@@ -395,9 +395,9 @@
         responsibilities: strList(b.responsibilities, 'Responsabilitățile direcției', { max: 25, item: 700 }),
         growth: {
           asOf: date(g.asOf, 'Situația proiectelor la data de'),
-          intro: str(g.intro, 'Planul de creștere, introducere', { max: 1200 }),
-          note: str(g.note, 'Planul de creștere, notă explicativă', { max: 1500 }),
-          sources: objList(g.sources, 'Planul de creștere, surse de date', 6, l => pairLink(l, 'Text', 'Adresa'))
+          intro: str(g.intro, 'Proiecte investiționale, introducere', { max: 1200 }),
+          note: str(g.note, 'Proiecte investiționale, notă explicativă', { max: 1500 }),
+          sources: objList(g.sources, 'Proiecte investiționale, surse de date', 6, l => pairLink(l, 'Text', 'Adresa'))
         },
         contact: {
           address: str(c.address, 'Adresa', { max: 300 }),

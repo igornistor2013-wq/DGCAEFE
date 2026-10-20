@@ -175,7 +175,7 @@
     "mapLink": "https://www.google.com/maps/search/?api=1&query=Casa+Guvernului+Chi%C8%99in%C4%83u"
   },
   "footerNote": "Conținut preluat de pe gov.md, disponibil sub licența CC BY-SA 4.0.",
-  "updatedAt": "2026-10-20T12:00:00.000Z",
+  "updatedAt": "2026-10-20T13:00:00.000Z",
   "aboutNote": "Informațiile din această secțiune provin din Regulamentul de activitate al Direcției generale, aprobat de secretarul general al Guvernului în aprilie 2026. Activitatea Direcției se desfășoară în conformitate cu Hotărârea Guvernului nr. 377/2018, Legea nr. 181/2014 privind finanțele publice și responsabilitatea bugetar-fiscală, Legea nr. 595/1999 privind tratatele internaționale și celelalte acte din secțiunea „Cadrul legal”.",
   "principles": [
     "Legalitate",
@@ -235,9 +235,9 @@
   ],
   "growth": {
     "asOf": "2026-10-15",
-    "intro": "Direcția coordonează proiectele investiționale din Planul de creștere economică pentru Republica Moldova (Growth Plan): asigură o abordare guvernamentală coerentă și o comunicare eficientă între autoritățile naționale, instituțiile financiare internaționale și Comisia Europeană. Mai jos sunt proiectele aflate în pregătire, grupate după gradul de maturitate; stadiul fiecăruia se măsoară pe o scară de etape și subetape.",
+    "intro": "Direcția coordonează proiectele investiționale din Planul de creștere economică pentru Republica Moldova (Growth Plan): asigură o abordare guvernamentală coerentă și o comunicare eficientă între autoritățile naționale, instituțiile financiare internaționale și Comisia Europeană. Deschideți un proiect din listă pentru a vedea stadiul actual, întârzierile și pasul următor.",
     "note": "Bara de progres indică poziția estimată pe scara etapelor SIP (de la 1 la 77, unde 77 = licitația pentru design și proiectare). Marcajul vertical arată etapa de referință, adică poziția stabilită ca țintă la data raportului: cu cât bara rămâne mai în urma marcajului, cu atât proiectul este mai întârziat față de plan.",
     "sources": []
   },
-  "seedRev": 2
+  "seedRev": 3
 }

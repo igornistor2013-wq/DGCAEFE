@@ -420,24 +420,26 @@
   }
   function invCmpOrder(a, b) { return (a.order || 0) - (b.order || 0) || String(a.name).localeCompare(String(b.name), 'ro'); }
 
+  function clusterIndex(p) {
+    for (var i = 0; i < CLUSTERS.length; i++) if (CLUSTERS[i].v === p.cluster) return i;
+    return -1;
+  }
+
+  // Cele cinci etape de maturitate, pe un singur rând: câte proiecte are fiecare (și ce parte din total), iar un clic le filtrează în listă.
   function renderGpOverview() {
     var list = D.investments;
     var total = list.length;
     var counts = CLUSTERS.map(function (c) { return list.filter(function (p) { return p.cluster === c.v; }).length; });
-    var label = 'Distribuția celor ' + total + ' proiecte pe etape de maturitate: ' + CLUSTERS.map(function (c, i) { return counts[i] + ' – ' + c.name; }).join('; ') + '.';
-    $('#gpOverview').innerHTML = '<div class="gp-over">' +
-      '<div class="gp-over-head"><h3 id="h-mat">Gradul de maturitate</h3>' +
-      '<p>' + (total ? 'Din cele <b>' + total + '</b> ' + plural(total, 'proiect', 'proiecte') + ', distribuția pe cele cinci etape de maturitate este următoarea. Alegeți o etapă pentru a vedea proiectele din ea.' : 'Nu există proiecte publicate.') + '</p></div>' +
-      '<div class="gp-bar" role="img" aria-label="' + esc(label) + '">' + CLUSTERS.map(function (c, i) {
-        return counts[i] ? '<i class="gp-seg gp-m' + (i + 1) + '" style="flex-grow:' + counts[i] + '"></i>' : '';
-      }).join('') + '</div>' +
+    $('#gpOverview').hidden = !total;
+    $('#gpOverview').innerHTML = !total ? '' :
+      '<p class="gp-cap" id="h-mat">Din cele <b>' + total + '</b> ' + plural(total, 'proiect', 'proiecte') + ', distribuția pe etape de maturitate este următoarea. <span>Alegeți o etapă pentru a filtra lista.</span></p>' +
       '<ol class="gp-steps" aria-labelledby="h-mat">' + CLUSTERS.map(function (c, i) {
         var n = counts[i];
-        return '<li><button class="gp-step gp-m' + (i + 1) + '" type="button" data-cluster="' + c.v + '" aria-pressed="' + (inv.cluster === c.v) + '"' + (n ? '' : ' disabled') + '>' +
+        return '<li><button class="gp-step gp-m' + (i + 1) + '" type="button" data-cluster="' + c.v + '" aria-pressed="' + (inv.cluster === c.v) + '" title="' + esc(c.desc) + '"' + (n ? '' : ' disabled') + '>' +
           '<span class="gp-no" aria-hidden="true">' + (i + 1) + '</span>' +
-          '<span class="gp-num"><b>' + n + '</b><small>' + (total ? pctRo(n / total * 100) : '') + '</small></span>' +
-          '<span class="gp-name">' + esc(c.name) + '</span><span class="gp-desc">' + esc(c.desc) + '</span></button></li>';
-      }).join('') + '</ol></div>';
+          '<span class="gp-name">' + esc(c.name) + '</span>' +
+          '<span class="gp-num"><b>' + n + '</b><small>' + pctRo(n / total * 100) + '</small></span></button></li>';
+      }).join('') + '</ol>';
   }
 
   function renderInvFilters() {
@@ -449,6 +451,25 @@
     box.innerHTML = chipsHtml([{ v: 'all', l: 'Toate stările', n: list.length }].concat(present.map(function (s) {
       return { v: s, l: INV_STATUS[s].name, n: list.filter(function (p) { return p.status === s; }).length };
     })), inv.status, 'data-inv-status');
+    syncInvFilterBtn();
+  }
+
+  // Pe ecrane înguste filtrele se strâng sub butonul „Filtre”, care arată câte filtre sunt active.
+  function syncInvFilterBtn() {
+    var active = (inv.cluster !== 'all' ? 1 : 0) + (inv.status !== 'all' ? 1 : 0);
+    var b = $('#invFToggle');
+    b.innerHTML = 'Filtre' + (active ? '<span class="n">' + active + '</span>' : '');
+    b.setAttribute('aria-label', active ? 'Filtre, ' + active + (active === 1 ? ' activ' : ' active') : 'Filtre');
+  }
+
+  // „Deschide toate detaliile” / „Închide toate detaliile”, după starea proiectelor afișate acum.
+  function syncInvToggle() {
+    var btns = $$('#invList .inv-btn');
+    var all = btns.length > 0 && btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
+    var t = $('#invToggle');
+    t.hidden = !btns.length;
+    t.textContent = all ? 'Închide toate detaliile' : 'Deschide toate detaliile';
+    t.setAttribute('aria-pressed', String(all));
   }
 
   function invMatches(p) {
@@ -461,7 +482,8 @@
   function invSorted(items) {
     var out = items.slice();
     var pg = function (p) { var v = invProgress(p); return v === null ? -1 : v; };
-    if (inv.sort === 'progres-desc') out.sort(function (a, b) { return pg(b) - pg(a) || invCmpOrder(a, b); });
+    if (inv.sort === 'maturitate') out.sort(function (a, b) { return clusterIndex(a) - clusterIndex(b) || invCmpOrder(a, b); });
+    else if (inv.sort === 'progres-desc') out.sort(function (a, b) { return pg(b) - pg(a) || invCmpOrder(a, b); });
     else if (inv.sort === 'progres-asc') out.sort(function (a, b) { return pg(a) - pg(b) || invCmpOrder(a, b); });
     else if (inv.sort === 'minister') out.sort(function (a, b) { return String(a.ministry).localeCompare(String(b.ministry), 'ro') || invCmpOrder(a, b); });
     else out.sort(invCmpOrder);
@@ -492,6 +514,7 @@
 
   function invItem(p) {
     var c = clusterOf(p);
+    var ci = clusterIndex(p);
     var st = statusOf(p);
     var pr = invProgress(p);
     var money = moneyText(p);
@@ -499,11 +522,14 @@
     var open = !!accState[key];
     var fill = pr === null ? 0 : clip(pr, 0, 100);
     var ref = typeof p.refStage === 'number' && p.totalStages ? clip(p.refStage / p.totalStages * 100, 0, 100) : null;
+    var mb = c ? '<i class="inv-mb gp-m' + (ci + 1) + '" aria-hidden="true">' + (ci + 1) + '</i>' : '';
+    // etapa de maturitate apare într-o coloană proprie pe ecrane late și în rândul de sub nume pe cele mai înguste (CSS alege)
     return '<li class="inv" id="proiect-' + esc(p.id) + '" data-open="' + open + '"><h3 class="inv-h">' +
       '<button class="inv-btn" type="button" id="invb-' + esc(p.id) + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="invp-' + esc(p.id) + '">' +
       '<span class="inv-no">' + (p.order || '') + '</span>' +
       '<span class="inv-main"><span class="inv-name">' + esc(p.name) + '</span><span class="inv-sub">' +
-        (p.ministry ? '<span class="inv-min">' + ministryHtml(p.ministry) + '</span>' : '') + (money ? '<span class="inv-amt">' + esc(money) + '</span>' : '') + (c ? '<span class="inv-cl">' + esc(c.name) + '</span>' : '') + '</span></span>' +
+        (p.ministry ? '<span class="inv-min">' + ministryHtml(p.ministry) + '</span>' : '') + (money ? '<span class="inv-amt">' + esc(money) + '</span>' : '') + (c ? '<span class="inv-cl">' + mb + esc(c.name) + '</span>' : '') + '</span></span>' +
+      '<span class="inv-stage">' + (c ? mb + '<span>' + esc(c.name) + '</span>' : '') + '</span>' +
       '<span class="inv-state"><span class="pill pill-' + st.cls + '">' + esc(st.name) + '</span></span>' +
       '<span class="inv-prog">' + (pr === null ? '' : '<span class="pbar" aria-hidden="true"><i style="width:' + fill + '%"></i>' + (ref !== null ? '<b style="left:' + ref + '%"></b>' : '') + '</span><span class="pnum">' + pctRo(pr) + '</span>') + '</span>' +
       '<span class="inv-chev">' + ico('chev-d') + '</span></button></h3>' + invPanel(p) + '</li>';
@@ -512,11 +538,13 @@
   function renderInvList() {
     var all = D.investments;
     var items = invSorted(all.filter(invMatches));
-    $('#invCount').textContent = items.length + ' din ' + all.length + ' ' + plural(all.length, 'proiect', 'proiecte');
-    $('#invLegend').innerHTML = '<span class="lg"><i class="lg-fill"></i>etapa curentă</span><span class="lg"><i class="lg-mark"></i>etapa de referință</span>';
+    $('#invCount').textContent = items.length === all.length ? all.length + ' ' + plural(all.length, 'proiect', 'proiecte') : items.length + ' din ' + all.length + ' ' + plural(all.length, 'proiect', 'proiecte');
+    $('#invLegend').innerHTML = items.length ? '<span class="lg"><i class="lg-fill"></i>etapa curentă</span><span class="lg"><i class="lg-mark"></i>etapa de referință</span>' : '';
+    $('#invHead').hidden = !items.length;
     $('#invList').innerHTML = items.length ? items.map(invItem).join('') :
       '<li class="empty">' + (all.length ? 'Niciun proiect nu corespunde filtrelor alese. <button class="btn btn-line btn-sm" type="button" id="invReset">Arată toate proiectele</button>' :
         'Nu există proiecte publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/investments/new">Adăugați primul proiect</a>.' : '')) + '</li>';
+    syncInvToggle();
   }
 
   function renderGpFoot() {
@@ -525,6 +553,9 @@
     $('#gpFoot').innerHTML =
       (g.note ? '<div class="gp-note">' + ico('info') + '<p>' + esc(g.note) + '</p></div>' : '') +
       (src.length ? '<p class="gp-src">Surse: ' + src.map(function (x) { return '<a href="' + esc(x.u) + '" target="_blank" rel="noopener">' + esc(x.t || x.u) + '</a>'; }).join(', ') + '</p>' : '') +
+      '<details class="fold"><summary>Ce înseamnă etapele de maturitate</summary><ol class="stage-list">' + CLUSTERS.map(function (c, i) {
+        return '<li><i class="inv-mb gp-m' + (i + 1) + '" aria-hidden="true">' + (i + 1) + '</i><div><b>' + esc(c.name) + '</b><span>' + esc(c.desc) + '</span></div></li>';
+      }).join('') + '</ol></details>' +
       '<details class="fold"><summary>Abrevieri folosite în descrierile proiectelor</summary><dl class="abbr-list">' + ABBR.map(function (a) {
         return '<div><dt>' + esc(a[0]) + '</dt><dd>' + esc(a[1]) + '</dd></div>';
       }).join('') + '</dl></details>';
@@ -557,6 +588,12 @@
     renderGpOverview();
     renderInvFilters();
     renderInvList();
+  }
+
+  // Filtrele ascunse (pe ecrane înguste) se deschid din butonul „Filtre”.
+  function setInvFilters(open) {
+    $('#invCtl').setAttribute('data-open', String(open));
+    $('#invFToggle').setAttribute('aria-expanded', String(open));
   }
 
   function goInvestment(id) {
@@ -928,7 +965,7 @@
     D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: (LEVELS[p.level] || LEVELS.inter).name + ', ' + (p.strand || '') + '. Deschide pagina programului', k: 'interreg program ' + (p.desc || '') + ' ' + (ALIAS[p.id] || ''), go: function () { goProgram(p.id); } }); });
     D.investments.forEach(function (p) {
       var c = clusterOf(p);
-      idx.push({ cat: 'Planul de creștere', t: p.name, s: [p.ministry, moneyText(p), c && c.name, statusOf(p).name].filter(Boolean).join(' · '), k: [MINISTRY[p.ministry], p.text, p.delays, p.next].join(' '), go: function () { goInvestment(p.id); } });
+      idx.push({ cat: 'Investiții', t: p.name, s: [p.ministry, moneyText(p), c && c.name, statusOf(p).name].filter(Boolean).join(' · '), k: [MINISTRY[p.ministry], p.text, p.delays, p.next].join(' '), go: function () { goInvestment(p.id); } });
     });
     (D.settings.duties || []).forEach(function (d, i) {
       if (d.text || (d.items && d.items.length)) idx.push({ cat: 'Despre direcție', t: d.title, s: 'Funcție de bază. Deschide atribuțiile', k: (d.text || '') + ' ' + (d.items || []).join(' '), go: function () { goFunction(i); } });
@@ -1214,6 +1251,7 @@
       if (!b) return;
       accToggle(b);
       if (b.classList.contains('fn-btn')) syncFnToggle();
+      if (b.classList.contains('inv-btn')) syncInvToggle();
     });
     $('#fnToggle').addEventListener('click', function () {
       var btns = $$('#dutiesList .fn-btn');
@@ -1222,7 +1260,14 @@
       syncFnToggle();
     });
 
-    // planul de creștere
+    // investiții: proiectele din Planul de creștere
+    $('#invFToggle').addEventListener('click', function () { setInvFilters($('#invCtl').getAttribute('data-open') !== 'true'); });
+    $('#invToggle').addEventListener('click', function () {
+      var btns = $$('#invList .inv-btn');
+      var open = !btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
+      btns.forEach(function (b) { accToggle(b, open); });
+      syncInvToggle();
+    });
     $('#gpOverview').addEventListener('click', function (e) {
       var b = e.target.closest('[data-cluster]');
       if (!b) return;

@@ -172,6 +172,27 @@ test('datele de intrare nu sunt modificate', () => {
   assert.equal(JSON.stringify([stored, seed, upgrades]), before);
 });
 
+test('versiunea 3: introducerea secțiunii „Investiții” se înlocuiește doar dacă nu a fost modificată de om', () => {
+  const { seed, upgrades } = seedDefs();
+  const step = upgrades.find(u => u.rev === 3);
+  assert.ok(step && step.settings.growth.length === 1, 'versiunea 3 descrie vechiul text implicit');
+  const oldGrowth = step.settings.growth[0];
+  assert.match(oldGrowth.intro, /grupate după gradul de maturitate/);
+  assert.doesNotMatch(seed.settings.growth.intro, /grupate după gradul de maturitate/);
+  const stored = growth => ({ ...clone(seed), settings: { ...clone(seed.settings), seedRev: 2, growth: clone(growth) } });
+
+  const untouched = overlay.apply(stored(oldGrowth), seed, upgrades);
+  assert.deepEqual(untouched.content.settings.growth, seed.settings.growth, 'textul implicit vechi primește textul nou');
+  assert.equal(untouched.content.settings.seedRev, seed.settings.seedRev);
+  assert.ok(untouched.changed.has('settings'));
+
+  for (const mine of [{ ...oldGrowth, asOf: '2026-11-02' }, { ...oldGrowth, intro: 'Introducerea mea.' }, { ...oldGrowth, note: 'Nota mea.' }]) {
+    const r = overlay.apply(stored(mine), seed, upgrades);
+    assert.deepEqual(r.content.settings.growth, mine, 'ce a modificat omul rămâne');
+    assert.equal(r.content.settings.seedRev, seed.settings.seedRev);
+  }
+});
+
 /* ---------- coerența conținutului livrat ---------- */
 test('conținutul de pornire: versiunea, lista de actualizare și identificatorii se potrivesc', () => {
   const { seed, upgrades } = seedDefs();

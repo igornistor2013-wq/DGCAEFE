@@ -7,7 +7,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createMockGitHub } = require('../test-support/mock-github');
 const { createBackend, parseAuditCommit } = require('../web/assets/js/admin-github-core.js');
-const { oldContent } = require('../test-support/old-content');
+const { oldContent, seedContent } = require('../test-support/old-content');
 
 const ROOT = path.resolve(__dirname, '..');
 const PNG_1PX = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
@@ -168,7 +168,7 @@ test('conținut mai vechi în depozit: la citire se completează din „seed”,
   const settings = await gh.request('GET', '/api/admin/settings');
   assert.equal(settings.heroLead, mine.heroLead, 'textul scris de administrator rămâne');
   assert.match(settings.orgName, /Coordonare/, 'textul implicit vechi este înlocuit');
-  assert.equal(settings.seedRev, 2);
+  assert.equal(settings.seedRev, seedContent().settings.seedRev);
   assert.equal(mock.count('POST'), 0);
   assert.equal(mock.count('PATCH'), 0);
   assert.equal(mock.commits().size, base, 'citirea nu scrie nimic');
@@ -179,7 +179,7 @@ test('conținut mai vechi în depozit: la citire se completează din „seed”,
   assert.equal(JSON.parse(mock.fileText('storage/content/investments.json')).length, 19);
   assert.equal(JSON.parse(mock.fileText('storage/content/legal.json')).length, 16);
   const saved = JSON.parse(mock.fileText('storage/content/settings.json'));
-  assert.deepEqual([saved.heroLead, saved.footerNote, saved.seedRev], [mine.heroLead, mine.footerNote, 2]);
+  assert.deepEqual([saved.heroLead, saved.footerNote, saved.seedRev], [mine.heroLead, mine.footerNote, seedContent().settings.seedRev]);
   assert.deepEqual(JSON.parse(mock.fileText('storage/content/news.json')).map(x => x.id).slice(0, 1), [rec.id]);
   for (const n of ['documents', 'events', 'programs', 'gallery']) assert.equal(mock.fileText(`storage/content/${n}.json`), old[`storage/content/${n}.json`], `${n} rămâne neschimbat`);
 

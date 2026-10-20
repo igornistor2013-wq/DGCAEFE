@@ -162,36 +162,45 @@
     </div>
   </section>
 
-  <!-- PLANUL DE CREȘTERE -->
+  <!-- INVESTIȚII: PROIECTELE DIN PLANUL DE CREȘTERE -->
   <section class="sec" id="plan-crestere" aria-labelledby="h-plan">
     <div class="wrap">
-      <header class="sec-head">
-        <div><h2 id="h-plan">Planul de creștere</h2><p id="growthIntro"></p></div>
+      <header class="sec-head sec-head-inv">
+        <h2 id="h-plan">Proiecte investiționale</h2>
         <p class="src" id="growthAsOf"></p>
+        <p id="growthIntro"></p>
       </header>
-      <div id="gpOverview"></div>
-      <div class="toolbar gp-toolbar">
-        <div class="chips" id="invStatus" role="group" aria-label="Filtrare după starea proiectului"></div>
-        <div class="tools">
-          <div class="field-icon">
-            <label class="sr" for="invQ">Căutare în proiecte</label>
-            <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
-            <input class="input" id="invQ" type="search" placeholder="Proiect sau minister" autocomplete="off">
-          </div>
-          <label class="sr" for="invSort">Ordonare</label>
+      <div class="inv-ctl" id="invCtl" data-open="false">
+        <div class="inv-fp" id="invFilters">
+          <div class="inv-strip" id="gpOverview"></div>
+          <div class="chips inv-chips" id="invStatus" role="group" aria-label="Filtrare după starea proiectului"></div>
+        </div>
+        <div class="field-icon inv-search">
+          <label class="sr" for="invQ">Căutare în proiecte</label>
+          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+          <input class="input" id="invQ" type="search" placeholder="Căutați un proiect sau un minister" autocomplete="off">
+        </div>
+        <div class="inv-sort">
+          <label class="sr" for="invSort">Ordonarea proiectelor</label>
           <select class="select" id="invSort">
-            <option value="nr">Ordinea din raport</option>
+            <option value="nr">Ordinea din raport (1–19)</option>
+            <option value="maturitate">După etapa de maturitate</option>
             <option value="progres-desc">Progres, descrescător</option>
             <option value="progres-asc">Progres, crescător</option>
             <option value="minister">După minister</option>
           </select>
         </div>
+        <button class="btn btn-line btn-sm inv-ftoggle" type="button" id="invFToggle" aria-expanded="false" aria-controls="invFilters">Filtre</button>
       </div>
       <div class="inv-meta">
         <p class="count" id="invCount" aria-live="polite"></p>
         <p class="inv-legend" id="invLegend"></p>
+        <button class="btn btn-line btn-sm" type="button" id="invToggle" aria-pressed="false" hidden>Deschide toate detaliile</button>
       </div>
-      <ol class="inv-list" id="invList"></ol>
+      <div class="inv-head" id="invHead" aria-hidden="true">
+        <span class="h-no">Nr.</span><span>Proiect</span><span class="h-stage">Etapa de maturitate</span><span>Starea</span><span title="Bara arată etapa curentă; liniuța verticală arată etapa de referință">Progres</span>
+      </div>
+      <ol class="inv-list" id="invList" aria-label="Lista proiectelor investiționale"></ol>
       <div class="gp-foot" id="gpFoot"></div>
       <div id="planBox"></div>
     </div>
@@ -393,7 +402,7 @@
         <ul>
           <li><a href="#noutati">Noutăți</a></li>
           <li><a href="#despre">Despre direcție</a></li>
-          <li><a href="#plan-crestere">Planul de creștere</a></li>
+          <li><a href="#plan-crestere">Proiecte investiționale</a></li>
           <li><a href="#cadrul-legal">Cadrul legal</a></li>
           <li><a href="#programe">Programe de cooperare</a></li>
           <li><a href="#documente">Documente</a></li>

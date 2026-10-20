@@ -263,7 +263,7 @@
     investments: {
       key: 'investments',
       title: 'Proiecte investiționale',
-      intro: 'Proiectele din Planul de creștere afișate în secțiunea „Planul de creștere” a paginii publice: stadiul, progresul și următorii pași. Un proiect cu „Publicat” debifat rămâne aici, dar nu apare vizitatorilor.',
+      intro: 'Proiectele din Planul de creștere afișate în secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”): stadiul, progresul și următorii pași. Un proiect cu „Publicat” debifat rămâne aici, dar nu apare vizitatorilor.',
       add: 'Adaugă proiect',
       editTitle: it => 'Editare proiect investițional',
       count: ['proiect', 'proiecte'],

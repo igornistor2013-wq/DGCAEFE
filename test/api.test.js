@@ -17,7 +17,7 @@ const { once } = require('node:events');
 const zlib = require('node:zlib');
 const { execFileSync, spawnSync } = require('node:child_process');
 const { createApp } = require('../server');
-const { oldContent, writeContent } = require('../test-support/old-content');
+const { oldContent, writeContent, seedContent } = require('../test-support/old-content');
 
 const PNG_1PX = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 const PDF_MIN = Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n');
@@ -542,7 +542,7 @@ test('date salvate de versiunea anterioară: la pornire se adaugă conținutul n
     assert.equal(r.settings.footerNote, mine.footerNote);
     assert.deepEqual(r.settings.contact.phones, ['022 111 222']);
     assert.match(r.settings.orgName, /Coordonare/, 'denumirea implicită veche a primit denumirea oficială');
-    assert.equal(r.settings.seedRev, 2);
+    assert.equal(r.settings.seedRev, seedContent().settings.seedRev);
     assert.ok(r.settings.duties.length >= 8, 'funcțiile din Regulament');
     assert.equal(JSON.parse(fs.readFileSync(path.join(dir, 'content', 'investments.json'), 'utf8')).length, 19, 'noile proiecte au fost salvate');
     assert.equal(fs.readFileSync(path.join(dir, 'content', 'news.json'), 'utf8'), newsBefore, 'știrile nu au fost rescrise');

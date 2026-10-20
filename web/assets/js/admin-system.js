@@ -127,7 +127,7 @@
           { name: 'rights', label: 'Drepturile direcției', type: 'lines', rows: 9, hint: 'Câte un drept pe rând.' },
           { name: 'responsibilities', label: 'Responsabilitățile direcției', type: 'lines', rows: 12, hint: 'Câte o responsabilitate pe rând.' },
           { name: 'aboutNote', label: 'Sursa informațiilor', type: 'textarea', max: 800, rows: 2, hint: 'Se afișează sub secțiune, ca mențiune de sursă.' },
-          { type: 'heading', label: 'Planul de creștere', hint: 'Textele din jurul listei de proiecte investiționale. Proiectele se administrează în secțiunea „Proiecte investiționale”.' },
+          { type: 'heading', label: 'Secțiunea „Proiecte investiționale”: texte', hint: 'Textele din jurul listei de proiecte. Proiectele în sine se administrează în meniul „Proiecte investiționale”.' },
           { name: 'growth.asOf', label: 'Situația proiectelor la data de', type: 'date', w: 'third' },
           { name: 'growth.intro', label: 'Introducere', type: 'textarea', max: 1200, rows: 4 },
           { name: 'growth.note', label: 'Notă explicativă', type: 'textarea', max: 1500, rows: 4, hint: 'Se afișează sub lista de proiecte: cum se citește bara de progres, precizări despre valori.' },
