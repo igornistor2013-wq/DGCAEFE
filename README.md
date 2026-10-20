@@ -1,8 +1,8 @@
-# Direcția Generală Asistență Externă și Fonduri Europene
+# Direcția Generală Coordonare Asistență Externă și Fonduri Europene
 
 Pagina direcției din cadrul Cancelariei de Stat a Republicii Moldova, cu **panou de administrare**: după autentificare se pot adăuga și modifica texte, documente, fotografii, știri, evenimente și acte normative, fără cunoștințe de programare.
 
-Conținutul de pornire provine din paginile oficiale [gov.md](https://gov.md) (cadrul legal, cooperarea externă, programele de cooperare transfrontalieră, transnațională și interregională, evenimente).
+Conținutul de pornire provine din paginile oficiale [gov.md](https://gov.md) (cadrul legal, cooperarea externă, programele de cooperare transfrontalieră, transnațională și interregională, evenimente) și din două documente ale direcției: Regulamentul de activitate (aprilie 2026) și Raportul „Priorități DCAEPI” din 15.10.2026 (funcțiile, structura, drepturile și responsabilitățile direcției, proiectele din Planul de creștere).
 
 ## Cuprins
 
@@ -23,12 +23,12 @@ Conținutul de pornire provine din paginile oficiale [gov.md](https://gov.md) (c
 
 ## 1. Ce conține
 
-**Pagina publică** (`/`): stil instituțional (albastru regal, bandă de prezentare cu titlu mare, secțiuni alternate alb / gri deschis, carduri cu margine albastră, cronologie la evenimente), cu sigla Guvernului, bară de accesibilitate (mărire text, contrast ridicat) și secțiunile Noutăți, Despre direcție, Cadrul legal, Cooperare externă, Programe, Documente (cu filtre și căutare), Evenimente, **Galerie foto** (cu vizualizare mărită) și Contacte, plus căutare în tot conținutul (`Ctrl + K`).
+**Pagina publică** (`/`): stil instituțional (albastru regal, bandă de prezentare cu titlu mare, secțiuni alternate alb / gri deschis, carduri cu margine albastră, cronologie la evenimente), cu sigla Guvernului, bară de accesibilitate (mărire text, contrast ridicat) și secțiunile Noutăți, **Despre direcție** (principiile de activitate, cele opt funcții de bază cu atribuțiile lor, structura direcției, drepturile și responsabilitățile, după Regulamentul de activitate), **Investiții** (Planul de creștere: cele 19 proiecte grupate pe etape de maturitate, cu stadiu, întârzieri, pasul următor și progres, după Raportul „Priorități DCAEPI”), Cadrul legal, Cooperare externă, Programe, Documente (cu filtre și căutare), Evenimente, **Galerie foto** (cu vizualizare mărită) și Contacte, plus căutare în tot conținutul (`Ctrl + K`), inclusiv în proiecte și funcții.
 
 **Panoul de administrare** (`/admin/`): autentificare cu utilizator și parolă pe server sau, **gratuit, direct pe GitHub Pages**, cu un jeton de acces GitHub (vezi 5.3). Apoi:
 
-- gestionarea știrilor, documentelor (cu încărcare de fișiere), fotografiilor, evenimentelor, actelor normative și programelor;
-- editarea textelor paginii (titlu, prezentare, contacte, subsol);
+- gestionarea știrilor, documentelor (cu încărcare de fișiere), fotografiilor, evenimentelor, actelor normative, programelor și a **proiectelor de investiții** din Planul de creștere;
+- editarea textelor paginii (titlu, prezentare, funcțiile, structura, drepturile și responsabilitățile direcției, introducerea și nota Planului de creștere, contacte, subsol);
 - schimbarea parolei, jurnal de activitate, copie de siguranță și export pentru GitHub Pages.
 
 **Versiunea statică** (doar citire): aceeași pagină publică, fără server, pentru GitHub Pages sau orice găzduire de fișiere (`npm run build:static`). Cu opțiunea `--github-repo`, aceeași construire include și panoul de administrare care salvează direct în depozitul GitHub (fluxul `pages.yml` o folosește).
@@ -99,10 +99,13 @@ Toți administratorii au aceleași drepturi. Un cont nou se creează cu comanda 
 | **Evenimente** | Dată, loc, descriere, legături |
 | **Cadrul legal** | Legi, hotărâri de Guvern, ordine |
 | **Programe** | Descrierea programelor de cooperare |
-| **Texte pagină** | Titlul și prezentarea de pe prima pagină, datele de contact, harta, subsolul |
+| **Proiecte investiționale** | Proiectele din Planul de creștere: denumire, minister, valoare, etapa de maturitate, starea față de calendar (în termen, în întârziere, blocat, în implementare), progres și etape, stadiul curent, întârzieri, pasul următor, numărul de ordine. Căsuța „Publicat” ascunde un proiect de pe pagină fără să-l șteargă |
+| **Texte pagină** | Titlul și prezentarea de pe prima pagină, „Despre direcție” (principii, funcții de bază, structură, drepturi, responsabilități), „Planul de creștere” (data situației, introducere, notă explicativă, surse), datele de contact, harta, subsolul |
 | **Publicare și copii** | Export pentru GitHub Pages și copie de siguranță |
 | **Jurnal de activitate** | Cine și când a modificat ce |
 | **Cont și parolă** | Schimbarea parolei |
+
+Numerele din secțiunea „Planul de creștere” (câte proiecte sunt la fiecare etapă de maturitate, procentele, numărătoarea pe stări) **se calculează automat din proiecte**; nu se scriu de mână, deci rămân corecte când adăugați, mutați sau ascundeți un proiect.
 
 Fotografiile sunt pregătite automat în browser, înainte de încărcare: se redimensionează (maximum 2000 px), se convertesc în JPEG (cu excepția GIF-urilor animate), se creează o miniatură și se elimină datele EXIF, inclusiv locația GPS. Prima dată, galeria conține șase **imagini de exemplu** (marcate „Imagine de exemplu”), pe care le puteți șterge dintr-un clic din panou, după ce încărcați fotografii reale.
 
@@ -219,7 +222,7 @@ Pagina publicată pe GitHub Pages include panoul de administrare, la adresa `htt
 1. În depozitul GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions** (o singură dată).
 2. La următorul `push` pe ramura `main`, fluxul „Publică pe GitHub Pages” construiește pagina și o publică. Adresa apare în **Settings → Pages**, de regulă `https://NUME-UTILIZATOR.github.io/NUME-DEPOZIT/`. Prima publicare durează câteva minute.
 
-Fluxul publică conținutul din folderul `storage/` dacă acesta există în depozit, altfel conținutul de pornire din `seed/`. Pagina publicată include și panoul de administrare de la `…/admin/` (varianta A); dacă nu îl folosiți, pur și simplu nu vă conectați la el.
+Fluxul publică conținutul din folderul `storage/` dacă acesta există în depozit, altfel conținutul de pornire din `seed/`. Când versiunea paginii este mai nouă decât ce aveți în `storage/` (de exemplu aduce proiecte sau texte noi), conținutul nou din `seed/` se adaugă la construire peste `storage/`, fără să șteargă modificările dumneavoastră (vezi 7.1). Pagina publicată include și panoul de administrare de la `…/admin/` (varianta A); dacă nu îl folosiți, pur și simplu nu vă conectați la el.
 
 **Cum se actualizează pagina:**
 
@@ -312,7 +315,7 @@ Tot ce se modifică din panou se păstrează în `DATA_DIR` (implicit `storage/`
 ```
 storage/
 ├── content/        news.json, documents.json, events.json, legal.json,
-│                   programs.json, gallery.json, settings.json
+│                   programs.json, gallery.json, investments.json, settings.json
 ├── uploads/
 │   ├── img/        fotografii și miniaturi
 │   └── docs/       documente încărcate
@@ -324,6 +327,15 @@ storage/
 - **Pe GitHub Pages (varianta A)** datele se află în depozit, în `storage/content` și `storage/uploads`, iar copia de siguranță este istoricul GitHub: orice versiune anterioară se poate reface (vezi 5.3). Pagina „Publicare și copii” oferă și descărcarea întregului depozit (ZIP) de la GitHub.
 - Fișierele încărcate și nefolosite (de exemplu o fotografie încărcată și abandonată fără a salva) se șterg automat după 24 de ore. Un fișier șters din panou este eliminat și de pe disc.
 - Scrierea fișierelor este atomică: o oprire bruscă a serverului nu corupe conținutul.
+
+### 7.1 Versiuni noi ale paginii și conținutul deja salvat
+
+Când o versiune nouă a paginii aduce conținut nou (de exemplu proiectele din Planul de creștere sau acte normative în plus), acesta ajunge și la cine are deja conținut salvat, **fără să se piardă ce ați modificat**. Regulile sunt aceleași pe server, în versiunea statică și în panoul de pe GitHub Pages (`web/assets/js/content-overlay.js`):
+
+- o colecție care lipsește din `storage/content/` (de exemplu `investments.json`) se ia din `seed/content/`;
+- `settings.json` poartă versiunea conținutului de pornire (`seedRev`). Dacă este mai veche decât cea din `seed/content/settings.json`, cheile de text care lipsesc se completează, iar textele rămase **neschimbate** față de vechea valoare implicită se înlocuiesc cu cele noi (lista este în `seed/upgrades.json`). **Un text modificat de dumneavoastră nu se atinge niciodată**;
+- înregistrările noi, listate în `seed/upgrades.json` (de exemplu actele normative noi), se adaugă o singură dată, dacă nu există deja un act cu același tip, număr și an; ce ștergeți ulterior nu mai revine;
+- pe server completările se scriu în `storage/content/` la prima pornire; în varianta A ele apar imediat în panou și se scriu în depozit odată cu prima salvare; la construirea versiunii statice se aplică la fiecare construire, fără să se scrie nimic în `storage/`.
 
 ---
 
@@ -354,11 +366,13 @@ web/index.html         pagina publică
 web/admin/             panoul de administrare (index.html)
 web/assets/            css/, js/ (site.js, common.js, admin-*.js), fonts/ (Raleway, Roboto), img/ (sigla)
                        admin-schemas.js (validările, comune serverului și browserului), admin-github-core.js
-                       (salvarea în depozitul GitHub) și admin-github.js (conectarea, indicatorul de publicare)
-seed/                  conținutul de pornire (copiat în DATA_DIR la prima pornire)
+                       (salvarea în depozitul GitHub) și admin-github.js (conectarea, indicatorul de publicare);
+                       content-overlay.js (îmbinarea conținutului de pornire cu cel salvat, vezi 7.1)
+seed/                  conținutul de pornire (copiat în DATA_DIR la prima pornire); upgrades.json descrie ce se
+                       schimbă la cei care au deja conținut salvat (vezi 7.1)
 scripts/               build-static.js (versiunea statică), set-password.js (resetarea parolei)
 test/                  teste automate
-test-support/          simulatorul API-ului GitHub folosit de teste
+test-support/          simulatorul API-ului GitHub și conținutul „vechi” reconstituit pentru teste
 .github/workflows/     teste și publicare pe GitHub Pages
 Dockerfile, docker-compose.yml, render.yaml, .env.example
 ```
@@ -371,7 +385,7 @@ Dockerfile, docker-compose.yml, render.yaml, .env.example
 npm test
 ```
 
-Cele peste 60 de teste automate pornesc serverul cu un folder de date temporar și verifică, printre altele: autentificarea și limitarea încercărilor, protecția CSRF, validările în română, încărcările periculoase (fișiere false, SVG, nume cu `../`), curățarea fișierelor la ștergere, accesul interzis la datele private, copia de siguranță, exportul static (fără ciorne, cu căi relative), scripturile din `scripts/` și citirea fișierului `.env`.
+Cele peste 80 de teste automate pornesc serverul cu un folder de date temporar și verifică, printre altele: autentificarea și limitarea încercărilor, protecția CSRF, validările în română, încărcările periculoase (fișiere false, SVG, nume cu `../`), curățarea fișierelor la ștergere, accesul interzis la datele private, copia de siguranță, exportul static (fără ciorne, cu căi relative), scripturile din `scripts/` și citirea fișierului `.env`. Alte teste verifică proiectele din Planul de creștere (validări, calculul progresului, ascundere, export), regulile de îmbinare a conținutului nou cu cel salvat (`test/overlay.test.js`: un text modificat de administrator rămâne, ce se șterge nu revine, a doua aplicare nu schimbă nimic) și coerența conținutului livrat (cifrele din Raport, identificatorii din `seed/upgrades.json`).
 
 Administrarea direct pe GitHub se verifică pe un simulator al API-ului GitHub (`test-support/mock-github.js`): conectare, bootstrap la prima salvare, fișiere încărcate, operațiuni în bloc într-un singur commit, modificări simultane ale altcuiva, limitări și erori ale GitHub, jeton expirat, jurnal și starea publicării. Un test rulează aceeași succesiune de operațiuni pe serverul real și pe varianta GitHub și compară rezultatele și conținutul salvat.
 
@@ -384,6 +398,8 @@ Administrarea direct pe GitHub se verifică pe un simulator al API-ului GitHub (
 - Toți administratorii au aceleași drepturi; nu există roluri sau flux de aprobare.
 - Fișierele încărcate nu sunt scanate cu antivirus; se verifică doar tipul lor.
 - Textele de prezentare scrise special pentru această pagină (titlul de pe prima pagină, descrierile nivelurilor de cooperare și ale programelor) trebuie revizuite și aprobate de instituție; restul conținutului provine din gov.md, preluat în octombrie 2026, și trebuie verificat periodic față de sursa oficială.
+- Proiectele din Planul de creștere sunt preluate din Raportul „Priorități DCAEPI” din 15.10.2026, fără corecturi de fond. Unde raportul nu se potrivește cu sine (de exemplu procentul de progres și numărul etapei la proiectele 2 și 17, sau data „30.08.2027” din textul proiectului 9), valorile sunt păstrate ca în sursă și trebuie confirmate cu autorii raportului. Situația se schimbă: actualizați proiectele din panou și data situației din „Texte pagină”. Starea „În întârziere” se afișează public; un proiect se poate ascunde cu căsuța „Publicat”.
+- Din Raport și din Regulament nu s-au preluat numele persoanelor, legăturile către rapoartele interne (Power BI) și numărul de înregistrare al Regulamentului. Cele opt acte normative adăugate din Regulament nu au încă legături către textul lor; se pot completa din panou, la „Cadrul legal”.
 - Formularul de contact deschide programul de e-mail al vizitatorului (`mailto:`); nu trimite mesaje de pe server.
 - Harta din secțiunea Contacte este încorporată de la Google; este singurul serviciu extern al paginii publice.
 
@@ -391,7 +407,7 @@ Administrarea direct pe GitHub se verifică pe un simulator al API-ului GitHub (
 
 ## 12. Surse și licențe
 
-- **Conținut:** paginile oficiale [gov.md](https://gov.md), disponibile sub licența [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.ro) (atribuire, distribuire în condiții identice). Mențiunea apare în subsolul paginii; păstrați-o.
+- **Conținut:** paginile oficiale [gov.md](https://gov.md), disponibile sub licența [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.ro) (atribuire, distribuire în condiții identice). Mențiunea apare în subsolul paginii; păstrați-o. Funcțiile, structura, drepturile și responsabilitățile direcției provin din Regulamentul de activitate (aprilie 2026), iar proiectele din Planul de creștere din Raportul „Priorități DCAEPI” (15.10.2026), documente primite de la beneficiar.
 - **Sigla:** emblema Guvernului Republicii Moldova (fișier furnizat de beneficiar); drepturile aparțin Guvernului.
 - **Fonturi:** [Raleway](https://fonts.google.com/specimen/Raleway) (titluri, meniu, butoane) și [Roboto](https://fonts.google.com/specimen/Roboto) (text), ambele sub licența SIL Open Font License 1.1 (textele licențelor sunt în `web/assets/fonts/`). Fișierele se servesc din proiect; pagina nu se conectează la Google Fonts.
 - **Dependențe:** Express, helmet, compression, multer, express-rate-limit, bcryptjs, archiver, fiecare cu licența proprie (MIT sau similară).

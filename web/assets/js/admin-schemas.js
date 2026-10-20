@@ -11,6 +11,11 @@
   const GROUPS = ['', 'buletin', 'oficial', 'stiri'];
   const LEVELS = ['cross', 'trans', 'inter'];
   const LEGAL_TYPES = ['Lege', 'HG', 'Ordin', 'Altele'];
+  // Proiectele investiționale din Planul de creștere: etapa de maturitate a proiectului și starea față de calendar.
+  const CLUSTERS = ['initiere', 'fezabilitate', 'maturitate', 'negociere', 'semnat'];
+  const INV_STATUS = ['termen', 'intarziere', 'blocat', 'implementare'];
+  const CURRENCIES = ['EUR', 'USD', 'MDL'];
+  const AMOUNT_QUAL = ['', 'max.', 'circa'];
 
   const IMG_EXT = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
   const DOC_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp', 'rtf', 'txt', 'csv', 'zip'];
@@ -124,6 +129,20 @@
       const n = Number(v);
       if (!Number.isInteger(n) || n < min || n > max) throw bad(`Câmpul „${label}” trebuie să fie un număr întreg între ${min} și ${max}.`);
       return n;
+    }
+
+    // Număr cu zecimale; acceptă și virgula („151,5”). Gol înseamnă „necompletat”.
+    function num(v, label, { min = -1e12, max = 1e12, dec = 2 } = {}) {
+      if (v === null || v === undefined) return null;
+      if (typeof v === 'object') throw bad(`Câmpul „${label}” este invalid.`);
+      if (typeof v === 'string') {
+        v = v.trim().replace(/\s+/g, '').replace(',', '.');
+        if (v === '') return null;
+      }
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < min || n > max) throw bad(`Câmpul „${label}” trebuie să fie un număr între ${min} și ${max}.`);
+      const f = 10 ** dec;
+      return Math.round(n * f) / f;
     }
 
     const bool = v => v === true || v === 'true' || v === 1 || v === '1';
@@ -305,9 +324,45 @@
       }
     };
 
+    const investments = {
+      label: i => i.name,
+      clean(b) {
+        const stage = int(b.stage, 'Etapa curentă', { min: 0, max: 1000 });
+        const refStage = int(b.refStage, 'Etapa de referință', { min: 0, max: 1000 });
+        const totalStages = int(b.totalStages, 'Numărul total de etape', { min: 1, max: 1000 });
+        if (totalStages !== null) {
+          if (stage !== null && stage > totalStages) throw bad('Etapa curentă nu poate fi mai mare decât numărul total de etape.');
+          if (refStage !== null && refStage > totalStages) throw bad('Etapa de referință nu poate fi mai mare decât numărul total de etape.');
+        }
+        let progress = num(b.progress, 'Progresul (%)', { min: 0, max: 100, dec: 1 });
+        if (progress === null && stage !== null && totalStages) progress = Math.round((stage / totalStages) * 1000) / 10;
+        const amount = num(b.amount, 'Valoarea (mil.)', { min: 0, max: 1e6, dec: 2 });
+        return {
+          order: int(b.order, 'Numărul de ordine', { min: 0, max: 9999 }) || 0,
+          name: str(b.name, 'Denumirea proiectului', { max: 300, req: true }),
+          ministry: str(b.ministry, 'Ministerul responsabil', { max: 100 }),
+          amount,
+          currency: oneOf(b.currency, 'Moneda', CURRENCIES, 'EUR'),
+          amountQual: amount === null ? '' : oneOf(b.amountQual, 'Precizarea valorii', AMOUNT_QUAL, ''),
+          cluster: oneOf(b.cluster, 'Etapa de maturitate', CLUSTERS, 'initiere'),
+          status: oneOf(b.status, 'Starea proiectului', INV_STATUS, 'termen'),
+          progress,
+          stage,
+          refStage,
+          totalStages,
+          text: str(b.text, 'Stadiul curent', { max: 5000 }),
+          delays: str(b.delays, 'Întârzieri', { max: 3000 }),
+          next: str(b.next, 'Următorul pas', { max: 3000 }),
+          links: objList(b.links, 'Legături', 6, l => pairLink(l, 'Text legătură', 'Adresa legăturii')),
+          published: b.published === undefined ? true : bool(b.published)
+        };
+      }
+    };
+
     function cleanSettings(b) {
       b = b && typeof b === 'object' ? b : {};
       const c = b.contact && typeof b.contact === 'object' ? b.contact : {};
+      const g = b.growth && typeof b.growth === 'object' ? b.growth : {};
       const mapEmbed = str(c.mapEmbed, 'Harta (adresa de încorporare)', { max: 1500 });
       if (mapEmbed && !/^https:\/\/www\.google\.com\/maps\/embed\?[^\s"'<>]+$/.test(mapEmbed)) {
         throw bad('Adresa hărții trebuie să înceapă cu https://www.google.com/maps/embed?');
@@ -322,11 +377,28 @@
         quickLinks: objList(b.quickLinks, 'Acces rapid', 8, l => pairLink(l, 'Text', 'Adresa', { anchor: true })),
         aboutP1: str(b.aboutP1, 'Despre direcție, primul paragraf', { max: 1200 }),
         aboutP2: str(b.aboutP2, 'Despre direcție, al doilea paragraf', { max: 1200 }),
-        duties: objList(b.duties, 'Atribuții', 8, d => {
-          const title = str(d && d.title, 'Titlul atribuției', { max: 120 });
-          const text = str(d && d.text, 'Descrierea atribuției', { max: 500 });
-          return title || text ? { title, text } : null;
+        aboutNote: str(b.aboutNote, 'Despre direcție, sursa informațiilor', { max: 800 }),
+        principles: strList(b.principles, 'Principiile de activitate', { max: 10, item: 160 }),
+        duties: objList(b.duties, 'Funcțiile de bază', 12, d => {
+          const title = str(d && d.title, 'Titlul funcției', { max: 140 });
+          const text = str(d && d.text, 'Descrierea funcției', { max: 800 });
+          const items = strList(d && d.items, 'Atribuțiile funcției', { max: 20, item: 700 });
+          return title || text || items.length ? { title, text, items } : null;
         }),
+        structure: objList(b.structure, 'Structura direcției', 12, r => {
+          const title = str(r && r.title, 'Funcția din structură', { max: 100 });
+          if (!title) return null;
+          const count = int(r && r.count, 'Numărul de unități', { min: 0, max: 999 });
+          return { title, count: count === null ? 1 : count };
+        }),
+        rights: strList(b.rights, 'Drepturile direcției', { max: 20, item: 700 }),
+        responsibilities: strList(b.responsibilities, 'Responsabilitățile direcției', { max: 25, item: 700 }),
+        growth: {
+          asOf: date(g.asOf, 'Situația proiectelor la data de'),
+          intro: str(g.intro, 'Planul de creștere, introducere', { max: 1200 }),
+          note: str(g.note, 'Planul de creștere, notă explicativă', { max: 1500 }),
+          sources: objList(g.sources, 'Planul de creștere, surse de date', 6, l => pairLink(l, 'Text', 'Adresa'))
+        },
         contact: {
           address: str(c.address, 'Adresa', { max: 300 }),
           phones: strList(c.phones, 'Telefoane', { max: 12, item: 40 }),
@@ -346,8 +418,8 @@
       };
     }
 
-    return { news, documents, events, legal, gallery, programs, cleanSettings };
+    return { news, documents, events, legal, gallery, programs, investments, cleanSettings };
   }
 
-  return { create, sniff, slug, filesIn, SECTIONS, GROUPS, LEVELS, LEGAL_TYPES, IMG_EXT, DOC_EXT, UPLOAD_RE };
+  return { create, sniff, slug, filesIn, SECTIONS, GROUPS, LEVELS, LEGAL_TYPES, CLUSTERS, INV_STATUS, CURRENCIES, AMOUNT_QUAL, IMG_EXT, DOC_EXT, UPLOAD_RE };
 });

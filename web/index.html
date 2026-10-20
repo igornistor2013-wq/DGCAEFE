@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Direcția Generală Asistență Externă și Fonduri Europene | Cancelaria de Stat</title>
-<meta name="description" content="Acte normative, rapoarte privind asistența externă, programe de cooperare Interreg 2021–2027, evenimente și galerie foto ale Direcției Generale Asistență Externă și Fonduri Europene din cadrul Cancelariei de Stat a Republicii Moldova.">
+<title>Direcția Generală Coordonare Asistență Externă și Fonduri Europene | Cancelaria de Stat</title>
+<meta name="description" content="Proiecte investiționale din Planul de creștere, acte normative, rapoarte privind asistența externă, programe de cooperare Interreg 2021–2027, evenimente și galerie foto ale Direcției Generale Coordonare Asistență Externă și Fonduri Europene din cadrul Cancelariei de Stat a Republicii Moldova.">
 <meta name="theme-color" content="#063295">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Direcția Generală Asistență Externă și Fonduri Europene">
+<meta property="og:title" content="Direcția Generală Coordonare Asistență Externă și Fonduri Europene">
 <meta property="og:description" content="Cancelaria de Stat a Republicii Moldova">
 <link rel="icon" href="assets/img/gov-logo.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/raleway-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -44,7 +44,7 @@
       <img class="brand-logo" src="assets/img/gov-logo.svg" alt="Stema Guvernului Republicii Moldova" width="58" height="67">
       <span class="brand-text">
         <span class="brand-parent" id="brandParent">Cancelaria de Stat a Republicii Moldova</span>
-        <span class="brand-name" id="brandName">Direcția Generală Asistență Externă și Fonduri Europene</span>
+        <span class="brand-name" id="brandName">Direcția Generală Coordonare Asistență Externă și Fonduri Europene</span>
       </span>
     </a>
     <nav class="mainnav" id="mainnav" aria-label="Meniu principal">
@@ -54,6 +54,7 @@
       <ul id="navList">
         <li><a href="#noutati">Noutăți</a></li>
         <li><a href="#despre">Despre</a></li>
+        <li><a href="#plan-crestere">Investiții</a></li>
         <li><a href="#cadrul-legal">Cadrul legal</a></li>
         <li><a href="#cooperare-externa">Cooperare</a></li>
         <li><a href="#programe">Programe</a></li>
@@ -132,19 +133,75 @@
       </header>
       <div class="about">
         <div class="about-text" id="aboutText"></div>
-        <div>
-          <h3 class="about-h">Atribuții principale</h3>
-          <ol class="duties" id="dutiesList"></ol>
+        <aside class="about-princ" id="aboutPrinc" aria-labelledby="h-princ"></aside>
+      </div>
+      <ul class="stats" id="aboutStats" aria-label="Direcția în cifre"></ul>
+
+      <div class="about-block" id="functii">
+        <div class="about-bh">
+          <div>
+            <h3 class="about-h" id="h-fn">Funcțiile de bază</h3>
+            <p class="about-sub">Funcțiile din Regulamentul de activitate al Direcției. Deschideți o funcție pentru a vedea atribuțiile prin care se realizează.</p>
+          </div>
+          <button class="btn btn-line btn-sm" type="button" id="fnToggle" aria-pressed="false">Deschide toate</button>
+        </div>
+        <ol class="fn-list" id="dutiesList" aria-labelledby="h-fn"></ol>
+      </div>
+
+      <div class="about-two">
+        <div class="about-block" id="structura">
+          <h3 class="about-h" id="h-org">Structura și efectivul</h3>
+          <div id="orgChart"></div>
+        </div>
+        <div class="about-block" id="rolesBlock">
+          <h3 class="about-h" id="h-roles">Drepturi și responsabilități</h3>
+          <div class="acc-list" id="rolesList"></div>
         </div>
       </div>
+      <p class="about-note" id="aboutNote"></p>
+    </div>
+  </section>
+
+  <!-- PLANUL DE CREȘTERE -->
+  <section class="sec" id="plan-crestere" aria-labelledby="h-plan">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-plan">Planul de creștere</h2><p id="growthIntro"></p></div>
+        <p class="src" id="growthAsOf"></p>
+      </header>
+      <div id="gpOverview"></div>
+      <div class="toolbar gp-toolbar">
+        <div class="chips" id="invStatus" role="group" aria-label="Filtrare după starea proiectului"></div>
+        <div class="tools">
+          <div class="field-icon">
+            <label class="sr" for="invQ">Căutare în proiecte</label>
+            <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+            <input class="input" id="invQ" type="search" placeholder="Proiect sau minister" autocomplete="off">
+          </div>
+          <label class="sr" for="invSort">Ordonare</label>
+          <select class="select" id="invSort">
+            <option value="nr">Ordinea din raport</option>
+            <option value="progres-desc">Progres, descrescător</option>
+            <option value="progres-asc">Progres, crescător</option>
+            <option value="minister">După minister</option>
+          </select>
+        </div>
+      </div>
+      <div class="inv-meta">
+        <p class="count" id="invCount" aria-live="polite"></p>
+        <p class="inv-legend" id="invLegend"></p>
+      </div>
+      <ol class="inv-list" id="invList"></ol>
+      <div class="gp-foot" id="gpFoot"></div>
+      <div id="planBox"></div>
     </div>
   </section>
 
   <!-- CADRUL LEGAL -->
-  <section class="sec" id="cadrul-legal" aria-labelledby="h-legal">
+  <section class="sec sec-alt" id="cadrul-legal" aria-labelledby="h-legal">
     <div class="wrap">
       <header class="sec-head">
-        <div><h2 id="h-legal">Cadrul legal</h2><p>Legile și hotărârile de Guvern care reglementează tratatele internaționale, datoria publică și coordonarea asistenței externe. Actele se deschid în Registrul de stat al actelor juridice (legis.md).</p></div>
+        <div><h2 id="h-legal">Cadrul legal</h2><p>Legile și hotărârile de Guvern pe care se întemeiază activitatea direcției: finanțele publice, tratatele internaționale, datoria publică, coordonarea asistenței externe și fondurile europene. Unde există legătură, actele se deschid în Registrul de stat al actelor juridice (legis.md).</p></div>
         <p class="src">Sursa: <a href="https://gov.md/ro/cadrul-legal" target="_blank" rel="noopener">gov.md/ro/cadrul-legal</a></p>
       </header>
       <div class="toolbar">
@@ -171,12 +228,11 @@
           <tbody id="lawBody"></tbody>
         </table>
       </div>
-      <div id="planBox"></div>
     </div>
   </section>
 
   <!-- COOPERARE EXTERNĂ -->
-  <section class="sec sec-alt" id="cooperare-externa" aria-labelledby="h-coop">
+  <section class="sec" id="cooperare-externa" aria-labelledby="h-coop">
     <div class="wrap">
       <header class="sec-head">
         <div><h2 id="h-coop">Cooperare externă</h2><p>Rapoartele anuale privind asistența externă, acordul de asistență nerambursabilă cu România și platformele de monitorizare a finanțărilor.</p></div>
@@ -205,7 +261,7 @@
   </section>
 
   <!-- PROGRAME -->
-  <section class="sec" id="programe" aria-labelledby="h-prog">
+  <section class="sec sec-alt" id="programe" aria-labelledby="h-prog">
     <div class="wrap">
       <header class="sec-head">
         <div><h2 id="h-prog">Programe de cooperare transfrontalieră, transnațională și interregională</h2><p>Acordurile de finanțare, documentele de program și materialele informative pentru cele cinci programe Interreg 2021–2027 la care participă Republica Moldova.</p></div>
@@ -220,7 +276,7 @@
   </section>
 
   <!-- DOCUMENTE -->
-  <section class="sec sec-alt" id="documente" aria-labelledby="h-doc">
+  <section class="sec" id="documente" aria-labelledby="h-doc">
     <div class="wrap">
       <header class="sec-head">
         <div><h2 id="h-doc">Documente și publicații</h2><p>Toate documentele publicate de direcție, într-un singur loc: rapoarte, acorduri, documente de program, liste și materiale informative.</p></div>
@@ -245,7 +301,7 @@
   </section>
 
   <!-- EVENIMENTE -->
-  <section class="sec" id="evenimente" aria-labelledby="h-ev">
+  <section class="sec sec-alt" id="evenimente" aria-labelledby="h-ev">
     <div class="wrap">
       <header class="sec-head">
         <div><h2 id="h-ev">Evenimente</h2><p>Sesiuni de informare, apeluri pentru proiecte, cursuri și sondaje organizate în cadrul programelor de cooperare.</p></div>
@@ -260,7 +316,7 @@
   </section>
 
   <!-- GALERIE FOTO -->
-  <section class="sec sec-alt" id="galerie" aria-labelledby="h-gal">
+  <section class="sec" id="galerie" aria-labelledby="h-gal">
     <div class="wrap">
       <header class="sec-head">
         <div><h2 id="h-gal">Galerie foto</h2><p>Fotografii de la evenimente, întâlniri și vizite de lucru.</p></div>
@@ -272,7 +328,7 @@
   </section>
 
   <!-- CONTACTE -->
-  <section class="sec" id="contacte" aria-labelledby="h-contact">
+  <section class="sec sec-alt" id="contacte" aria-labelledby="h-contact">
     <div class="wrap">
       <header class="sec-head">
         <div><h2 id="h-contact">Contacte</h2><p>Cancelaria de Stat, Casa Guvernului. Pentru petiții, cereri și audiențe folosiți adresa dedicată.</p></div>
@@ -300,6 +356,7 @@
             <label for="fTopic">Subiect</label>
             <select id="fTopic" name="topic">
               <option>Asistență externă</option>
+              <option>Planul de creștere</option>
               <option>Programe Interreg</option>
               <option>URBACT</option>
               <option>Verificarea cheltuielilor (auditori)</option>
@@ -335,6 +392,8 @@
         <h2 class="foot-h">Pe această pagină</h2>
         <ul>
           <li><a href="#noutati">Noutăți</a></li>
+          <li><a href="#despre">Despre direcție</a></li>
+          <li><a href="#plan-crestere">Planul de creștere</a></li>
           <li><a href="#cadrul-legal">Cadrul legal</a></li>
           <li><a href="#programe">Programe de cooperare</a></li>
           <li><a href="#documente">Documente</a></li>

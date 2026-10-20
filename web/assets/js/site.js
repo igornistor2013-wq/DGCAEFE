@@ -48,6 +48,40 @@
     Altele: { chip: 'Alte acte', one: 'Act normativ', name: 'Actul' }
   };
 
+  // Planul de creștere: cele cinci etape de maturitate (în ordinea în care un proiect le parcurge), stările și abrevierile.
+  var CLUSTERS = [
+    { v: 'initiere', name: 'Inițierea studiilor', desc: 'Se pornesc studiile relevante pentru proiect.' },
+    { v: 'fezabilitate', name: 'Studiu de fezabilitate', desc: 'Studiul de fezabilitate este în derulare sau în definitivare, ori conceptul proiectului este definitivat.' },
+    { v: 'maturitate', name: 'Grad înalt de maturitate', desc: 'Proiect aprobat de Comitetul Interministerial pentru Planificare Strategică sau eligibil pe Platforma de Investiții pentru Vecinătate.' },
+    { v: 'negociere', name: 'Negocierea acordului', desc: 'Acordul de finanțare este în negociere.' },
+    { v: 'semnat', name: 'Acord de finanțare semnat', desc: 'Acordul de finanțare a fost semnat.' }
+  ];
+  var INV_STATUS = {
+    termen: { name: 'În termen', cls: 'ok' },
+    intarziere: { name: 'În întârziere', cls: 'warn' },
+    blocat: { name: 'Blocat', cls: 'bad' },
+    implementare: { name: 'În implementare', cls: 'info' }
+  };
+  var INV_STATUS_ORDER = ['termen', 'intarziere', 'blocat', 'implementare'];
+  var MINISTRY = {
+    MEC: 'Ministerul Educației și Cercetării',
+    MAIA: 'Ministerul Agriculturii și Industriei Alimentare',
+    MIDR: 'Ministerul Infrastructurii și Dezvoltării Regionale',
+    MDED: 'Ministerul Dezvoltării Economice și Digitalizării',
+    MS: 'Ministerul Sănătății',
+    MEN: 'Ministerul Energiei',
+    MM: 'Ministerul Mediului',
+    MF: 'Ministerul Finanțelor',
+    MJ: 'Ministerul Justiției'
+  };
+  var ABBR = [
+    ['APP', 'Agenția Proprietății Publice'], ['BEI', 'Banca Europeană de Investiții'], ['BERD', 'Banca Europeană pentru Reconstrucție și Dezvoltare'],
+    ['CEB', 'Banca de Dezvoltare a Consiliului Europei'], ['CIPS', 'Comitetul Interministerial pentru Planificare Strategică'],
+    ['ESIA', 'studiul privind impactul asupra mediului și social'], ['FS', 'studiul de fezabilitate'], ['HG', 'Hotărâre de Guvern'],
+    ['IFAD', 'Fondul Internațional pentru Dezvoltare Agricolă'], ['IFI', 'instituții financiare internaționale'], ['MF', 'Ministerul Finanțelor'],
+    ['MJ', 'Ministerul Justiției'], ['NIP', 'Platforma de Investiții pentru Vecinătate'], ['UIP', 'unitatea de implementare a proiectului']
+  ];
+
   /* ---------- funcții de ajutor ---------- */
   function isExternal(h) { return /^https?:/i.test(h); }
   function docHref(d) { return (d.file && d.file.path) || d.url || '#'; }
@@ -97,6 +131,23 @@
     return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
   }
   function scrollToEl(el) { el.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' }); }
+  // numere în scriere românească: 151.5 → „151,5”, 97.4 → „97,4%”
+  function numRo(n) { return String(n).replace('.', ','); }
+  function pctRo(n) { return numRo(Math.round(n * 10) / 10) + '%'; }
+  function plural(n, one, many) { return n === 1 ? one : many; }
+  function clip(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+
+  // Secțiuni care se deschid și se închid (funcții, drepturi, proiecte): butonul poartă starea în aria-expanded, iar elementul-gazdă
+  // în data-open (pe el se sprijină și stilurile). Starea se păstrează în `accState`, ca să nu se piardă la o nouă desenare.
+  var accState = {};
+  function accToggle(btn, force) {
+    var host = btn.closest('[data-open]');
+    var open = force === undefined ? host.getAttribute('data-open') !== 'true' : !!force;
+    host.setAttribute('data-open', String(open));
+    btn.setAttribute('aria-expanded', String(open));
+    if (btn.getAttribute('data-acc')) accState[btn.getAttribute('data-acc')] = open;
+    return open;
+  }
 
   /* ---------- încărcarea datelor ---------- */
   function loadData() {
@@ -225,13 +276,93 @@
   }
 
   /* ================= Despre ================= */
+  // Prezentarea, principiile, funcțiile, structura, drepturile și responsabilitățile provin din Regulamentul de activitate al
+  // direcției; toate textele se editează în panoul de administrare, la „Texte pagină”.
+  function staffTotal(rows) {
+    var t = 0;
+    (rows || []).forEach(function (r) { var n = parseInt(r.count, 10); if (n > 0) t += n; });
+    return t;
+  }
+
+  function syncFnToggle() {
+    var btns = $$('#dutiesList .fn-btn');
+    var all = btns.length > 0 && btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
+    var t = $('#fnToggle');
+    t.hidden = !btns.length;
+    t.textContent = all ? 'Închide toate' : 'Deschide toate';
+    t.setAttribute('aria-pressed', String(all));
+  }
+
   function renderAbout() {
     var s = D.settings;
-    $('#aboutText').innerHTML = (s.aboutP1 ? '<p>' + esc(s.aboutP1) + '</p>' : '') + (s.aboutP2 ? '<p>' + esc(s.aboutP2) + '</p>' : '') +
+    var duties = s.duties || [];
+    var staff = s.structure || [];
+    var total = staffTotal(staff);
+
+    $('#aboutText').innerHTML = (s.aboutP1 ? '<p class="about-lead">' + esc(s.aboutP1) + '</p>' : '') + (s.aboutP2 ? '<p>' + esc(s.aboutP2) + '</p>' : '') +
       '<div class="about-cta"><a class="btn btn-primary" href="#cadrul-legal">Vezi cadrul legal</a><a class="btn btn-line" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">Platforma AMP ' + ico('ext') + '</a></div>';
-    $('#dutiesList').innerHTML = (s.duties || []).map(function (d) {
-      return '<li>' + ico('check-circle') + '<div><h4>' + esc(d.title) + '</h4><p>' + esc(d.text) + '</p></div></li>';
+
+    var pr = s.principles || [];
+    $('#aboutPrinc').hidden = !pr.length;
+    $('#aboutPrinc').innerHTML = pr.length ? '<h3 id="h-princ">Principii de activitate</h3><ul>' + pr.map(function (x) { return '<li>' + ico('check-circle') + '<span>' + esc(x) + '</span></li>'; }).join('') + '</ul>' : '';
+
+    // câteva cifre, calculate din datele paginii, ca să nu rămână în urmă când acestea se schimbă
+    var stats = [];
+    if (duties.length) stats.push(['#functii', duties.length, plural(duties.length, 'funcție de bază', 'funcții de bază')]);
+    if (total) stats.push(['#structura', total, plural(total, 'unitate în structură', 'unități în structură')]);
+    if (D.programs.length) stats.push(['#programe', D.programs.length, plural(D.programs.length, 'program de cooperare', 'programe de cooperare')]);
+    if (D.investments.length) stats.push(['#plan-crestere', D.investments.length, plural(D.investments.length, 'proiect din Planul de creștere', 'proiecte din Planul de creștere')]);
+    $('#aboutStats').hidden = !stats.length;
+    $('#aboutStats').innerHTML = stats.map(function (x) { return '<li><a href="' + x[0] + '"><b>' + x[1] + '</b><span>' + x[2] + '</span></a></li>'; }).join('');
+
+    // funcțiile de bază: fiecare se deschide și arată textul funcției și atribuțiile (a, b, c …) prin care se realizează
+    $('#functii').hidden = !duties.length;
+    $('#dutiesList').innerHTML = duties.map(function (d, i) {
+      var items = d.items || [];
+      var key = 'fn:' + i;
+      var open = !!accState[key];
+      var has = !!(d.text || items.length);
+      var head = '<span class="fn-no" aria-hidden="true">' + (i + 1) + '</span><span class="fn-t">' + esc(d.title) + '</span>' +
+        '<span class="fn-n">' + (items.length ? countRo(items.length, 'atribuție', 'atribuții') : '') + '</span>';
+      return '<li class="fn" data-open="' + open + '"><h4 class="fn-h">' + (has ?
+          '<button class="fn-btn" type="button" id="fn-b-' + i + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="fn-p-' + i + '">' + head + '<span class="fn-chev">' + ico('chev-d') + '</span></button>' :
+          '<span class="fn-btn fn-static">' + head + '<span></span></span>') + '</h4>' +
+        (has ? '<div class="fn-panel" id="fn-p-' + i + '" role="region" aria-labelledby="fn-b-' + i + '">' +
+          (d.text ? '<p class="fn-text">' + esc(d.text) + '</p>' : '') +
+          (items.length ? '<p class="fn-sub">Atribuții</p><ol class="fn-items">' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' : '') + '</div>' : '') + '</li>';
     }).join('');
+    syncFnToggle();
+
+    // structura: câte un pătrat pentru fiecare unitate din statul de personal
+    $('#structura').hidden = !staff.length;
+    $('#orgChart').innerHTML = staff.length ? '<ul class="org">' + staff.map(function (r) {
+      var n = parseInt(r.count, 10);
+      var sq = '';
+      if (n > 0 && n <= 40) for (var k = 0; k < n; k++) sq += '<i></i>';
+      return '<li class="org-row"><span class="org-t">' + esc(r.title) + '</span><span class="org-sq" aria-hidden="true">' + sq + '</span><span class="org-n">' + esc(r.count) + '</span></li>';
+    }).join('') + '</ul>' + (total ? '<p class="org-total">Efectivul direcției: <b>' + countRo(total, 'unitate', 'unități') + '</b></p>' : '') : '';
+
+    var roles = [['Drepturile direcției', s.rights], ['Responsabilitățile direcției', s.responsibilities]].filter(function (r) { return r[1] && r[1].length; });
+    $('#rolesBlock').hidden = !roles.length;
+    $('#rolesList').innerHTML = roles.map(function (r, i) {
+      var key = 'role:' + i;
+      var open = !!accState[key];
+      return '<div class="acc" data-open="' + open + '"><h4 class="acc-h"><button class="acc-btn" type="button" id="role-b-' + i + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="role-p-' + i + '">' +
+        '<span class="acc-t">' + r[0] + '</span><span class="fn-n">' + r[1].length + '</span><span class="fn-chev">' + ico('chev-d') + '</span></button></h4>' +
+        '<div class="acc-panel" id="role-p-' + i + '" role="region" aria-labelledby="role-b-' + i + '"><ol class="num-list">' + r[1].map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol></div></div>';
+    }).join('');
+
+    $('#aboutNote').hidden = !s.aboutNote;
+    $('#aboutNote').innerHTML = s.aboutNote ? ico('info') + '<span>' + esc(s.aboutNote) + '</span>' : '';
+  }
+
+  function goFunction(i) {
+    var b = document.getElementById('fn-b-' + i);
+    if (!b) return;
+    accToggle(b, true);
+    syncFnToggle();
+    scrollToEl(b.closest('.fn'));
+    setTimeout(function () { b.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
   }
 
   /* ================= Cadrul legal ================= */
@@ -265,11 +396,182 @@
         '<td class="law-title">' + esc(l.title) + '</td><td class="law-topic">' + esc(l.topic || '') + '</td>' +
         '<td class="law-act"><button class="btn btn-line btn-sm" type="button" data-copy="' + esc(lawName(l) + ' „' + l.title + '”') + '">' + ico('copy') + ' Copiază</button> ' + open + editLink('legal', l.id) + '</td></tr>';
     }).join('') : '<tr class="empty-row"><td colspan="4">Niciun act nu corespunde căutării' + (law.q ? ' „' + esc(law.q) + '”' : '') + '. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu. <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></td></tr>';
+  }
 
-    var plans = docsOf('plan-crestere');
-    $('#planBox').innerHTML = plans.map(function (d) {
+  /* ================= Planul de creștere ================= */
+  // Proiectele investiționale din Planul de creștere, așa cum le raportează direcția: cinci etape de maturitate, starea fiecărui proiect,
+  // progresul pe scara de etape și, pentru fiecare, stadiul actual, întârzierile și pasul următor. Cifrele de sinteză se calculează
+  // din proiectele publicate, nu se scriu de mână.
+  var inv = { cluster: 'all', status: 'all', q: '', sort: 'nr' };
+
+  function clusterOf(p) { return CLUSTERS.filter(function (c) { return c.v === p.cluster; })[0] || null; }
+  function statusOf(p) { return INV_STATUS[p.status] || { name: '', cls: 'info' }; }
+  function moneyText(p) {
+    if (p.amount === null || p.amount === undefined || p.amount === '') return '';
+    return (p.amountQual ? p.amountQual + ' ' : '') + numRo(p.amount) + ' mil. ' + (p.currency || 'EUR');
+  }
+  function invProgress(p) {
+    if (typeof p.progress === 'number') return p.progress;
+    if (typeof p.stage === 'number' && p.totalStages) return Math.round(p.stage / p.totalStages * 1000) / 10;
+    return null;
+  }
+  function ministryHtml(m) {
+    return MINISTRY[m] ? '<abbr title="' + esc(MINISTRY[m]) + '">' + esc(m) + '</abbr>' : esc(m);
+  }
+  function invCmpOrder(a, b) { return (a.order || 0) - (b.order || 0) || String(a.name).localeCompare(String(b.name), 'ro'); }
+
+  function renderGpOverview() {
+    var list = D.investments;
+    var total = list.length;
+    var counts = CLUSTERS.map(function (c) { return list.filter(function (p) { return p.cluster === c.v; }).length; });
+    var label = 'Distribuția celor ' + total + ' proiecte pe etape de maturitate: ' + CLUSTERS.map(function (c, i) { return counts[i] + ' – ' + c.name; }).join('; ') + '.';
+    $('#gpOverview').innerHTML = '<div class="gp-over">' +
+      '<div class="gp-over-head"><h3 id="h-mat">Gradul de maturitate</h3>' +
+      '<p>' + (total ? 'Din cele <b>' + total + '</b> ' + plural(total, 'proiect', 'proiecte') + ', distribuția pe cele cinci etape de maturitate este următoarea. Alegeți o etapă pentru a vedea proiectele din ea.' : 'Nu există proiecte publicate.') + '</p></div>' +
+      '<div class="gp-bar" role="img" aria-label="' + esc(label) + '">' + CLUSTERS.map(function (c, i) {
+        return counts[i] ? '<i class="gp-seg gp-m' + (i + 1) + '" style="flex-grow:' + counts[i] + '"></i>' : '';
+      }).join('') + '</div>' +
+      '<ol class="gp-steps" aria-labelledby="h-mat">' + CLUSTERS.map(function (c, i) {
+        var n = counts[i];
+        return '<li><button class="gp-step gp-m' + (i + 1) + '" type="button" data-cluster="' + c.v + '" aria-pressed="' + (inv.cluster === c.v) + '"' + (n ? '' : ' disabled') + '>' +
+          '<span class="gp-no" aria-hidden="true">' + (i + 1) + '</span>' +
+          '<span class="gp-num"><b>' + n + '</b><small>' + (total ? pctRo(n / total * 100) : '') + '</small></span>' +
+          '<span class="gp-name">' + esc(c.name) + '</span><span class="gp-desc">' + esc(c.desc) + '</span></button></li>';
+      }).join('') + '</ol></div>';
+  }
+
+  function renderInvFilters() {
+    var list = D.investments;
+    var present = INV_STATUS_ORDER.filter(function (s) { return list.some(function (p) { return p.status === s; }); });
+    if (inv.status !== 'all' && present.indexOf(inv.status) < 0) inv.status = 'all';
+    var box = $('#invStatus');
+    box.hidden = present.length < 2;
+    box.innerHTML = chipsHtml([{ v: 'all', l: 'Toate stările', n: list.length }].concat(present.map(function (s) {
+      return { v: s, l: INV_STATUS[s].name, n: list.filter(function (p) { return p.status === s; }).length };
+    })), inv.status, 'data-inv-status');
+  }
+
+  function invMatches(p) {
+    if (inv.cluster !== 'all' && p.cluster !== inv.cluster) return false;
+    if (inv.status !== 'all' && p.status !== inv.status) return false;
+    var c = clusterOf(p);
+    return DG.matches([p.name, p.ministry, MINISTRY[p.ministry] || '', c ? c.name : '', statusOf(p).name].join(' '), inv.q);
+  }
+
+  function invSorted(items) {
+    var out = items.slice();
+    var pg = function (p) { var v = invProgress(p); return v === null ? -1 : v; };
+    if (inv.sort === 'progres-desc') out.sort(function (a, b) { return pg(b) - pg(a) || invCmpOrder(a, b); });
+    else if (inv.sort === 'progres-asc') out.sort(function (a, b) { return pg(a) - pg(b) || invCmpOrder(a, b); });
+    else if (inv.sort === 'minister') out.sort(function (a, b) { return String(a.ministry).localeCompare(String(b.ministry), 'ro') || invCmpOrder(a, b); });
+    else out.sort(invCmpOrder);
+    return out;
+  }
+
+  function invBlock(title, text, cls) {
+    return text ? '<section class="inv-col' + (cls ? ' ' + cls : '') + '"><h4>' + esc(title) + '</h4><div class="prose">' + DG.rich(text) + '</div></section>' : '';
+  }
+
+  function invPanel(p) {
+    var c = clusterOf(p);
+    var pr = invProgress(p);
+    var money = moneyText(p);
+    var stage = typeof p.stage === 'number' && p.totalStages ? 'etapa ' + p.stage + ' din ' + p.totalStages : '';
+    var ref = typeof p.refStage === 'number' ? 'etapa de referință: ' + p.refStage : '';
+    var facts = [];
+    if (p.ministry) facts.push(['Ministerul responsabil', MINISTRY[p.ministry] ? esc(MINISTRY[p.ministry]) + ' (' + esc(p.ministry) + ')' : esc(p.ministry)]);
+    if (money) facts.push(['Valoarea estimată', esc(money)]);
+    if (c) facts.push(['Etapa de maturitate', esc(c.name)]);
+    if (pr !== null) facts.push(['Progres', esc([pctRo(pr), stage, ref].filter(Boolean).join(' · '))]);
+    var links = (p.links || []).map(function (l) { return '<a class="btn btn-line btn-sm" href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.t) + ' ' + ico('ext') + '</a>'; }).join('');
+    return '<div class="inv-panel" id="invp-' + esc(p.id) + '" role="region" aria-labelledby="invb-' + esc(p.id) + '">' +
+      (facts.length ? '<dl class="inv-facts">' + facts.map(function (f) { return '<div><dt>' + f[0] + '</dt><dd>' + f[1] + '</dd></div>'; }).join('') + '</dl>' : '') +
+      '<div class="inv-cols">' + invBlock('Stadiul actual', p.text) + invBlock(p.status === 'blocat' ? 'Blocaj' : 'Întârzieri', p.delays, 'inv-col-delay') + invBlock('Pasul următor', p.next) + '</div>' +
+      '<div class="inv-act"><button class="btn btn-line btn-sm" type="button" data-copy-inv="' + esc(p.id) + '">' + ico('link') + ' Copiază adresa proiectului</button>' + links + editLink('investments', p.id) + '</div></div>';
+  }
+
+  function invItem(p) {
+    var c = clusterOf(p);
+    var st = statusOf(p);
+    var pr = invProgress(p);
+    var money = moneyText(p);
+    var key = 'inv:' + p.id;
+    var open = !!accState[key];
+    var fill = pr === null ? 0 : clip(pr, 0, 100);
+    var ref = typeof p.refStage === 'number' && p.totalStages ? clip(p.refStage / p.totalStages * 100, 0, 100) : null;
+    return '<li class="inv" id="proiect-' + esc(p.id) + '" data-open="' + open + '"><h3 class="inv-h">' +
+      '<button class="inv-btn" type="button" id="invb-' + esc(p.id) + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="invp-' + esc(p.id) + '">' +
+      '<span class="inv-no">' + (p.order || '') + '</span>' +
+      '<span class="inv-main"><span class="inv-name">' + esc(p.name) + '</span><span class="inv-sub">' +
+        (p.ministry ? '<span class="inv-min">' + ministryHtml(p.ministry) + '</span>' : '') + (money ? '<span class="inv-amt">' + esc(money) + '</span>' : '') + (c ? '<span class="inv-cl">' + esc(c.name) + '</span>' : '') + '</span></span>' +
+      '<span class="inv-state"><span class="pill pill-' + st.cls + '">' + esc(st.name) + '</span></span>' +
+      '<span class="inv-prog">' + (pr === null ? '' : '<span class="pbar" aria-hidden="true"><i style="width:' + fill + '%"></i>' + (ref !== null ? '<b style="left:' + ref + '%"></b>' : '') + '</span><span class="pnum">' + pctRo(pr) + '</span>') + '</span>' +
+      '<span class="inv-chev">' + ico('chev-d') + '</span></button></h3>' + invPanel(p) + '</li>';
+  }
+
+  function renderInvList() {
+    var all = D.investments;
+    var items = invSorted(all.filter(invMatches));
+    $('#invCount').textContent = items.length + ' din ' + all.length + ' ' + plural(all.length, 'proiect', 'proiecte');
+    $('#invLegend').innerHTML = '<span class="lg"><i class="lg-fill"></i>etapa curentă</span><span class="lg"><i class="lg-mark"></i>etapa de referință</span>';
+    $('#invList').innerHTML = items.length ? items.map(invItem).join('') :
+      '<li class="empty">' + (all.length ? 'Niciun proiect nu corespunde filtrelor alese. <button class="btn btn-line btn-sm" type="button" id="invReset">Arată toate proiectele</button>' :
+        'Nu există proiecte publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/investments/new">Adăugați primul proiect</a>.' : '')) + '</li>';
+  }
+
+  function renderGpFoot() {
+    var g = D.settings.growth || {};
+    var src = (g.sources || []).filter(function (x) { return x && x.u; });
+    $('#gpFoot').innerHTML =
+      (g.note ? '<div class="gp-note">' + ico('info') + '<p>' + esc(g.note) + '</p></div>' : '') +
+      (src.length ? '<p class="gp-src">Surse: ' + src.map(function (x) { return '<a href="' + esc(x.u) + '" target="_blank" rel="noopener">' + esc(x.t || x.u) + '</a>'; }).join(', ') + '</p>' : '') +
+      '<details class="fold"><summary>Abrevieri folosite în descrierile proiectelor</summary><dl class="abbr-list">' + ABBR.map(function (a) {
+        return '<div><dt>' + esc(a[0]) + '</dt><dd>' + esc(a[1]) + '</dd></div>';
+      }).join('') + '</dl></details>';
+    // lista de beneficiari finali ai Planului de creștere, publicată de Cancelaria de Stat
+    $('#planBox').innerHTML = docsOf('plan-crestere').map(function (d) {
       return '<div class="callout"><p>' + esc(d.title) + '<small>' + esc(docMeta(d) || 'Listă publicată de Cancelaria de Stat') + '</small></p><div class="btns"><a class="btn btn-primary"' + docAttrs(d) + '>' + (d.file ? ico('down') + ' Descarcă' : 'Deschide lista ' + ico('ext')) + '</a>' + editLink('documents', d.id) + '</div></div>';
     }).join('');
+  }
+
+  function renderInvestments() {
+    var show = D.investments.length > 0 || admin.on;
+    $('#plan-crestere').hidden = !show;
+    $$('a[href="#plan-crestere"]', $('#navList')).concat($$('.foot a[href="#plan-crestere"]')).forEach(function (a) { if (a.parentNode.tagName === 'LI') a.parentNode.hidden = !show; });
+    if (!show) return;
+    var g = D.settings.growth || {};
+    $('#growthIntro').textContent = g.intro || '';
+    $('#growthIntro').hidden = !g.intro;
+    $('#growthAsOf').textContent = g.asOf ? 'Situația la ' + DG.fmtDate(g.asOf) + '.' : '';
+    $('#growthAsOf').hidden = !g.asOf;
+    $('#invQ').value = inv.q;
+    $('#invSort').value = inv.sort;
+    renderGpOverview();
+    renderInvFilters();
+    renderInvList();
+    renderGpFoot();
+  }
+
+  // Filtrele se schimbă fără a redesena tot: se actualizează cifrele, lista și starea butoanelor.
+  function refreshInv() {
+    renderGpOverview();
+    renderInvFilters();
+    renderInvList();
+  }
+
+  function goInvestment(id) {
+    var p = byId(D.investments, id);
+    if (!p) return;
+    if (!invMatches(p)) { inv.cluster = 'all'; inv.status = 'all'; inv.q = ''; $('#invQ').value = ''; refreshInv(); }
+    accState['inv:' + id] = true;
+    refreshInv();
+    var li = document.getElementById('proiect-' + id);
+    if (!li) return;
+    scrollToEl(li);
+    li.classList.add('flash');
+    setTimeout(function () { li.classList.remove('flash'); }, 1800);
+    var b = $('.inv-btn', li);
+    if (b) setTimeout(function () { b.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
   }
 
   /* ================= Cooperare externă ================= */
@@ -624,6 +926,13 @@
       idx.push({ cat: SECTION_LABEL[d.section] || 'Documente', t: d.title, s: [p ? p.name : '', docMeta(d)].filter(Boolean).join(', '), k: (d.description || '') + ' ' + (d.kind || ''), u: docHref(d) });
     });
     D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: (LEVELS[p.level] || LEVELS.inter).name + ', ' + (p.strand || '') + '. Deschide pagina programului', k: 'interreg program ' + (p.desc || '') + ' ' + (ALIAS[p.id] || ''), go: function () { goProgram(p.id); } }); });
+    D.investments.forEach(function (p) {
+      var c = clusterOf(p);
+      idx.push({ cat: 'Planul de creștere', t: p.name, s: [p.ministry, moneyText(p), c && c.name, statusOf(p).name].filter(Boolean).join(' · '), k: [MINISTRY[p.ministry], p.text, p.delays, p.next].join(' '), go: function () { goInvestment(p.id); } });
+    });
+    (D.settings.duties || []).forEach(function (d, i) {
+      if (d.text || (d.items && d.items.length)) idx.push({ cat: 'Despre direcție', t: d.title, s: 'Funcție de bază. Deschide atribuțiile', k: (d.text || '') + ' ' + (d.items || []).join(' '), go: function () { goFunction(i); } });
+    });
     D.events.forEach(function (e) { idx.push({ cat: 'Evenimente', t: e.title, s: [DG.fmtDate(evDate(e)), e.place].filter(Boolean).join(', '), k: (e.prog || '') + ' ' + e.summary, go: function () { goEvent(e.id); } }); });
     D.gallery.forEach(function (g) { idx.push({ cat: 'Galerie foto', t: g.title || 'Fotografie', s: [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · '), k: g.alt || '', go: function () { gal.album = 'all'; renderGallery(); var i = D.gallery.indexOf(g); gal.shown = Math.max(gal.shown, i + 1); renderGallery(); openLightbox(i); } }); });
     idx.push({ cat: 'Platforme', t: 'Platforma pentru gestionarea asistenței externe (AMP)', s: 'amp.gov.md', k: 'aid management platform proiecte donatori', u: 'https://amp.gov.md/portal/' });
@@ -850,7 +1159,7 @@
       a.addEventListener('click', function () { list.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); });
     });
 
-    var ids = ['noutati', 'despre', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'galerie', 'contacte'];
+    var ids = ['noutati', 'despre', 'plan-crestere', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'galerie', 'contacte'];
     if ('IntersectionObserver' in window) {
       var spy = new IntersectionObserver(function (entries) {
         entries.forEach(function (en) {
@@ -862,6 +1171,14 @@
         if (en[0].isIntersecting) $$('a', list).forEach(function (a) { a.classList.remove('on'); });
       }, { rootMargin: '-35% 0px -60% 0px' }).observe($('#top'));
     }
+
+    // la tipărire, secțiunile pliate trebuie să apară deschise (stilurile de tipărire afișează și acordeoanele)
+    var folded = [];
+    window.addEventListener('beforeprint', function () {
+      folded = $$('details:not([open])');
+      folded.forEach(function (d) { d.open = true; });
+    });
+    window.addEventListener('afterprint', function () { folded.forEach(function (d) { d.open = false; }); folded = []; });
 
     var toTop = $('#toTop');
     window.addEventListener('scroll', function () { toTop.classList.toggle('show', window.scrollY > 900); }, { passive: true });
@@ -889,6 +1206,50 @@
     });
     newsDlg.addEventListener('close', function () {
       if (location.hash.indexOf('#stire/') === 0) history.replaceState(null, '', location.pathname + location.search + '#noutati');
+    });
+
+    // secțiuni care se deschid: funcții, drepturi și responsabilități, proiecte
+    $('#main').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-acc]');
+      if (!b) return;
+      accToggle(b);
+      if (b.classList.contains('fn-btn')) syncFnToggle();
+    });
+    $('#fnToggle').addEventListener('click', function () {
+      var btns = $$('#dutiesList .fn-btn');
+      var open = !btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
+      btns.forEach(function (b) { accToggle(b, open); });
+      syncFnToggle();
+    });
+
+    // planul de creștere
+    $('#gpOverview').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cluster]');
+      if (!b) return;
+      var v = b.getAttribute('data-cluster');
+      inv.cluster = inv.cluster === v ? 'all' : v;
+      refreshInv();
+      var again = $('#gpOverview [data-cluster="' + v + '"]');
+      if (again) again.focus();
+    });
+    $('#invStatus').addEventListener('click', function (e) {
+      var b = e.target.closest('.chip');
+      if (!b) return;
+      inv.status = b.getAttribute('data-inv-status');
+      refreshInv();
+      var again = $('#invStatus [data-inv-status="' + inv.status + '"]');
+      if (again) again.focus();
+    });
+    $('#invQ').addEventListener('input', DG.debounce(function (e) { inv.q = e.target.value; renderInvList(); }, 80));
+    $('#invSort').addEventListener('change', function (e) { inv.sort = e.target.value; renderInvList(); });
+    $('#invList').addEventListener('click', function (e) {
+      var c = e.target.closest('[data-copy-inv]');
+      if (c) DG.copyText(location.href.split('#')[0] + '#proiect/' + c.getAttribute('data-copy-inv'), 'Adresa proiectului a fost copiată');
+      if (e.target.id === 'invReset') {
+        inv.cluster = 'all'; inv.status = 'all'; inv.q = ''; $('#invQ').value = '';
+        refreshInv();
+        $('#invQ').focus();
+      }
     });
 
     // acte
@@ -1029,6 +1390,8 @@
     if (m) goEvent(m[1]);
     m = /^#program\/([\w-]+)$/.exec(h);
     if (m) goProgram(m[1]);
+    m = /^#proiect\/([\w-]+)$/.exec(h);
+    if (m) goInvestment(m[1]);
   }
 
   /* ================= Pornire ================= */
@@ -1036,6 +1399,7 @@
     renderIntro();
     renderLevels();
     renderNews();
+    renderInvestments();
     renderAbout();
     renderLegal();
     renderCoop();
@@ -1050,6 +1414,7 @@
 
   function init(data) {
     D = data;
+    D.investments = D.investments || [];
     setupChrome();
     setupEvents();
     setupSearch();

@@ -1,0 +1,97 @@
+[
+  {
+    "rev": 2,
+    "note": "Regulamentul de activitate al Direcției (aprilie 2026) și Raportul „Priorități DCAEPI” (15.10.2026): denumirea oficială, funcțiile, structura, proiectele din Planul de creștere și 8 acte normative.",
+    "settings": {
+      "orgName": [
+        "Direcția Generală Asistență Externă și Fonduri Europene"
+      ],
+      "heroTitle": [
+        "Asistența externă și programele de cooperare ale Uniunii Europene",
+        "Direcția Generală Asistență Externă și Fonduri Europene"
+      ],
+      "heroLead": [
+        "Coordonăm asistența externă acordată Republicii Moldova și participarea țării la programele de cooperare teritorială finanțate de Uniunea Europeană. Aici găsiți actele normative, rapoartele anuale, acordurile de finanțare și evenimentele pentru potențialii beneficiari."
+      ],
+      "quickLinks": [
+        [
+          {
+            "t": "Raportul privind asistența externă, 2025",
+            "u": "https://gov.md/sites/default/files/users-media/media-35/Raport_2025.pdf"
+          },
+          {
+            "t": "Platforma pentru gestionarea asistenței externe (AMP)",
+            "u": "https://amp.gov.md/portal/"
+          },
+          {
+            "t": "Programele Interreg 2021–2027",
+            "u": "#programe"
+          },
+          {
+            "t": "Cadrul legal",
+            "u": "#cadrul-legal"
+          }
+        ]
+      ],
+      "aboutP1": [
+        "Direcția Generală Asistență Externă și Fonduri Europene activează în cadrul Cancelariei de Stat. Ea coordonează asistența oferită Republicii Moldova de partenerii de dezvoltare și participarea țării la programele de cooperare finanțate de Uniunea Europeană."
+      ],
+      "aboutP2": [
+        "Cadrul instituțional și mecanismul de coordonare și management al asistenței externe sunt stabilite prin Hotărârea Guvernului nr. 377/2018. Implementarea programelor de cooperare transfrontalieră și transnațională este reglementată de Hotărârea Guvernului nr. 576/2017."
+      ],
+      "duties": [
+        [
+          {
+            "title": "Coordonarea asistenței externe",
+            "text": "Monitorizează asistența primită de la partenerii de dezvoltare și publică anual raportul privind asistența externă acordată Republicii Moldova."
+          },
+          {
+            "title": "Programe de cooperare teritorială",
+            "text": "Asigură participarea Republicii Moldova la cinci programe Interreg 2021–2027. Pentru URBACT, Cancelaria de Stat este Autoritate Națională și Punct Național de Contact."
+          },
+          {
+            "title": "Verificarea cheltuielilor în proiecte",
+            "text": "Gestionează lista auditorilor selectați pentru verificarea cheltuielilor în proiectele finanțate prin aceste programe."
+          },
+          {
+            "title": "Cooperare bilaterală",
+            "text": "Urmărește implementarea Acordului cu Guvernul României privind asistența tehnică și financiară nerambursabilă de 100 de milioane de euro."
+          }
+        ]
+      ]
+    },
+    "add": {
+      "legal": [
+        "ad49bc482996",
+        "0d5f40aa4c65",
+        "8fd492deb6ea",
+        "1be074493a25",
+        "10faa6dc621f",
+        "20b71cc151da",
+        "c31c3bb0120c",
+        "77acf6d3c594"
+      ],
+      "investments": [
+        "74b770a2969b",
+        "0639ec68e7e2",
+        "72aa85f79e16",
+        "c320f6c8f824",
+        "06ff7c573550",
+        "aad400e4a4e7",
+        "2e5c76a52c5b",
+        "0021c2e5454b",
+        "5ede25deb14f",
+        "3e73f3147fb5",
+        "486a31e1f361",
+        "a4790e1a045c",
+        "2e635ae03aef",
+        "6a3d691cbc34",
+        "b3c43512a7ca",
+        "58eccaefd38f",
+        "10e14671f07d",
+        "431381ea044d",
+        "ef4c4a20fa09"
+      ]
+    }
+  }
+]

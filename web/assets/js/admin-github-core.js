@@ -3,14 +3,12 @@
    Fișierul nu atinge pagina (DOM): rulează la fel în browser și în Node, ca să poată fi testat automat.
    Partea de interfață este în admin-github.js. */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-schemas.js'));
-  else root.AdminGitHub = factory(root.AdminSchemas);
-})(typeof self !== 'undefined' ? self : this, function (S) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./admin-schemas.js'), require('./content-overlay.js'));
+  else root.AdminGitHub = factory(root.AdminSchemas, root.ContentOverlay);
+})(typeof self !== 'undefined' ? self : this, function (S, OV) {
   'use strict';
 
-  const COLLECTIONS = ['news', 'documents', 'events', 'legal', 'programs', 'gallery'];
-  const SINGLES = ['settings'];
-  const NAMES = COLLECTIONS.concat(SINGLES);
+  const { COLLECTIONS, SINGLES, NAMES } = OV;
   const MARK = '[dgaefe-admin]';
 
   class GhError extends Error {
@@ -66,6 +64,7 @@
     events: { create: 'Eveniment adăugat', update: 'Eveniment modificat', delete: 'Eveniment șters' },
     legal: { create: 'Act normativ adăugat', update: 'Act normativ modificat', delete: 'Act normativ șters' },
     gallery: { create: 'Fotografie adăugată', update: 'Fotografie modificată', delete: 'Fotografie ștearsă' },
+    investments: { create: 'Proiect investițional adăugat', update: 'Proiect investițional modificat', delete: 'Proiect investițional șters' },
     programs: { update: 'Program modificat' },
     settings: { update: 'Texte pagină modificate' }
   };
@@ -294,19 +293,37 @@
       return clone(blobCache.get(entry.sha));
     }
 
+    // Conținutul salvat în storage/, completat din conținutul de pornire (seed/) acolo unde acesta a adus ceva nou:
+    // aceleași reguli ca pe server și la construirea paginii (vezi content-overlay.js).
     async function loadContent(entries) {
-      const out = {};
+      const upFile = entries.get('seed/upgrades.json');
+      const upgrades = upFile ? await readJson(upFile, 'seed/upgrades.json') : [];
+      if (!Array.isArray(upgrades)) throw new GhError(422, 'Fișierul seed/upgrades.json din depozit are o structură neașteptată.');
+      // Din seed se citesc doar fișierele de care e nevoie: textele paginii, colecțiile care lipsesc din storage și cele care primesc înregistrări noi.
+      const needSeed = new Set(['settings']);
+      for (const u of upgrades) for (const n of Object.keys((u && u.add) || {})) needSeed.add(n);
+      for (const n of NAMES) if (!entries.has(contentPath(n))) needSeed.add(n);
+      const stored = {};
+      const seed = {};
+      const check = (name, v, path) => {
+        const ok = SINGLES.includes(name) ? v && typeof v === 'object' && !Array.isArray(v) : Array.isArray(v);
+        if (!ok) throw new GhError(422, `Fișierul ${path} din depozit are o structură neașteptată.`);
+      };
       await Promise.all(
         NAMES.map(async name => {
-          const path = entries.has(contentPath(name)) ? contentPath(name) : 'seed/content/' + name + '.json';
-          const e = entries.get(path);
-          const v = e ? await readJson(e, path) : SINGLES.includes(name) ? {} : [];
-          const ok = SINGLES.includes(name) ? v && typeof v === 'object' && !Array.isArray(v) : Array.isArray(v);
-          if (!ok) throw new GhError(422, `Fișierul ${path} din depozit are o structură neașteptată.`);
-          out[name] = v;
+          const sp = contentPath(name);
+          const dp = 'seed/content/' + name + '.json';
+          if (entries.has(sp)) {
+            stored[name] = await readJson(entries.get(sp), sp);
+            check(name, stored[name], sp);
+          }
+          if (needSeed.has(name) && entries.has(dp)) {
+            seed[name] = await readJson(entries.get(dp), dp);
+            check(name, seed[name], dp);
+          }
         })
       );
-      return out;
+      return OV.apply(stored, seed, upgrades);
     }
 
     async function load() {
@@ -317,8 +334,9 @@
       }
       const commit = await gh('GET', `${repoPath}/git/commits/${head}`);
       const entries = await loadTree(commit.tree.sha);
-      const content = await loadContent(entries);
-      cache = { head, treeSha: commit.tree.sha, entries, content, checkedAt: Date.now(), bootstrapped: entries.has(contentPath('settings')) };
+      const { content, changed } = await loadContent(entries);
+      // `pending`: fișierele din storage/ care diferă de ce se vede (conținut nou din seed/), scrise la următoarea salvare.
+      cache = { head, treeSha: commit.tree.sha, entries, content, checkedAt: Date.now(), bootstrapped: entries.has(contentPath('settings')), pending: changed };
       return cache;
     }
 
@@ -376,7 +394,9 @@
         return true;
       };
       d.setSettings = obj => {
-        d.content.settings = { ...obj, updatedAt: new Date().toISOString() };
+        // „seedRev” nu vine de la formular: arată de la ce versiune a conținutului de pornire provin textele salvate.
+        const prev = d.content.settings || {};
+        d.content.settings = { ...obj, ...(prev.seedRev !== undefined ? { seedRev: prev.seedRev } : {}), updatedAt: new Date().toISOString() };
         d.touched.add('settings');
         return d.content.settings;
       };
@@ -394,7 +414,7 @@
 
     // Aceleași reguli ca ale serverului (lib/api.js), aplicate pe starea din depozit.
     function applyOp(d, method, path, body) {
-      let m = /^\/api\/admin\/(news|documents|events|legal|gallery)(?:\/([\w-]+))?$/.exec(path);
+      let m = /^\/api\/admin\/(news|documents|events|legal|gallery|investments)(?:\/([\w-]+))?$/.exec(path);
       if (m) {
         const col = m[1];
         const id = m[2];
@@ -540,8 +560,10 @@
       const plan = new Map(); // calea în depozit -> intrare pentru arborele nou
       const entry = (path, extra) => plan.set(path, Object.assign({ path, mode: '100644', type: 'blob' }, extra));
 
-      // 1. fișierele cu conținut; la prima salvare se creează toate, plecând de la conținutul de pornire
-      for (const name of snap.bootstrapped ? [...d.touched] : NAMES) entry(contentPath(name), { content: toJson(d.content[name]) });
+      // 1. fișierele cu conținut; la prima salvare se creează toate, plecând de la conținutul de pornire,
+      //    iar mai târziu se adaugă și ce a adus din nou conținutul de pornire (ca să nu depindă de el la următoarea actualizare)
+      const names = snap.bootstrapped ? [...new Set([...d.touched, ...(snap.pending || [])])] : NAMES;
+      for (const name of names) entry(contentPath(name), { content: toJson(d.content[name]) });
 
       // 2. fișierele încărcate la care se referă conținutul: cele noi se trimit, cele de pornire se copiază
       const toSend = [];
@@ -571,7 +593,7 @@
       await moveRef(commit.sha);
 
       sent.forEach(p => staged.delete(p));
-      cache = { head: commit.sha, treeSha: tree.sha, entries: null, content: d.content, checkedAt: Date.now(), bootstrapped: true };
+      cache = { head: commit.sha, treeSha: tree.sha, entries: null, content: d.content, checkedAt: Date.now(), bootstrapped: true, pending: new Set() };
       return commit.sha;
     }
 
@@ -579,7 +601,7 @@
     async function request(method, url, body) {
       const path = String(url).split('?')[0];
       if (method === 'GET') {
-        const m = /^\/api\/admin\/(news|documents|events|legal|gallery|programs)$/.exec(path);
+        const m = /^\/api\/admin\/(news|documents|events|legal|gallery|investments|programs)$/.exec(path);
         if (m) return clone((await snapshot()).content[m[1]]);
         if (path === '/api/admin/settings') return clone((await snapshot()).content.settings);
         if (path === '/api/admin/audit') return audit();

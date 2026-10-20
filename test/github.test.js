@@ -7,6 +7,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createMockGitHub } = require('../test-support/mock-github');
 const { createBackend, parseAuditCommit } = require('../web/assets/js/admin-github-core.js');
+const { oldContent } = require('../test-support/old-content');
 
 const ROOT = path.resolve(__dirname, '..');
 const PNG_1PX = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
@@ -113,7 +114,7 @@ test('prima salvare creează „storage” din conținutul de pornire, fără s�
   assert.equal(mock.commits().size, before + 1);
 
   const content = mock.files('storage/content/');
-  assert.deepEqual(content, ['documents', 'events', 'gallery', 'legal', 'news', 'programs', 'settings'].map(n => `storage/content/${n}.json`));
+  assert.deepEqual(content, ['documents', 'events', 'gallery', 'investments', 'legal', 'news', 'programs', 'settings'].map(n => `storage/content/${n}.json`));
   const saved = JSON.parse(mock.fileText('storage/content/news.json'));
   assert.equal(saved.length, seedNews().length + 1);
   assert.equal(saved[0].id, rec.id, 'elementul nou apare primul, ca pe server');
@@ -129,6 +130,68 @@ test('prima salvare creează „storage” din conținutul de pornire, fără s�
   assert.match(head.message, /^Știre adăugată: Titlu de test\n\n\[dgaefe-admin\] \{"a":"create","c":"news","d":"Titlu de test"\}$/);
   assert.equal(head.author.name, 'Ana Editor');
   assert.equal(head.author.email, '4242+editor@users.noreply.github.com');
+});
+
+const asFile = v => JSON.stringify(v, null, 2) + '\n';
+const oldStorage = edits => Object.fromEntries(Object.entries(oldContent(edits)).map(([n, v]) => [`storage/content/${n}.json`, asFile(v)]));
+
+test('prima acțiune poate fi modificarea unui proiect din conținutul de pornire: se salvează tot conținutul, cu proiectul modificat', async t => {
+  const { mock, gh } = await setup(t);
+  const list = await gh.request('GET', '/api/admin/investments');
+  assert.equal(list.length, 19);
+  assert.equal(mock.files('storage/').length, 0, 'citirea nu scrie nimic');
+  const p = list.find(x => x.order === 5);
+  const before = mock.commits().size;
+  const upd = await gh.request('PUT', `/api/admin/investments/${p.id}`, { ...p, status: 'blocat', next: 'Pas nou.' });
+  assert.equal(upd.id, p.id);
+  assert.equal(upd.status, 'blocat');
+  assert.equal(mock.commits().size, before + 1);
+  const saved = JSON.parse(mock.fileText('storage/content/investments.json'));
+  assert.equal(saved.length, 19);
+  assert.deepEqual(saved.find(x => x.id === p.id).status, 'blocat');
+  assert.equal(saved.filter(x => x.status === 'blocat').length, 2, 'celelalte proiecte rămân cum erau');
+  assert.deepEqual(JSON.parse(mock.fileText('storage/content/legal.json')).length, 16);
+  assert.match(mock.commits().get(mock.head()).message, /^Proiect investițional modificat: .+\n\n\[dgaefe-admin\] \{"a":"update","c":"investments"/);
+});
+
+test('conținut mai vechi în depozit: la citire se completează din „seed”, iar prima salvare scrie completările fără să piardă modificările', async t => {
+  const { mock, gh, url } = await setup(t);
+  const mine = { heroLead: 'Textul meu de prezentare.', footerNote: 'Nota mea.' };
+  const old = oldStorage(mine);
+  mock.commitFiles(old, 'Conținut salvat de versiunea anterioară');
+  mock.resetLog();
+  const base = mock.commits().size;
+
+  const investments = await gh.request('GET', '/api/admin/investments');
+  assert.equal(investments.length, 19);
+  assert.equal((await gh.request('GET', '/api/admin/legal')).length, 16);
+  const settings = await gh.request('GET', '/api/admin/settings');
+  assert.equal(settings.heroLead, mine.heroLead, 'textul scris de administrator rămâne');
+  assert.match(settings.orgName, /Coordonare/, 'textul implicit vechi este înlocuit');
+  assert.equal(settings.seedRev, 2);
+  assert.equal(mock.count('POST'), 0);
+  assert.equal(mock.count('PATCH'), 0);
+  assert.equal(mock.commits().size, base, 'citirea nu scrie nimic');
+  assert.equal(mock.fileText('storage/content/investments.json'), null);
+
+  const rec = await gh.request('POST', '/api/admin/news', news({ title: 'După actualizare' }));
+  assert.equal(mock.commits().size, base + 1, 'completările se scriu odată cu prima salvare, într-un singur commit');
+  assert.equal(JSON.parse(mock.fileText('storage/content/investments.json')).length, 19);
+  assert.equal(JSON.parse(mock.fileText('storage/content/legal.json')).length, 16);
+  const saved = JSON.parse(mock.fileText('storage/content/settings.json'));
+  assert.deepEqual([saved.heroLead, saved.footerNote, saved.seedRev], [mine.heroLead, mine.footerNote, 2]);
+  assert.deepEqual(JSON.parse(mock.fileText('storage/content/news.json')).map(x => x.id).slice(0, 1), [rec.id]);
+  for (const n of ['documents', 'events', 'programs', 'gallery']) assert.equal(mock.fileText(`storage/content/${n}.json`), old[`storage/content/${n}.json`], `${n} rămâne neschimbat`);
+
+  // o sesiune nouă citește același conținut, iar o salvare ulterioară nu mai rescrie ce nu s-a schimbat
+  const gh2 = createBackend({ api: url, owner: 'org', repo: 'site', branch: 'main', linger: 5, ttl: 0 });
+  await gh2.login('tok-ok');
+  assert.equal((await gh2.request('GET', '/api/admin/investments')).length, 19);
+  const sha = n => mock.headTree().get(`storage/content/${n}.json`).sha;
+  const [invSha, legalSha, setSha] = [sha('investments'), sha('legal'), sha('settings')];
+  await gh2.request('POST', '/api/admin/news', news({ title: 'A doua după actualizare' }));
+  assert.equal(mock.commits().size, base + 2);
+  assert.deepEqual([sha('investments'), sha('legal'), sha('settings')], [invSha, legalSha, setSha]);
 });
 
 test('regulile de validare sunt cele ale serverului și o cerere greșită nu face niciun commit', async t => {

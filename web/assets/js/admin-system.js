@@ -23,7 +23,7 @@
     republish: 'a republicat pagina',
     commit: 'a trimis o modificare în depozit'
   };
-  const TGT = { news: 'știrea', documents: 'documentul', events: 'evenimentul', legal: 'actul normativ', gallery: 'fotografia', programs: 'programul', settings: 'textele paginii' };
+  const TGT = { news: 'știrea', documents: 'documentul', events: 'evenimentul', legal: 'actul normativ', gallery: 'fotografia', programs: 'programul', investments: 'proiectul investițional', settings: 'textele paginii' };
 
   function describe(e) {
     const act = ACT[e.a] || e.a;
@@ -43,10 +43,11 @@
   pages[''] = {
     title: 'Panou de control',
     async render(root) {
-      const [, audit] = await Promise.all([ADM.load('news', 'documents', 'gallery', 'events', 'legal', 'programs'), ADM.get('/api/admin/audit').catch(() => [])]);
+      const [, audit] = await Promise.all([ADM.load('news', 'documents', 'gallery', 'events', 'legal', 'programs', 'investments'), ADM.get('/api/admin/audit').catch(() => [])]);
       const d = ADM.data;
       const drafts = d.news.filter(n => n.published === false).length;
       const sample = d.gallery.filter(g => g.sample).length;
+      const hidden = d.investments.filter(p => p.published === false).length;
       const stat = (href, n, label, note) => '<a class="stat" href="' + href + '"><span class="n">' + n + '</span><span class="l">' + label + '</span><span class="d">' + note + '</span></a>';
       root.innerHTML =
         '<div class="page-head"><div><h1>Panou de control</h1><p class="sub">Bun venit, ' + esc(ADM.user) + '. De aici administrați conținutul paginii publice: știri, documente, fotografii, evenimente și textele paginii.</p></div>' +
@@ -58,6 +59,7 @@
         stat('#/gallery', d.gallery.length, 'Fotografii', 'în galeria foto') +
         stat('#/events', d.events.length, 'Evenimente', 'anunțate pe pagină') +
         stat('#/legal', d.legal.length, 'Acte normative', 'în cadrul legal') +
+        stat('#/investments', d.investments.length, 'Proiecte investiționale', hidden ? ADM.plural(hidden, 'ascuns', 'ascunse') : 'din Planul de creștere') +
         '</div><div class="two"><div>' +
         '<section class="panel"><div class="panel-h"><h2>Acțiuni rapide</h2></div><div class="panel-b"><div class="quick-acts">' +
         '<a class="btn btn-primary" href="#/news/new">' + ico('plus') + 'Adaugă știre</a>' +
@@ -104,12 +106,34 @@
             hint: 'Adresa poate fi o pagină web (https://…) sau o secțiune a paginii, de exemplu #programe.',
             sub: [{ name: 't', label: 'Text', w: 'half', max: 160 }, { name: 'u', label: 'Adresa', w: 'half', max: 1000, placeholder: 'https://… sau #programe' }]
           },
-          { type: 'heading', label: 'Despre direcție' },
-          { name: 'aboutP1', label: 'Primul paragraf', type: 'textarea', max: 1200, rows: 4 },
-          { name: 'aboutP2', label: 'Al doilea paragraf', type: 'textarea', max: 1200, rows: 4 },
+          { type: 'heading', label: 'Despre direcție', hint: 'Secțiunea „Despre direcție” a paginii: statutul, misiunea, funcțiile de bază, structura, drepturile și responsabilitățile, după Regulamentul de activitate.' },
+          { name: 'aboutP1', label: 'Primul paragraf', type: 'textarea', max: 1200, rows: 5 },
+          { name: 'aboutP2', label: 'Al doilea paragraf', type: 'textarea', max: 1200, rows: 5 },
+          { name: 'principles', label: 'Principiile de activitate', type: 'lines', rows: 5, hint: 'Câte un principiu pe rând.' },
           {
-            name: 'duties', label: 'Atribuții', type: 'repeater', max: 8, addLabel: 'Adaugă atribuție', emptyText: 'Nicio atribuție adăugată.',
-            sub: [{ name: 'title', label: 'Titlu', max: 120 }, { name: 'text', label: 'Descriere', type: 'textarea', rows: 3, max: 500 }]
+            name: 'duties', label: 'Funcțiile de bază', type: 'repeater', max: 12, addLabel: 'Adaugă funcție', emptyText: 'Nicio funcție adăugată.',
+            hint: 'Fiecare funcție are un titlu scurt, descrierea ei și lista atribuțiilor concrete (care se deschide pe pagină la apăsarea titlului).',
+            sub: [
+              { name: 'title', label: 'Titlu', max: 140 },
+              { name: 'text', label: 'Descrierea funcției', type: 'textarea', rows: 3, max: 800 },
+              { name: 'items', label: 'Atribuțiile funcției (câte una pe rând)', type: 'textarea', rows: 7 }
+            ]
+          },
+          {
+            name: 'structure', label: 'Structura direcției', type: 'repeater', max: 12, addLabel: 'Adaugă funcție din structură', emptyText: 'Nicio funcție adăugată.',
+            hint: 'Funcțiile din statul de personal și numărul de unități pentru fiecare. Pe pagină se afișează și totalul.',
+            sub: [{ name: 'title', label: 'Funcția', w: 'twothirds', max: 100 }, { name: 'count', label: 'Unități', w: 'third', max: 3 }]
+          },
+          { name: 'rights', label: 'Drepturile direcției', type: 'lines', rows: 9, hint: 'Câte un drept pe rând.' },
+          { name: 'responsibilities', label: 'Responsabilitățile direcției', type: 'lines', rows: 12, hint: 'Câte o responsabilitate pe rând.' },
+          { name: 'aboutNote', label: 'Sursa informațiilor', type: 'textarea', max: 800, rows: 2, hint: 'Se afișează sub secțiune, ca mențiune de sursă.' },
+          { type: 'heading', label: 'Planul de creștere', hint: 'Textele din jurul listei de proiecte investiționale. Proiectele se administrează în secțiunea „Proiecte investiționale”.' },
+          { name: 'growth.asOf', label: 'Situația proiectelor la data de', type: 'date', w: 'third' },
+          { name: 'growth.intro', label: 'Introducere', type: 'textarea', max: 1200, rows: 4 },
+          { name: 'growth.note', label: 'Notă explicativă', type: 'textarea', max: 1500, rows: 4, hint: 'Se afișează sub lista de proiecte: cum se citește bara de progres, precizări despre valori.' },
+          {
+            name: 'growth.sources', label: 'Surse de date', type: 'repeater', max: 6, addLabel: 'Adaugă sursă', emptyText: 'Nicio sursă adăugată.',
+            sub: [{ name: 't', label: 'Text', w: 'half', max: 160 }, { name: 'u', label: 'Adresa', type: 'url', w: 'half', max: 1000, placeholder: 'https://…' }]
           },
           { type: 'heading', label: 'Contacte' },
           { name: 'contact.address', label: 'Adresa', type: 'textarea', rows: 2, max: 300 },

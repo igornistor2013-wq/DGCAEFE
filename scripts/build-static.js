@@ -3,7 +3,8 @@
 // Construiește versiunea statică a site-ului în folderul dist/ (pentru GitHub Pages).
 //   node scripts/build-static.js [--data <folder>] [--out <folder>]
 //                                [--github-repo proprietar/depozit [--github-branch main] [--github-api <adresa>] [--commit <sha>]]
-// Implicit: datele din storage/ (dacă există), altfel conținutul de pornire din seed/.
+// Implicit: datele din storage/ (dacă există), altfel conținutul de pornire din seed/. Conținutul nou din seed/ (colecții noi, texte
+// actualizate) se adaugă peste storage/ fără să șteargă modificările făcute din administrare (vezi web/assets/js/content-overlay.js).
 // Cu --github-repo, versiunea construită include și pagina de administrare (admin/), care salvează direct în depozitul GitHub.
 const fs = require('fs');
 const path = require('path');
@@ -28,7 +29,7 @@ const out = path.resolve(arg('out') || path.join(cfg.ROOT, 'dist'));
 const repo = arg('github-repo');
 const github = repo ? { repo, branch: arg('github-branch') || 'main', api: arg('github-api') } : null;
 try {
-  const list = staticSite.entries(staticSite.diskReader(dataDir), dataDir, { github, commit: arg('commit') || process.env.GITHUB_SHA });
+  const list = staticSite.entries(staticSite.diskReader(dataDir, cfg.SEED_DIR), dataDir, { github, commit: arg('commit') || process.env.GITHUB_SHA, seedDir: cfg.SEED_DIR });
   staticSite.writeTo(out, list, [cfg.ROOT, dataDir]);
   const bytes = list.reduce((n, e) => n + (e.file ? fs.statSync(e.file).size : Buffer.byteLength(e.text)), 0);
   console.log(`Versiunea statică a fost creată în ${out}`);

@@ -94,5 +94,101 @@
     "file": null,
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "ad49bc482996",
+    "type": "Lege",
+    "nr": "181",
+    "year": 2014,
+    "title": "Finanțelor publice și responsabilității bugetar-fiscale",
+    "topic": "Finanțe publice",
+    "url": "",
+    "file": null,
+    "createdAt": "2026-10-20T12:00:00.000Z",
+    "updatedAt": "2026-10-20T12:00:00.000Z"
+  },
+  {
+    "id": "0d5f40aa4c65",
+    "type": "Lege",
+    "nr": "136",
+    "year": 2017,
+    "title": "Cu privire la Guvern",
+    "topic": "Organizarea Guvernului",
+    "url": "",
+    "file": null,
+    "createdAt": "2026-10-20T12:00:00.000Z",
+    "updatedAt": "2026-10-20T12:00:00.000Z"
+  },
+  {
+    "id": "8fd492deb6ea",
+    "type": "Lege",
+    "nr": "100",
+    "year": 2017,
+    "title": "Cu privire la actele normative",
+    "topic": "Actele normative",
+    "url": "",
+    "file": null,
+    "createdAt": "2026-10-20T12:00:00.000Z",
+    "updatedAt": "2026-10-20T12:00:00.000Z"
+  },
+  {
+    "id": "1be074493a25",
+    "type": "Lege",
+    "nr": "98",
+    "year": 2025,
+    "title": "Pentru ratificarea Acordului de facilitate dintre Republica Moldova și Uniunea Europeană privind modalitățile specifice de punere în aplicare a sprijinului acordat de Uniunea Europeană în cadrul Mecanismului de Reformă și Creștere pentru Republica Moldova",
+    "topic": "Planul de creștere (Growth Plan)",
+    "url": "",
+    "file": null,
+    "createdAt": "2026-10-20T12:00:00.000Z",
+    "updatedAt": "2026-10-20T12:00:00.000Z"
+  },
+  {
+    "id": "10faa6dc621f",
+    "type": "HG",
+    "nr": "610",
+    "year": 2018,
+    "title": "Pentru aprobarea Regulamentului Guvernului",
+    "topic": "Organizarea Guvernului",
+    "url": "",
+    "file": null,
+    "createdAt": "2026-10-20T12:00:00.000Z",
+    "updatedAt": "2026-10-20T12:00:00.000Z"
+  },
+  {
+    "id": "20b71cc151da",
+    "type": "HG",
+    "nr": "1070",
+    "year": 2023,
+    "title": "Privind instituirea Comitetului interministerial pentru planificare strategică (CIPS)",
+    "topic": "Planificare strategică",
+    "url": "",
+    "file": null,
+    "createdAt": "2026-10-20T12:00:00.000Z",
+    "updatedAt": "2026-10-20T12:00:00.000Z"
+  },
+  {
+    "id": "c31c3bb0120c",
+    "type": "HG",
+    "nr": "271",
+    "year": 2025,
+    "title": "Cu privire la organizarea și funcționarea Sistemului Național Antifraudă",
+    "topic": "Prevenirea fraudei",
+    "url": "",
+    "file": null,
+    "createdAt": "2026-10-20T12:00:00.000Z",
+    "updatedAt": "2026-10-20T12:00:00.000Z"
+  },
+  {
+    "id": "77acf6d3c594",
+    "type": "HG",
+    "nr": "657",
+    "year": 2009,
+    "title": "Pentru aprobarea Regulamentului privind organizarea și funcționarea, structura și efectivul-limită ale Cancelariei de Stat",
+    "topic": "Cancelaria de Stat",
+    "url": "",
+    "file": null,
+    "createdAt": "2026-10-20T12:00:00.000Z",
+    "updatedAt": "2026-10-20T12:00:00.000Z"
   }
 ]

@@ -17,6 +17,7 @@ const { once } = require('node:events');
 const zlib = require('node:zlib');
 const { execFileSync, spawnSync } = require('node:child_process');
 const { createApp } = require('../server');
+const { oldContent, writeContent } = require('../test-support/old-content');
 
 const PNG_1PX = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 const PDF_MIN = Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n');
@@ -102,12 +103,15 @@ test('conținutul public inițial este complet', async () => {
   assert.equal(r.status, 200);
   const d = r.data;
   assert.equal(d.programs.length, 5);
-  assert.equal(d.legal.length, 8);
+  assert.equal(d.legal.length, 16);
+  assert.equal(d.investments.length, 19);
   assert.equal(d.events.length, 6);
   assert.equal(d.documents.length, 43);
   assert.equal(d.gallery.length, 6);
   assert.equal(d.news.length, 3);
   assert.match(d.settings.orgName, /Asistență Externă/);
+  assert.ok(d.settings.duties.length >= 8 && d.settings.rights.length && d.settings.responsibilities.length, 'funcțiile, drepturile și responsabilitățile din Regulament');
+  assert.ok(!('seedRev' in d.settings), 'evidența internă a conținutului de pornire nu este publică');
   assert.ok(onDisk(d.gallery[0].file.path), 'imaginile de exemplu au fost copiate');
   assert.ok(!JSON.stringify(d).includes('hash'), 'nu se scurg date private');
 });
@@ -287,6 +291,84 @@ test('textele paginii: validare și salvare', async () => {
   assert.ok(pub.lastUpdated >= pub.settings.updatedAt);
 });
 
+test('textele paginii: versiunea conținutului de pornire se păstrează, nu se publică și nu se schimbă din formular', async () => {
+  const seedRev = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'seed', 'content', 'settings.json'), 'utf8')).seedRev;
+  assert.ok(seedRev >= 2);
+  const cur = (await call('GET', '/api/admin/settings')).data;
+  assert.equal(cur.seedRev, seedRev);
+  const r = await call('PUT', '/api/admin/settings', { ...cur, seedRev: 99, heroLead: 'Alt text de prezentare.' });
+  assert.equal(r.status, 200);
+  const saved = JSON.parse(fs.readFileSync(path.join(tmp, 'content', 'settings.json'), 'utf8'));
+  assert.equal(saved.seedRev, seedRev, 'formularul nu poate schimba versiunea');
+  assert.equal(saved.heroLead, 'Alt text de prezentare.');
+  const pub = (await call('GET', '/api/public', undefined, { anonymous: true })).data;
+  assert.ok(!('seedRev' in pub.settings));
+});
+
+test('proiectele din Planul de creștere: validare, calculul progresului, ascunderea și ștergerea', async () => {
+  const cases = [
+    [{}, /„Denumirea proiectului” este obligatoriu/],
+    [{ name: 'P', cluster: 'altceva' }, /Etapa de maturitate/],
+    [{ name: 'P', status: 'gata' }, /Starea proiectului/],
+    [{ name: 'P', currency: 'RON' }, /Moneda/],
+    [{ name: 'P', stage: 50, totalStages: 40 }, /Etapa curentă nu poate fi mai mare/],
+    [{ name: 'P', refStage: 41, totalStages: 40 }, /Etapa de referință nu poate fi mai mare/],
+    [{ name: 'P', progress: 101 }, /Progresul/],
+    [{ name: 'P', amount: -1 }, /Valoarea/],
+    [{ name: 'P', links: [{ t: 'Text', u: 'javascript:alert(1)' }] }, /adres/i],
+    [{ name: 'x'.repeat(301) }, /prea lung/]
+  ];
+  for (const [body, re] of cases) {
+    const r = await call('POST', '/api/admin/investments', body);
+    assert.equal(r.status, 400, JSON.stringify(body));
+    assert.match(r.data.error, re, JSON.stringify(body));
+  }
+  const publicCount = async () => (await call('GET', '/api/public', undefined, { anonymous: true })).data.investments;
+  const before = (await call('GET', '/api/admin/investments')).data;
+  assert.equal(before.length, 19);
+  assert.equal((await publicCount()).length, 19);
+
+  // ciornă: se salvează, dar nu apare public; progresul se calculează din etape
+  const c = await call('POST', '/api/admin/investments', { name: 'Proiect de test', ministry: 'MF', amount: '12,5', currency: 'MDL', amountQual: 'circa', cluster: 'fezabilitate', status: 'intarziere', stage: 10, refStage: 12, totalStages: 40, text: 'Stadiu.', delays: 'Etape în întârziere:\n1. Ceva', next: 'Pasul următor.', links: [{ t: 'Sursa', u: 'https://exemplu.md' }, { t: '', u: '' }], published: false });
+  assert.equal(c.status, 201);
+  assert.deepEqual([c.data.progress, c.data.amount, c.data.currency, c.data.amountQual, c.data.published], [25, 12.5, 'MDL', 'circa', false]);
+  assert.deepEqual(c.data.links, [{ t: 'Sursa', u: 'https://exemplu.md' }], 'rândurile goale se elimină');
+  assert.equal((await publicCount()).length, 19, 'proiectul ascuns nu este public');
+  assert.equal((await call('GET', '/api/admin/investments')).data.length, 20, 'în administrare apare și ciorna');
+
+  // publicare, cu un număr de ordine după celelalte
+  const u = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...c.data, published: true, order: 20 });
+  assert.equal(u.status, 200);
+  assert.equal(u.data.id, c.data.id);
+  assert.equal(u.data.createdAt, c.data.createdAt);
+  const pub = await publicCount();
+  assert.equal(pub.length, 20);
+  assert.equal(pub[pub.length - 1].id, c.data.id, 'se afișează după numărul de ordine');
+
+  // fără valoare, precizarea valorii nu are sens și se șterge
+  const noAmount = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...u.data, amount: '', amountQual: 'max.' });
+  assert.equal(noAmount.status, 200);
+  assert.deepEqual([noAmount.data.amount, noAmount.data.amountQual], [null, '']);
+
+  const missing = await call('PUT', '/api/admin/investments/inexistent', { name: 'x' });
+  assert.equal(missing.status, 404);
+  const del = await call('DELETE', `/api/admin/investments/${c.data.id}`);
+  assert.equal(del.status, 200);
+  assert.equal((await publicCount()).length, 19);
+  assert.equal((await call('DELETE', `/api/admin/investments/${c.data.id}`)).status, 404);
+
+  // un proiect din Raport poate fi ascuns și readus fără să se piardă nimic
+  const first = before.find(p => p.order === 1);
+  const hide = await call('PUT', `/api/admin/investments/${first.id}`, { ...first, published: false });
+  assert.equal(hide.status, 200);
+  assert.ok(!(await publicCount()).some(p => p.id === first.id));
+  const show = await call('PUT', `/api/admin/investments/${first.id}`, { ...first, published: true });
+  assert.equal(show.status, 200);
+  const { updatedAt, ...a } = show.data; // eslint-disable-line no-unused-vars
+  const { updatedAt: u0, ...b } = first; // eslint-disable-line no-unused-vars
+  assert.deepEqual(a, b);
+});
+
 test('jurnalul de activitate înregistrează acțiunile', async () => {
   await new Promise(r => setTimeout(r, 100));
   const r = await call('GET', '/api/admin/audit');
@@ -295,6 +377,7 @@ test('jurnalul de activitate înregistrează acțiunile', async () => {
   assert.ok(actions.includes('login:auth'));
   assert.ok(actions.includes('create:news'));
   assert.ok(actions.includes('delete:gallery'));
+  assert.ok(actions.includes('create:investments') && actions.includes('delete:investments'));
 });
 
 test('copia de siguranță este o arhivă ZIP cu conținutul și fișierele', async () => {
@@ -337,6 +420,8 @@ test('exportul static: pagina completă, fără ciorne, fără administrare, cu 
   assert.equal(pdf.status, 201);
   const doc = await call('POST', '/api/admin/documents', { title: 'Document încărcat pentru export', section: 'rapoarte', year: 2026, file: pdf.data });
   assert.equal(doc.status, 201);
+  const hiddenInv = await call('POST', '/api/admin/investments', { name: 'Proiect ascuns la export', published: false });
+  assert.equal(hiddenInv.status, 201);
 
   const r = await call('GET', '/api/admin/export-static');
   assert.equal(r.status, 200);
@@ -365,6 +450,9 @@ test('exportul static: pagina completă, fără ciorne, fără administrare, cu 
   assert.ok(news.body.includes('](uploads/docs/x.pdf)'), 'legăturile din text devin relative');
   assert.ok(!JSON.stringify(data).includes('"/uploads/'), 'nicio cale absolută către /uploads/');
   assert.equal(data.programs.length, 5);
+  assert.equal(data.investments.length, 19, 'proiectele din Planul de creștere se exportă');
+  assert.ok(!data.investments.some(p => p.name === 'Proiect ascuns la export'), 'proiectele ascunse nu se exportă');
+  assert.ok(!('seedRev' in data.settings), 'evidența internă nu se exportă');
   const exportedDoc = data.documents.find(d => d.title === 'Document încărcat pentru export');
   assert.ok(exportedDoc, 'documentul încărcat este exportat');
   assert.ok(JSON.stringify(exportedDoc).includes('uploads/docs/'), 'documentul trimite către uploads/docs/ (relativ)');
@@ -379,6 +467,7 @@ test('exportul static: pagina completă, fără ciorne, fără administrare, cu 
   await call('DELETE', `/api/admin/news/${draft.data.id}`);
   await call('DELETE', `/api/admin/news/${pub.data.id}`);
   await call('DELETE', `/api/admin/documents/${doc.data.id}`);
+  await call('DELETE', `/api/admin/investments/${hiddenInv.data.id}`);
 });
 
 test('scriptul build-static construiește versiunea statică din folderul de date și din seed', async () => {
@@ -429,6 +518,68 @@ test('build-static nu șterge foldere străine și nu scrie peste proiect sau da
     assert.ok(!fs.existsSync(path.join(ok, 'vechi.txt')), 'versiunea anterioară este înlocuită complet');
   } finally {
     fs.rmSync(foreign, { recursive: true, force: true });
+  }
+});
+
+const ROOT = path.join(__dirname, '..');
+const snapshot = dir => Object.fromEntries(fs.readdirSync(path.join(dir, 'content')).sort().map(n => [n, fs.readFileSync(path.join(dir, 'content', n), 'utf8')]));
+
+test('date salvate de versiunea anterioară: la pornire se adaugă conținutul nou, fără să se piardă modificările, o singură dată', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dgaefe-old-'));
+  const code = `const s = require('./lib/store'); s.init(); console.log(JSON.stringify({ legal: s.list('legal').length, investments: s.list('investments').length, news: s.list('news').length, documents: s.list('documents').length, settings: s.getSettings() }));`;
+  const start = () => JSON.parse(execFileSync(process.execPath, ['-e', code], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, DATA_DIR: dir, ENV_FILE: path.join(dir, 'fara.env') } }));
+  try {
+    const mine = { heroLead: 'Textul meu de prezentare.', footerNote: 'Nota mea din subsol.' };
+    const old = oldContent(mine);
+    old.settings.contact.phones = ['022 111 222'];
+    writeContent(dir, old);
+    const newsBefore = fs.readFileSync(path.join(dir, 'content', 'news.json'), 'utf8');
+    assert.ok(!fs.existsSync(path.join(dir, 'content', 'investments.json')));
+
+    const r = start();
+    assert.deepEqual([r.legal, r.investments, r.news, r.documents], [16, 19, 3, 43]);
+    assert.equal(r.settings.heroLead, mine.heroLead);
+    assert.equal(r.settings.footerNote, mine.footerNote);
+    assert.deepEqual(r.settings.contact.phones, ['022 111 222']);
+    assert.match(r.settings.orgName, /Coordonare/, 'denumirea implicită veche a primit denumirea oficială');
+    assert.equal(r.settings.seedRev, 2);
+    assert.ok(r.settings.duties.length >= 8, 'funcțiile din Regulament');
+    assert.equal(JSON.parse(fs.readFileSync(path.join(dir, 'content', 'investments.json'), 'utf8')).length, 19, 'noile proiecte au fost salvate');
+    assert.equal(fs.readFileSync(path.join(dir, 'content', 'news.json'), 'utf8'), newsBefore, 'știrile nu au fost rescrise');
+    assert.ok(fs.existsSync(path.join(dir, 'uploads', 'img', 'sample-1.jpg')), 'imaginile din galerie există');
+
+    // a doua pornire nu mai schimbă nimic, nici măcar data
+    const files = snapshot(dir);
+    const again = start();
+    assert.deepEqual(snapshot(dir), files);
+    assert.deepEqual(again.settings, r.settings);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('versiunea statică din date salvate de versiunea anterioară conține proiectele și textele noi, iar folderul de date rămâne neatins', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dgaefe-old-'));
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'dgaefe-out-'));
+  try {
+    writeContent(dir, oldContent({ heroLead: 'Textul meu de prezentare.' }));
+    const before = snapshot(dir);
+    const script = path.join(ROOT, 'scripts', 'build-static.js');
+    const msg = execFileSync(process.execPath, [script, '--data', dir, '--out', path.join(out, 'dist')], { encoding: 'utf8', env: { ...process.env, DATA_DIR: '' } });
+    assert.match(msg, /Versiunea statică a fost creată/);
+    const html = fs.readFileSync(path.join(out, 'dist', 'index.html'), 'utf8');
+    const data = JSON.parse(html.match(/<script type="application\/json" id="seed-data">([\s\S]*?)<\/script>/)[1]);
+    assert.equal(data.investments.length, 19);
+    assert.equal(data.legal.length, 16);
+    assert.equal(data.settings.heroLead, 'Textul meu de prezentare.');
+    assert.match(data.settings.orgName, /Coordonare/);
+    assert.ok(!('seedRev' in data.settings));
+    assert.equal(data.news.length, 3);
+    assert.deepEqual(snapshot(dir), before, 'construirea nu scrie în folderul de date');
+    assert.ok(!fs.existsSync(path.join(dir, 'content', 'investments.json')));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(out, { recursive: true, force: true });
   }
 });
 

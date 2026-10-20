@@ -44,7 +44,7 @@
       case 'select':
         return '<select ' + attrs + '>' + options(f.options, v) + '</select>';
       case 'number':
-        return '<input type="number" ' + attrs + ' value="' + esc(v == null ? '' : v) + '" step="1" inputmode="numeric"' + (f.min != null ? ' min="' + f.min + '"' : '') + (f.maxv != null ? ' max="' + f.maxv + '"' : '') + '>';
+        return '<input type="number" ' + attrs + ' value="' + esc(v == null ? '' : v) + '" step="' + (f.step || 1) + '" inputmode="' + (f.step ? 'decimal' : 'numeric') + '"' + (f.min != null ? ' min="' + f.min + '"' : '') + (f.maxv != null ? ' max="' + f.maxv + '"' : '') + '>';
       case 'date':
         return '<input type="date" ' + attrs + ' value="' + esc(v) + '">';
       default:
@@ -128,7 +128,8 @@
     const subs = f.sub
       .map(sf => {
         const id = rid + '-' + sf.name;
-        const v = vals ? vals[sf.name] : '';
+        const raw = vals ? vals[sf.name] : '';
+        const v = Array.isArray(raw) ? raw.join('\n') : raw; // liste de rânduri (de exemplu atribuțiile unei funcții) se arată câte una pe rând
         const common = 'id="' + id + '" data-sub="' + sf.name + '"' + (sf.max ? ' maxlength="' + sf.max + '"' : '') + (sf.placeholder ? ' placeholder="' + esc(sf.placeholder) + '"' : '');
         const input =
           sf.type === 'textarea'

@@ -137,6 +137,16 @@ async function scenario(d) {
   await run('act normativ', 'POST', '/api/admin/legal', { type: 'Lege', nr: '12', year: 2026, title: 'Privind ceva', topic: 'Ceva', url: 'https://legis.md/12' });
   await run('act fără an', 'POST', '/api/admin/legal', { type: 'HG', nr: '1', title: 'Fără an' });
 
+  const invs = (await d.call('GET', '/api/admin/investments')).data;
+  const p1 = await run('proiect nou', 'POST', '/api/admin/investments', { name: 'Proiect de test', ministry: 'MF', amount: '12,5', currency: 'MDL', amountQual: 'circa', cluster: 'fezabilitate', status: 'intarziere', stage: 10, refStage: 12, totalStages: 40, text: 'Stadiu.', delays: 'Etape în întârziere:\n1. Ceva', next: 'Pasul următor.', links: [{ t: 'Sursa', u: 'https://exemplu.md' }, { t: '', u: '' }], published: false });
+  await run('proiect fără denumire', 'POST', '/api/admin/investments', { name: '' });
+  await run('proiect cu etapa peste total', 'POST', '/api/admin/investments', { name: 'X', stage: 50, totalStages: 40 });
+  await run('proiect cu stare necunoscută', 'POST', '/api/admin/investments', { name: 'X', status: 'gata' });
+  await run('proiect publicat', 'PUT', `/api/admin/investments/${p1.id}`, { ...p1, published: true, amount: '', amountQual: 'max.', order: 20 });
+  await run('proiect din Raport modificat', 'PUT', `/api/admin/investments/${invs[3].id}`, { ...invs[3], status: 'blocat', next: 'Pas nou.' });
+  await run('proiect inexistent', 'PUT', '/api/admin/investments/inexistent', { name: 'x' });
+  await run('proiect șters', 'DELETE', `/api/admin/investments/${p1.id}`);
+
   const g1 = await run('fotografie', 'POST', '/api/admin/gallery', { title: 'Poză', album: 'Album', date: '2026-10-01', alt: 'Descriere', file: { ...f(img), thumb: thumb.path } });
   const gallery = (await d.call('GET', '/api/admin/gallery')).data;
   await run('mutare în album', 'PUT', `/api/admin/gallery/${gallery[1].id}`, { title: gallery[1].title, album: 'Mutat', date: gallery[1].date, alt: gallery[1].alt, file: gallery[1].file });
@@ -168,7 +178,7 @@ test('serverul și administrarea pe GitHub dau aceleași rezultate și același 
       assert.deepEqual(bodyB, bodyA, `${labelA}: răspuns`);
     }
 
-    for (const name of ['news', 'documents', 'events', 'legal', 'programs', 'gallery', 'settings']) {
+    for (const name of ['news', 'documents', 'events', 'legal', 'programs', 'gallery', 'investments', 'settings']) {
       assert.deepEqual(normalize(b.content(name)), normalize(a.content(name)), `conținut: ${name}`);
     }
     // fișierele încărcate (fără cele de exemplu, pe care serverul le copiază toate)

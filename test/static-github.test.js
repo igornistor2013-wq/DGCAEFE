@@ -42,7 +42,7 @@ test('cu opțiunea GitHub: pagina de administrare, scripturile, version.json și
   assert.ok(admin.indexOf('Content-Security-Policy') < admin.indexOf('<script'), 'politica precede scripturile');
 
   const scripts = [...admin.matchAll(/<script src="\.\.\/assets\/js\/([\w-]+\.js)" defer><\/script>/g)].map(m => m[1]);
-  assert.deepEqual(scripts, ['common.js', 'admin-core.js', 'admin-forms.js', 'admin-pages.js', 'admin-system.js', 'admin-schemas.js', 'admin-github-core.js', 'admin-github.js', 'admin.js']);
+  assert.deepEqual(scripts, ['common.js', 'admin-core.js', 'admin-forms.js', 'admin-pages.js', 'admin-system.js', 'admin-schemas.js', 'content-overlay.js', 'admin-github-core.js', 'admin-github.js', 'admin.js']);
 
   const v = JSON.parse(textOf(files.get('version.json')));
   assert.equal(v.commit, SHA.toLowerCase());

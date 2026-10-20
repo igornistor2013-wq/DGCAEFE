@@ -189,6 +189,7 @@ button{cursor:pointer}
 .badge-draft{background:var(--orange-l);border-color:#EBC08E;color:var(--orange)}
 .badge-info{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue-dd)}
 .badge-warn{background:#FFF6D6;border-color:#E5C04B;color:#4A3800}
+.badge-bad{background:#FBE9E7;border-color:#E8A9A2;color:#7A1712}
 .empty{padding:2.5rem 1rem;text-align:center;color:var(--muted)}
 .empty strong{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:.25rem}
 .more{display:flex;justify-content:center;padding:.9rem;border-top:1px solid var(--line)}
