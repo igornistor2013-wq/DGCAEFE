@@ -1,0 +1,73 @@
+{
+  "orgName": "Direcția Generală Asistență Externă și Fonduri Europene",
+  "parentName": "Cancelaria de Stat a Republicii Moldova",
+  "heroTitle": "Direcția Generală Asistență Externă și Fonduri Europene",
+  "heroLead": "Coordonăm asistența externă acordată Republicii Moldova și participarea țării la programele de cooperare teritorială finanțate de Uniunea Europeană. Aici găsiți actele normative, rapoartele anuale, acordurile de finanțare și evenimentele pentru potențialii beneficiari.",
+  "quickLinks": [
+    {
+      "t": "Raportul privind asistența externă, 2025",
+      "u": "https://gov.md/sites/default/files/users-media/media-35/Raport_2025.pdf"
+    },
+    {
+      "t": "Platforma pentru gestionarea asistenței externe (AMP)",
+      "u": "https://amp.gov.md/portal/"
+    },
+    {
+      "t": "Programele Interreg 2021–2027",
+      "u": "#programe"
+    },
+    {
+      "t": "Cadrul legal",
+      "u": "#cadrul-legal"
+    }
+  ],
+  "aboutP1": "Direcția Generală Asistență Externă și Fonduri Europene activează în cadrul Cancelariei de Stat. Ea coordonează asistența oferită Republicii Moldova de partenerii de dezvoltare și participarea țării la programele de cooperare finanțate de Uniunea Europeană.",
+  "aboutP2": "Cadrul instituțional și mecanismul de coordonare și management al asistenței externe sunt stabilite prin Hotărârea Guvernului nr. 377/2018. Implementarea programelor de cooperare transfrontalieră și transnațională este reglementată de Hotărârea Guvernului nr. 576/2017.",
+  "duties": [
+    {
+      "title": "Coordonarea asistenței externe",
+      "text": "Monitorizează asistența primită de la partenerii de dezvoltare și publică anual raportul privind asistența externă acordată Republicii Moldova."
+    },
+    {
+      "title": "Programe de cooperare teritorială",
+      "text": "Asigură participarea Republicii Moldova la cinci programe Interreg 2021–2027. Pentru URBACT, Cancelaria de Stat este Autoritate Națională și Punct Național de Contact."
+    },
+    {
+      "title": "Verificarea cheltuielilor în proiecte",
+      "text": "Gestionează lista auditorilor selectați pentru verificarea cheltuielilor în proiectele finanțate prin aceste programe."
+    },
+    {
+      "title": "Cooperare bilaterală",
+      "text": "Urmărește implementarea Acordului cu Guvernul României privind asistența tehnică și financiară nerambursabilă de 100 de milioane de euro."
+    }
+  ],
+  "contact": {
+    "address": "Piața Marii Adunări Naționale 1, MD-2012, mun. Chișinău, Republica Moldova",
+    "phones": [
+      "022 250 402",
+      "022 250 383",
+      "022 250 577",
+      "022 250 300",
+      "022 250 310",
+      "022 250 297",
+      "022 250 372"
+    ],
+    "emails": [
+      {
+        "addr": "cancelaria@gov.md",
+        "note": ""
+      },
+      {
+        "addr": "petitii@gov.md",
+        "note": "petiții, cereri și audiențe"
+      }
+    ],
+    "hotlinePhone": "+373 22 250 111",
+    "hotlineHours": "luni–vineri, 8:00–17:00",
+    "mailTo": "cancelaria@gov.md",
+    "mapEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1923.2163559463365!2d28.831904267598865!3d47.02377198373631!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40c97c339ab76ad3%3A0x3448a02116d3cd16!2z0J_RgNCw0LLQuNGC0LXQu9GM0YHRgtCy0L4g0KDQtdGB0L_Rg9Cx0LvQuNC60Lgg0JzQvtC70LTQvtCy0LA!5e0!3m2!1sro!2s!4v1722260886066!5m2!1sro!2s",
+    "mapLink": "https://www.google.com/maps/search/?api=1&query=Casa+Guvernului+Chi%C8%99in%C4%83u"
+  },
+  "footerNote": "Conținut preluat de pe gov.md, disponibil sub licența CC BY-SA 4.0.",
+  "updatedAt": "2026-10-20T10:40:46.151Z"
+}

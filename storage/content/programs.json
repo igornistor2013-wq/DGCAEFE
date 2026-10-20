@@ -1,0 +1,81 @@
+[
+  {
+    "id": "romd",
+    "order": 1,
+    "level": "cross",
+    "strand": "Interreg VI-A",
+    "name": "Interreg NEXT România–Republica Moldova 2021–2027",
+    "short": "România–Moldova",
+    "site": "https://ro-md.net/ro/",
+    "desc": "Program de cooperare transfrontalieră între regiunile de frontieră din România și Republica Moldova. Finanțează proiecte comune ale autorităților locale, instituțiilor și organizațiilor de pe ambele maluri ale Prutului.",
+    "facts": [],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "bsb",
+    "order": 2,
+    "level": "trans",
+    "strand": "Interreg VI-B",
+    "name": "Interreg NEXT Bazinul Mării Negre 2021–2027",
+    "short": "Bazinul Mării Negre",
+    "site": "https://blacksea-cbc.net/interreg-next-bsb-2021-2027",
+    "desc": "Program de cooperare transnațională pentru statele din bazinul Mării Negre. Susține proiecte comune ale partenerilor din regiune în domenii de interes pentru întregul bazin.",
+    "facts": [],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "drp",
+    "order": 3,
+    "level": "trans",
+    "strand": "Interreg VI-B",
+    "name": "Programul Regiunea Dunării 2021–2027",
+    "short": "Regiunea Dunării",
+    "site": "https://interreg-danube.eu/",
+    "desc": "Program transnațional care reunește 14 țări din bazinul Dunării. Finanțează proiecte de cooperare pentru o regiune mai inovatoare, mai verde, mai incluzivă și mai bine guvernată.",
+    "facts": [],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "ie",
+    "order": 4,
+    "level": "inter",
+    "strand": "Interreg VI-C",
+    "name": "Interreg Europe 2021–2027",
+    "short": "Interreg Europe",
+    "site": "https://www.interregeurope.eu/",
+    "desc": "Program de cooperare interregională care ajută autoritățile publice să facă schimb de experiență și să îmbunătățească politicile de dezvoltare regională.",
+    "facts": [
+      {
+        "b": "36 de țări",
+        "t": "în zona programului, după extinderea către șapte țări noi, anunțată în 2024"
+      }
+    ],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "urbact",
+    "order": 5,
+    "level": "inter",
+    "strand": "Interreg VI-C",
+    "name": "URBACT IV 2021–2027",
+    "short": "URBACT IV",
+    "site": "https://urbact.eu/",
+    "desc": "Program european pentru dezvoltarea urbană durabilă, în care orașele colaborează în rețele pentru a prelua și adapta bune practici. Cancelaria de Stat este Autoritate Națională și Punct Național de Contact URBACT pentru Republica Moldova.",
+    "facts": [
+      {
+        "b": "750.000 EUR",
+        "t": "bugetul total al unei rețele de transfer, plus 120.000 EUR pentru expertiză externă (apelul 2025)"
+      },
+      {
+        "b": "până la 95%",
+        "t": "cofinanțare prin fondurile NDICI pentru orașele din Moldova"
+      }
+    ],
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  }
+]
