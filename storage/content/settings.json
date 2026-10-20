@@ -44,13 +44,13 @@
   "contact": {
     "address": "Piața Marii Adunări Naționale 1, MD-2012, mun. Chișinău, Republica Moldova",
     "phones": [
-      "022 250 402",
-      "022 250 383",
-      "022 250 577",
-      "022 250 300",
-      "022 250 310",
-      "022 250 297",
-      "022 250 372"
+      "022 250 000",
+      "022 250 000",
+      "022 250 000",
+      "022 250 000",
+      "022 250 000",
+      "022 250 000",
+      "022 250 000"
     ],
     "emails": [
       {
@@ -69,5 +69,5 @@
     "mapLink": "https://www.google.com/maps/search/?api=1&query=Casa+Guvernului+Chi%C8%99in%C4%83u"
   },
   "footerNote": "Conținut preluat de pe gov.md, disponibil sub licența CC BY-SA 4.0.",
-  "updatedAt": "2026-10-20T10:40:46.151Z"
+  "updatedAt": "2026-10-20T10:41:54.254Z"
 }
