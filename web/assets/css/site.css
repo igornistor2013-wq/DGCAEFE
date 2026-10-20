@@ -93,48 +93,62 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .search-open:hover{background:var(--blue);border-color:var(--blue);color:#fff}
 .search-open .ico{width:1.15rem;height:1.15rem}
 
-/* ---------- Prezentare: câmp albastru cu cercuri translucide, ca pe ie.mf.gov.md ---------- */
+/* ---------- Prezentare: câmp albastru cu cercuri translucide, ca pe ie.mf.gov.md ----------
+   Totul curge într-o singură coloană, pe toată lățimea paginii (titlu, prezentare, căutare, acces rapid), fără împărțire în
+   jumătăți. Nivelurile de cooperare urmează într-un panou lat, care urcă peste marginea de jos a câmpului albastru. */
+:root{--overlap:clamp(3.5rem,7vw,5.5rem)}
 .intro{position:relative;isolation:isolate;overflow:hidden;background:var(--blue);color:#fff}
 .intro::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background-image:radial-gradient(circle 2.45rem at 50% 50%,rgba(255,255,255,.065) 96%,transparent 100%);
   background-size:7rem 7rem;background-position:calc(100% - 3.5rem) 1rem;
-  -webkit-mask-image:linear-gradient(100deg,transparent 12%,#000 58%);mask-image:linear-gradient(100deg,transparent 12%,#000 58%)}
-.intro-in{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(2rem,5vw,4.5rem);align-items:center;padding-block:clamp(2rem,5vw,3.75rem) clamp(2.75rem,6vw,5rem)}
+  -webkit-mask-image:linear-gradient(100deg,transparent 30%,#000 80%);mask-image:linear-gradient(100deg,transparent 30%,#000 80%)}
+.intro-in{padding-block:clamp(1.75rem,4vw,3rem) calc(var(--overlap) + clamp(2rem,4vw,3rem))}
 .crumbs ol{display:flex;flex-wrap:wrap;gap:.2rem .5rem;font-size:.875rem;color:rgba(255,255,255,.8);margin-bottom:1.5rem}
 .crumbs li+li::before{content:"›";margin-right:.5rem;color:rgba(255,255,255,.5)}
 .crumbs a{color:rgba(255,255,255,.8)}
 .crumbs a:hover{color:#fff}
 .crumbs [aria-current]{color:#fff;font-weight:700}
-.intro h1{color:#fff;font-weight:800;text-transform:uppercase;font-size:clamp(1.85rem,3.5vw,2.75rem);line-height:1.1;letter-spacing:.005em;margin-bottom:1.25rem}
+.intro h1{color:#fff;font-weight:800;text-transform:uppercase;font-size:clamp(1.85rem,3.6vw,2.85rem);line-height:1.1;letter-spacing:.005em;max-width:24em;margin-bottom:1.25rem}
 .h1-b{color:var(--accent)}
-.lead{font-size:1.125rem;line-height:1.6;color:rgba(255,255,255,.93);max-width:38em;margin-bottom:1.75rem}
-.search-box{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:6px;padding:.35rem .35rem .35rem 1rem;max-width:36rem;box-shadow:0 10px 28px rgba(0,8,50,.28)}
+.lead{font-size:1.125rem;line-height:1.6;color:rgba(255,255,255,.93);max-width:46rem;margin-bottom:1.75rem}
+.search-box{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:6px;padding:.4rem .4rem .4rem 1.1rem;box-shadow:0 10px 28px rgba(0,8,50,.28)}
 .search-box:focus-within{box-shadow:0 0 0 3px var(--focus-dark),0 10px 28px rgba(0,8,50,.28)}
 .search-box .ico{color:var(--muted)}
 .search-box input{flex:1;min-width:0;border:0;outline:0;font:inherit;font-size:1rem;padding:.55rem 0;background:transparent;color:var(--ink)}
-.quick{margin-top:2rem;max-width:36rem}
-.quick-title{font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:.6rem}
-.quick ul{border:1px solid rgba(255,255,255,.22);border-radius:var(--rc);background:rgba(255,255,255,.07);overflow:hidden}
-.quick li+li{border-top:1px solid rgba(255,255,255,.16)}
-.quick a{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.8rem 1rem;text-decoration:none;font-weight:500;color:#fff;transition:background-color .15s}
+.quick{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem .65rem;margin-top:1.4rem}
+.quick-title{font-size:.9375rem;font-weight:700;color:var(--accent);margin:0 .35rem 0 0}
+.quick ul{display:flex;flex-wrap:wrap;gap:.5rem .6rem}
+.quick a{display:inline-flex;align-items:center;gap:.5rem;padding:.38rem .85rem;border:1px solid rgba(255,255,255,.42);border-radius:999px;background:rgba(255,255,255,.08);color:#fff;font-size:.9rem;font-weight:500;line-height:1.35;text-decoration:none;transition:background-color .15s,border-color .15s}
 .quick a .ico{color:var(--accent)}
-.quick a:hover{background:rgba(255,255,255,.13);color:#fff}
+.quick a:hover{background:rgba(255,255,255,.18);border-color:#fff;color:#fff}
 
-/* Diagrama nivelurilor de cooperare: trei cadre încuibate în jurul Republicii Moldova, într-un card alb peste câmpul albastru.
-   Tonul se adâncește spre centru, ca aria cooperării să se citească dintr-o privire; textul rămâne mereu la contrast plin. */
-.intro-levels{background:#fff;color:var(--ink);border-radius:12px;padding:clamp(1.1rem,2.4vw,1.75rem);box-shadow:0 24px 60px rgba(0,8,50,.4)}
-.levels-title{font-size:1.25rem;margin-bottom:1rem}
-.levels{--lv-line:#9DB0DA}
-.lv{border:1px solid var(--lv-line);padding:.7rem .7rem 0}
-.lv-inter{background:#fff;border-radius:8px}
-.lv-trans{background:var(--blue-l);border-radius:6px}
-.lv-cross{background:#DCE5F6;border-radius:5px}
-.lv-core{background:var(--blue);color:#fff;border:1px solid transparent;border-radius:4px;padding:.85rem 1.1rem}
+/* Panoul nivelurilor de cooperare */
+.levels-sec{position:relative;z-index:2;margin-top:calc(-1 * var(--overlap))}
+.intro-levels{background:#fff;color:var(--ink);border:1px solid rgba(8,28,92,.12);border-radius:12px;padding:clamp(1.1rem,2.4vw,1.75rem);box-shadow:0 24px 60px rgba(0,8,50,.3),0 2px 8px rgba(0,8,50,.1)}
+.levels-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.25rem 1.5rem;margin-bottom:1rem}
+.levels-title{font-size:1.375rem}
+.levels-all{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--head);font-weight:700;font-size:.9375rem;text-decoration:none;white-space:nowrap}
+.levels-all:hover{text-decoration:underline}
+
+/* Diagrama nivelurilor de cooperare: trei cadre încuibate în jurul Republicii Moldova, ca aria cooperării să se citească dintr-o
+   privire (cu cât cadrul e mai larg, cu atât zona e mai întinsă). Tonul se adâncește spre centru; textul rămâne mereu la contrast
+   plin. Cadrele sunt straturi decorative în aceeași grilă cu textele: pe ecrane late grila are patru coloane (Republica Moldova,
+   apoi nivelurile, de la stânga la dreapta), pe ecrane înguste un rând pe nivel. */
+.levels{--lv-line:#9DB0DA;--lv-m:.7rem;--lv-core:11.5rem;container-type:inline-size}
+.lvg{display:grid;grid-template-columns:minmax(0,1fr)}
+.lv{display:block;border:1px solid var(--lv-line);pointer-events:none}
+.lv-inter{grid-area:1/1/5/2;background:#fff;border-radius:8px}
+.lv-trans{grid-area:1/1/4/2;margin:var(--lv-m) var(--lv-m) 0;background:var(--blue-l);border-radius:6px}
+.lv-cross{grid-area:1/1/3/2;margin:calc(2 * var(--lv-m)) calc(2 * var(--lv-m)) 0;background:#DCE5F6;border-radius:5px}
+.lv-core{grid-area:1/1;position:relative;margin:calc(3 * var(--lv-m)) calc(3 * var(--lv-m)) 0;background:var(--blue);color:#fff;border-radius:4px;padding:.85rem 1.1rem}
 .lv-core-name,.lv-core-sub{margin:0}
 .lv-core-name{font-family:var(--head);font-weight:700;font-size:1.25rem;line-height:1.2;color:#fff}
 .lv-core-sub{margin-top:.2rem;font-size:.9375rem;line-height:1.4}
 .nb{white-space:nowrap}
-.lv-cap{padding:.85rem .25rem 1rem}
+.lv-cap{position:relative;padding:.85rem 0 1rem}
+.lv-cap-cross{grid-area:2/1;margin-inline:calc(3 * var(--lv-m) + .25rem)}
+.lv-cap-trans{grid-area:3/1;margin-inline:calc(2 * var(--lv-m) + .25rem)}
+.lv-cap-inter{grid-area:4/1;margin-inline:calc(var(--lv-m) + .25rem)}
 .lv-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.1rem .75rem}
 .lv-name{font-size:1.125rem}
 .lv-strand{font-size:.8125rem;color:var(--muted);white-space:nowrap}
@@ -142,10 +156,21 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .lv-progs{display:flex;flex-wrap:wrap;gap:.5rem}
 .lv-chip{display:inline-flex;align-items:center;min-height:2.5rem;padding:.3rem .85rem;background:#fff;border:1px solid var(--blue);border-radius:var(--r);color:var(--blue);font-family:var(--head);font-size:.9375rem;font-weight:600;line-height:1.2;text-decoration:none;transition:background-color .15s,color .15s}
 .lv-chip:hover{background:var(--blue);color:#fff}
+@container (min-width:58rem){
+  .lvg{grid-template-columns:calc(var(--lv-core) + 3 * var(--lv-m)) repeat(3,minmax(0,1fr))}
+  .lv-inter{grid-area:1/1/2/5}
+  .lv-trans{grid-area:1/1/2/4;margin:var(--lv-m) 0 var(--lv-m) var(--lv-m)}
+  .lv-cross{grid-area:1/1/2/3;margin:calc(2 * var(--lv-m)) 0 calc(2 * var(--lv-m)) calc(2 * var(--lv-m))}
+  .lv-core{margin:calc(3 * var(--lv-m)) 0 calc(3 * var(--lv-m)) calc(3 * var(--lv-m));display:flex;flex-direction:column;justify-content:center}
+  .lv-cap{padding:calc(3 * var(--lv-m) + .35rem) 1.15rem calc(3 * var(--lv-m) + .35rem)}
+  .lv-cap-cross{grid-area:1/2;margin:0}
+  .lv-cap-trans{grid-area:1/3;margin:0}
+  .lv-cap-inter{grid-area:1/4;margin:0}
+}
 @media (max-width:480px){
-  .lv{padding:.5rem .5rem 0}
-  .lv-cap{padding:.75rem .15rem .9rem}
+  .levels{--lv-m:.5rem}
   .lv-core{padding:.7rem .8rem}
+  .lv-cap{padding-bottom:.9rem}
 }
 
 /* ---------- Secțiuni ---------- */
@@ -234,15 +259,16 @@ dialog.dlg::backdrop{background:rgba(4,20,70,.66)}
 .prose li{margin-bottom:.35em}
 .news-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--line)}
 
-/* ---------- Despre ---------- */
-.about{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(2rem,5vw,4.5rem);align-items:start}
-.about-text p{max-width:60ch}
-.about-cta{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.75rem}
+/* ---------- Despre: textul pe două coloane, apoi atribuțiile pe toată lățimea ---------- */
+.about{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(2rem,4vw,3rem)}
+.about-text{columns:2 24rem;column-gap:clamp(2rem,5vw,4.5rem)}
+.about-text p{max-width:62ch;break-inside:avoid}
+.about-cta{column-span:all;display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.75rem}
 .about-h{font-size:1.25rem;margin-bottom:1.25rem}
-.duties{display:grid;gap:1.4rem}
-.duties li{display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.95rem;align-items:start}
-.duties .ico{width:2rem;height:2rem;color:var(--blue);stroke-width:1.6;margin-top:.05rem}
-.duties h4{margin-bottom:.25rem}
+.duties{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.75rem clamp(1.5rem,3vw,2.5rem)}
+.duties li{padding-top:1.1rem;border-top:3px solid var(--blue)}
+.duties .ico{width:2rem;height:2rem;color:var(--blue);stroke-width:1.6;margin-bottom:.7rem}
+.duties h4{margin-bottom:.3rem}
 .duties p{margin:0;color:var(--muted);font-size:.975rem}
 
 /* ---------- Tabele ---------- */
@@ -472,7 +498,7 @@ dialog.search-dlg[open]{display:flex}
   .mainnav a:hover,.mainnav a.on{background:none;box-shadow:inset 4px 0 0 var(--blue);padding-left:.9rem;color:var(--blue)}
 }
 @media (max-width:980px){
-  .intro-in,.about,.coop,.contact{grid-template-columns:minmax(0,1fr)}
+  .coop,.contact{grid-template-columns:minmax(0,1fr)}
   .news-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .prog{grid-template-columns:minmax(0,1fr);gap:1rem}
   .prog-nav{position:static;display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.4rem}
@@ -534,9 +560,9 @@ html[data-contrast="high"] .mainnav a,html[data-contrast="high"] .utility a,html
 html[data-contrast="high"] .sec-alt{background:#fff}
 html[data-contrast="high"] .intro,html[data-contrast="high"] .foot,html[data-contrast="high"] .prog-top,html[data-contrast="high"] .panel-accent{background:#000;color:#fff}
 html[data-contrast="high"] .intro::before{display:none}
-html[data-contrast="high"] .intro .search-box,html[data-contrast="high"] .intro-levels{border:2px solid #fff;box-shadow:none}
-html[data-contrast="high"] .quick ul{background:#000;border-color:#fff}
-html[data-contrast="high"] .quick li+li{border-top-color:#fff}
+html[data-contrast="high"] .intro .search-box{border:2px solid #fff;box-shadow:none}
+html[data-contrast="high"] .intro-levels{border:3px solid #fff;box-shadow:0 0 0 2px #000}
+html[data-contrast="high"] .quick a{border-color:#fff;background:#000}
 html[data-contrast="high"] .utility{background:#fff;border-bottom:2px solid #000}
 html[data-contrast="high"] .masthead{box-shadow:0 2px 0 #000}
 html[data-contrast="high"] .mainnav a.on,html[data-contrast="high"] .mainnav a:hover{background:#000;color:#fff}
@@ -557,7 +583,7 @@ html[data-contrast="high"] .amount,html[data-contrast="high"] .h1-b,html[data-co
 
 /* ---------- Tipărire ---------- */
 @media print{
-  .utility,.mainnav,.adminbar,.search-open,.search-box,.quick,.intro-levels,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.contact-map,.maplink,.form,.skip,.flagstrip,.foot-admin{display:none!important}
+  .utility,.mainnav,.adminbar,.search-open,.search-box,.quick,.levels-sec,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.contact-map,.maplink,.form,.skip,.flagstrip,.foot-admin{display:none!important}
   body{font-size:11pt;color:#000;background:#fff}
   .masthead{position:static;box-shadow:none;border-bottom:1px solid #000}
   .sec,.sec-alt{padding:1rem 0;background:#fff;border:0}
@@ -567,7 +593,8 @@ html[data-contrast="high"] .amount,html[data-contrast="high"] .h1-b,html[data-co
   .intro{background:#fff;color:#000;border-bottom:1px solid #000}
   .intro::before{display:none}
   .intro h1,.h1-b,.lead,.crumbs ol,.crumbs a,.crumbs [aria-current]{color:#000}
-  .intro-in,.about,.coop,.contact,.prog{grid-template-columns:1fr}
+  .coop,.contact,.prog{grid-template-columns:1fr}
+  .intro-in{padding-bottom:1rem}
   .news-grid{grid-template-columns:1fr 1fr}
   .news-card,.event,.doc-item,.law-row{break-inside:avoid}
   .news-card,.panel,.prog-panel,.table-wrap,.doc-list,.callout,.plat,.g-item{box-shadow:none}

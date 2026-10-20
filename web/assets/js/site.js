@@ -141,7 +141,9 @@
 
   /* ================= Diagrama nivelurilor de cooperare ================= */
   // Trei cadre încuibate în jurul Republicii Moldova: cu cât cadrul este mai larg, cu atât aria cooperării este mai mare.
-  // Fiecare cadru își poartă propriul titlu și butoanele programelor, în aceeași ordine ca în secțiunea „Programe”.
+  // Cadrele sunt straturi decorative (aria-hidden) așezate în aceeași grilă cu textele; pe ecrane late grila are patru coloane
+  // (Republica Moldova, apoi cele trei niveluri, de la stânga la dreapta), pe ecrane înguste are un singur rând pe nivel.
+  // Fiecare nivel își poartă propriul titlu și butoanele programelor, în aceeași ordine ca în secțiunea „Programe”.
   var ALIAS = { drp: 'Dunărea Dunăre Danube', bsb: 'Marea Neagră Black Sea' }; // forme pe care le caută oamenii și care nu apar în nume
 
   function shortName(p) { return p.short || p.name.replace(/^Interreg\s+(NEXT\s+)?/i, '').replace(/\s+20\d\d.*$/, ''); }
@@ -153,7 +155,7 @@
     var list = D.programs.filter(function (p) { return levelOf(p) === lv; });
     var strands = [];
     list.forEach(function (p) { if (p.strand && strands.indexOf(p.strand) < 0) strands.push(p.strand); });
-    return '<div class="lv-cap"><div class="lv-head"><h3 class="lv-name" id="lvh-' + lv + '">' + LEVELS[lv].name + '</h3>' +
+    return '<div class="lv-cap lv-cap-' + lv + '"><div class="lv-head"><h3 class="lv-name" id="lvh-' + lv + '">' + LEVELS[lv].name + '</h3>' +
       (strands.length ? '<span class="lv-strand">' + esc(strands.join(', ')) + '</span>' : '') + '</div>' +
       '<p class="lv-scope">' + LEVELS[lv].desc + '</p>' +
       (list.length ? '<ul class="lv-progs" aria-labelledby="lvh-' + lv + '">' + list.map(function (p) {
@@ -163,11 +165,11 @@
 
   function renderLevels() {
     var n = D.programs.length;
-    $('#levels').innerHTML =
-      '<div class="lv lv-inter"><div class="lv lv-trans"><div class="lv lv-cross">' +
+    $('#levels').innerHTML = '<div class="lvg">' +
+      '<span class="lv lv-inter" aria-hidden="true"></span><span class="lv lv-trans" aria-hidden="true"></span><span class="lv lv-cross" aria-hidden="true"></span>' +
       '<div class="lv-core"><p class="lv-core-name">Republica Moldova</p>' +
       (n ? '<p class="lv-core-sub">Participă la ' + countRo(n, 'program', 'programe') + ' Interreg <span class="nb">2021–2027</span></p>' : '') + '</div>' +
-      levelCaption('cross') + '</div>' + levelCaption('trans') + '</div>' + levelCaption('inter') + '</div>';
+      levelCaption('cross') + levelCaption('trans') + levelCaption('inter') + '</div>';
   }
 
   // Butonul unui program deschide secțiunea „Programe”; adresa #program/… rămâne bună de copiat sau de deschis într-o filă nouă.
