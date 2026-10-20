@@ -108,5 +108,59 @@
       ]
     },
     "add": {}
+  },
+  {
+    "rev": 4,
+    "note": "Proiecte investiționale: numai date generale (ministerul, partenerul de finanțare, valoarea, perioada, localizarea, obiectivul, rezultatele), preluate din fișele proiectelor și din prezentările ministerelor. Dispar starea, progresul, întârzierile și pasul următor.",
+    "settings": {
+      "growth": [
+        {
+          "asOf": "2026-10-15",
+          "intro": "Direcția coordonează proiectele investiționale din Planul de creștere economică pentru Republica Moldova (Growth Plan): asigură o abordare guvernamentală coerentă și o comunicare eficientă între autoritățile naționale, instituțiile financiare internaționale și Comisia Europeană. Mai jos sunt proiectele aflate în pregătire, grupate după gradul de maturitate; stadiul fiecăruia se măsoară pe o scară de etape și subetape.",
+          "note": "Bara de progres indică poziția estimată pe scara etapelor SIP (de la 1 la 77, unde 77 = licitația pentru design și proiectare). Marcajul vertical arată etapa de referință, adică poziția stabilită ca țintă la data raportului: cu cât bara rămâne mai în urma marcajului, cu atât proiectul este mai întârziat față de plan.",
+          "sources": []
+        },
+        {
+          "asOf": "2026-10-15",
+          "intro": "Direcția coordonează proiectele investiționale din Planul de creștere economică pentru Republica Moldova (Growth Plan): asigură o abordare guvernamentală coerentă și o comunicare eficientă între autoritățile naționale, instituțiile financiare internaționale și Comisia Europeană. Deschideți un proiect din listă pentru a vedea stadiul actual, întârzierile și pasul următor.",
+          "note": "Bara de progres indică poziția estimată pe scara etapelor SIP (de la 1 la 77, unde 77 = licitația pentru design și proiectare). Marcajul vertical arată etapa de referință, adică poziția stabilită ca țintă la data raportului: cu cât bara rămâne mai în urma marcajului, cu atât proiectul este mai întârziat față de plan.",
+          "sources": []
+        }
+      ],
+      "growth.intro": [
+        "Direcția coordonează proiectele investiționale din Planul de creștere economică pentru Republica Moldova (Growth Plan): asigură o abordare guvernamentală coerentă și o comunicare eficientă între autoritățile naționale, instituțiile financiare internaționale și Comisia Europeană. Mai jos sunt proiectele aflate în pregătire, grupate după gradul de maturitate; stadiul fiecăruia se măsoară pe o scară de etape și subetape.",
+        "Direcția coordonează proiectele investiționale din Planul de creștere economică pentru Republica Moldova (Growth Plan): asigură o abordare guvernamentală coerentă și o comunicare eficientă între autoritățile naționale, instituțiile financiare internaționale și Comisia Europeană. Deschideți un proiect din listă pentru a vedea stadiul actual, întârzierile și pasul următor."
+      ],
+      "growth.note": [
+        "Bara de progres indică poziția estimată pe scara etapelor SIP (de la 1 la 77, unde 77 = licitația pentru design și proiectare). Marcajul vertical arată etapa de referință, adică poziția stabilită ca țintă la data raportului: cu cât bara rămâne mai în urma marcajului, cu atât proiectul este mai întârziat față de plan."
+      ]
+    },
+    "migrate": {
+      "investments": {
+        "drop": [
+          "cluster",
+          "status",
+          "progress",
+          "stage",
+          "refStage",
+          "totalStages",
+          "delays",
+          "next"
+        ],
+        "replace": [
+          "text"
+        ],
+        "fill": [
+          "theme",
+          "implementer",
+          "financier",
+          "financing",
+          "period",
+          "location",
+          "results",
+          "beneficiaries"
+        ]
+      }
+    }
   }
 ]

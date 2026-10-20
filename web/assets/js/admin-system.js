@@ -128,9 +128,9 @@
           { name: 'responsibilities', label: 'Responsabilitățile direcției', type: 'lines', rows: 12, hint: 'Câte o responsabilitate pe rând.' },
           { name: 'aboutNote', label: 'Sursa informațiilor', type: 'textarea', max: 800, rows: 2, hint: 'Se afișează sub secțiune, ca mențiune de sursă.' },
           { type: 'heading', label: 'Secțiunea „Proiecte investiționale”: texte', hint: 'Textele din jurul listei de proiecte. Proiectele în sine se administrează în meniul „Proiecte investiționale”.' },
-          { name: 'growth.asOf', label: 'Situația proiectelor la data de', type: 'date', w: 'third' },
+          { name: 'growth.asOf', label: 'Datele proiectelor sunt actualizate la data de', type: 'date', w: 'half' },
           { name: 'growth.intro', label: 'Introducere', type: 'textarea', max: 1200, rows: 4 },
-          { name: 'growth.note', label: 'Notă explicativă', type: 'textarea', max: 1500, rows: 4, hint: 'Se afișează sub lista de proiecte: cum se citește bara de progres, precizări despre valori.' },
+          { name: 'growth.note', label: 'Notă explicativă', type: 'textarea', max: 1500, rows: 4, hint: 'Se afișează sub lista de proiecte: precizări despre valori și sursele lor.' },
           {
             name: 'growth.sources', label: 'Surse de date', type: 'repeater', max: 6, addLabel: 'Adaugă sursă', emptyText: 'Nicio sursă adăugată.',
             sub: [{ name: 't', label: 'Text', w: 'half', max: 160 }, { name: 'u', label: 'Adresa', type: 'url', w: 'half', max: 1000, placeholder: 'https://…' }]

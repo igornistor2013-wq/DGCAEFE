@@ -25,18 +25,15 @@
   const LEVEL_LABEL = { cross: 'Transfrontalier', trans: 'Transnațional', inter: 'Interregional' };
   const LEGAL_TYPES = [['Lege', 'Lege'], ['HG', 'Hotărâre de Guvern'], ['Ordin', 'Ordin'], ['Altele', 'Alt act normativ']];
   const LEGAL_SHORT = { Lege: 'Legea', HG: 'HG', Ordin: 'Ordinul', Altele: 'Act' };
-  // Proiectele investiționale din Planul de creștere
-  const CLUSTERS = [
-    ['initiere', 'Inițierea studiilor'],
-    ['fezabilitate', 'Studiu de fezabilitate'],
-    ['maturitate', 'Grad înalt de maturitate'],
-    ['negociere', 'Negocierea acordului'],
-    ['semnat', 'Acord de finanțare semnat']
+  // Proiectele investiționale din Planul de creștere: cele cinci obiective economice
+  const THEMES = [
+    ['export', 'Infrastructură pentru export'],
+    ['energie', 'Securitate energetică'],
+    ['agricultura', 'Agricultură competitivă'],
+    ['cunoastere', 'Economia cunoașterii'],
+    ['social', 'Infrastructură socială']
   ];
-  const CLUSTER_LABEL = Object.fromEntries(CLUSTERS);
-  const INV_STATUS = [['termen', 'În termen'], ['intarziere', 'În întârziere'], ['blocat', 'Blocat'], ['implementare', 'În implementare']];
-  const INV_STATUS_LABEL = Object.fromEntries(INV_STATUS);
-  const INV_BADGE = { termen: 'badge-ok', intarziere: 'badge-warn', blocat: 'badge-bad', implementare: 'badge-info' };
+  const THEME_LABEL = Object.fromEntries(THEMES);
   const money = p => (p.amount == null ? '' : [p.amountQual, String(p.amount).replace('.', ','), 'mil.', p.currency || 'EUR'].filter(Boolean).join(' '));
   const nextOrder = () => (ADM.data.investments || []).reduce((m, x) => Math.max(m, x.order || 0), 0) + 1;
 
@@ -263,7 +260,7 @@
     investments: {
       key: 'investments',
       title: 'Proiecte investiționale',
-      intro: 'Proiectele din Planul de creștere afișate în secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”): stadiul, progresul și următorii pași. Un proiect cu „Publicat” debifat rămâne aici, dar nu apare vizitatorilor.',
+      intro: 'Proiectele din Planul de creștere afișate în secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”). Pentru fiecare proiect se completează numai date generale: ministerul, partenerul de finanțare, valoarea, perioada, localizarea, obiectivul și rezultatele. Un proiect cu „Publicat” debifat rămâne aici, dar nu apare vizitatorilor.',
       add: 'Adaugă proiect',
       editTitle: it => 'Editare proiect investițional',
       count: ['proiect', 'proiecte'],
@@ -271,43 +268,35 @@
       emptyTitle: 'Nu există încă niciun proiect.',
       emptyText: 'Apăsați „Adaugă proiect” pentru a-l introduce pe primul.',
       load: ['investments'],
-      defaults: () => ({ order: nextOrder(), currency: 'EUR', cluster: 'initiere', status: 'termen', totalStages: 77, published: true }),
+      defaults: () => ({ order: nextOrder(), currency: 'EUR', theme: '', published: true }),
       sort: (a, b) => (a.order || 0) - (b.order || 0) || String(a.name).localeCompare(String(b.name), 'ro'),
-      search: p => [p.name, p.ministry, CLUSTER_LABEL[p.cluster], INV_STATUS_LABEL[p.status], p.text, p.next].join(' '),
-      filters: [
-        { key: 'cluster', label: 'Etapa de maturitate', options: [['', 'Toate etapele']].concat(CLUSTERS), test: (p, v) => p.cluster === v },
-        { key: 'status', label: 'Starea', options: [['', 'Toate stările']].concat(INV_STATUS), test: (p, v) => p.status === v }
-      ],
+      search: p => [p.name, p.ministry, p.financier, p.implementer, p.location, THEME_LABEL[p.theme], p.text].join(' '),
+      filters: [{ key: 'theme', label: 'Obiectiv economic', options: [['', 'Toate obiectivele']].concat(THEMES), test: (p, v) => p.theme === v }],
       columns: [
-        { label: 'Nr.', cls: 'nowrap', cell: p => esc(p.order || '') },
-        { label: 'Proiect', cell: p => '<div class="t"><a href="#/investments/' + esc(p.id) + '">' + esc(p.name) + '</a></div><div class="s">' + esc([p.ministry, money(p)].filter(Boolean).join(' · ')) + '</div>' },
-        { label: 'Etapa de maturitate', cell: p => esc(CLUSTER_LABEL[p.cluster] || '') },
-        { label: 'Starea', cls: 'nowrap', cell: p => '<span class="badge ' + (INV_BADGE[p.status] || 'badge-info') + '">' + esc(INV_STATUS_LABEL[p.status] || '') + '</span>' + (p.published === false ? ' <span class="badge badge-draft">Ascuns</span>' : '') },
-        { label: 'Progres', cls: 'nowrap', cell: p => (p.progress == null ? '<span class="muted">—</span>' : esc(String(p.progress).replace('.', ',')) + '%' + (p.stage != null && p.totalStages ? '<div class="s">etapa ' + p.stage + ' din ' + p.totalStages + '</div>' : '')) }
+        { label: 'Proiect', cell: p => '<div class="t">' + (p.order ? '<span class="nr" title="Numărul de ordine">' + esc(p.order) + '</span>' : '') + '<a href="#/investments/' + esc(p.id) + '">' + esc(p.name) + '</a>' + (p.published === false ? ' <span class="badge badge-draft">Ascuns</span>' : '') + '</div><div class="s">' + esc([p.ministry, money(p)].filter(Boolean).join(' · ')) + '</div>' },
+        { label: 'Obiectiv economic', cell: p => esc(THEME_LABEL[p.theme] || '') || '<span class="muted">—</span>' },
+        { label: 'Partener de finanțare', cell: p => esc(p.financier || '') || '<span class="muted">—</span>' }
       ],
       view: p => (p.published === false ? '' : ADM.pubUrl('/#proiect/' + p.id)),
       fields: () => [
         { name: 'name', label: 'Denumirea proiectului', type: 'text', required: true, max: 300 },
         { name: 'order', label: 'Numărul de ordine', type: 'number', min: 0, maxv: 9999, w: 'third', hint: 'Ordinea în lista de pe pagină: numerele mici apar primele.' },
-        { name: 'ministry', label: 'Ministerul responsabil', type: 'text', max: 100, w: 'third', list: ADM.distinct(ADM.data.investments || [], 'ministry'), hint: 'Prescurtarea, de exemplu MEC, MIDR, MEN.' },
+        { name: 'theme', label: 'Obiectivul economic', type: 'select', options: [['', 'Nealocat']].concat(THEMES), w: 'third', hint: 'Grupa din Planul de creștere în care apare proiectul.' },
         { name: 'published', label: 'Publicat (vizibil vizitatorilor)', type: 'checkbox', w: 'third', hint: 'Debifați ca să ascundeți proiectul de pe pagina publică.' },
-        { name: 'amount', label: 'Valoarea estimată (milioane)', type: 'number', step: '0.01', min: 0, w: 'third', hint: 'Ex.: 151,5 pentru 151,5 milioane.' },
+        { type: 'heading', label: 'Date generale', hint: 'Completați numai ce se știe din documentele proiectului; câmpurile goale nu apar pe pagină.' },
+        { name: 'ministry', label: 'Ministerul responsabil', type: 'text', max: 100, w: 'third', list: ADM.distinct(ADM.data.investments || [], 'ministry'), hint: 'Prescurtarea, de exemplu MEC, MIDR, MEN.' },
+        { name: 'financier', label: 'Partenerul de finanțare', type: 'text', max: 300, w: 'twothirds', list: ADM.distinct(ADM.data.investments || [], 'financier'), hint: 'Denumirea completă, urmată de prescurtare între paranteze, de exemplu: Banca Europeană de Investiții (BEI).' },
+        { name: 'implementer', label: 'Instituția de implementare', type: 'text', max: 300, list: ADM.distinct(ADM.data.investments || [], 'implementer') },
+        { name: 'amount', label: 'Valoarea indicativă (milioane)', type: 'decimal', w: 'third', placeholder: '151,5', hint: 'În milioane, în moneda aleasă alături. Ex.: 151,5 înseamnă 151,5 milioane.' },
         { name: 'currency', label: 'Moneda', type: 'select', options: [['EUR', 'EUR'], ['USD', 'USD'], ['MDL', 'MDL']], w: 'third' },
-        { name: 'amountQual', label: 'Precizarea valorii', type: 'select', options: [['', 'Fără precizare'], ['max.', 'maximum (max.)'], ['circa', 'aproximativ (circa)']], w: 'third', showIf: v => v.amount !== '' && v.amount != null },
-        { name: 'cluster', label: 'Etapa de maturitate', type: 'select', options: CLUSTERS, w: 'half', hint: 'Cât de avansată este pregătirea proiectului, de la inițierea studiilor până la semnarea acordului.' },
-        { name: 'status', label: 'Starea față de calendar', type: 'select', options: INV_STATUS, w: 'half' },
-        { type: 'heading', label: 'Progres', hint: 'Poziția proiectului pe scara etapelor și subetapelor (de exemplu 75 din 77). Etapa de referință este cea în care ar fi trebuit să fie proiectul la data raportului.' },
-        { name: 'stage', label: 'Etapa curentă', type: 'number', min: 0, maxv: 1000, w: 'third' },
-        { name: 'refStage', label: 'Etapa de referință', type: 'number', min: 0, maxv: 1000, w: 'third' },
-        {
-          name: 'totalStages', label: 'Numărul total de etape', type: 'number', min: 1, maxv: 1000, w: 'third',
-          check: (v, all) => (v && all.stage !== '' && Number(all.stage) > Number(v) ? 'Etapa curentă nu poate fi mai mare decât numărul total de etape.' : '')
-        },
-        { name: 'progress', label: 'Progresul (%)', type: 'number', step: '0.1', min: 0, maxv: 100, w: 'third', hint: 'Dacă rămâne gol, se calculează din etapa curentă și numărul total de etape.' },
+        { name: 'amountQual', label: 'Precizarea valorii', type: 'select', options: [['', 'Fără precizare'], ['max.', 'maximum (max.)'], ['circa', 'aproximativ (circa)']], w: 'third', showIf: v => String(v.amount == null ? '' : v.amount).trim() !== '' },
+        { name: 'financing', label: 'Structura finanțării', type: 'textarea', max: 1500, rows: 3, hint: 'De exemplu: împrumut BEI de 40 mil. EUR, buget de stat de 8 mil. EUR, grant NIP de 2 mil. EUR.' },
+        { name: 'period', label: 'Perioada de implementare', type: 'text', max: 200, w: 'third', placeholder: '2026–2032' },
+        { name: 'location', label: 'Localizarea', type: 'textarea', max: 500, rows: 2, w: 'twothirds', hint: 'Municipiul, raioanele sau regiunea în care se realizează proiectul.' },
+        { name: 'beneficiaries', label: 'Beneficiarii', type: 'textarea', max: 800, rows: 2 },
         { type: 'heading', label: 'Descriere', hint: 'Textele pot avea liste (rânduri care încep cu „- ” sau „1. ”), **text aldin** și legături scrise direct (https://…).' },
-        { name: 'text', label: 'Stadiul curent', type: 'textarea', max: 5000, rows: 8 },
-        { name: 'delays', label: 'Întârzieri', type: 'textarea', max: 3000, rows: 4, hint: 'Etapele întârziate sau cauza blocajului. Se afișează pe pagină sub titlul „Întârzieri”.' },
-        { name: 'next', label: 'Următorul pas', type: 'textarea', max: 3000, rows: 4 },
+        { name: 'text', label: 'Obiectivul și descrierea proiectului', type: 'textarea', max: 5000, rows: 8 },
+        { name: 'results', label: 'Rezultate preconizate', type: 'lines', rows: 7, hint: 'Câte un rezultat pe rând. Se afișează ca listă.' },
         {
           name: 'links', label: 'Legături utile', type: 'repeater', max: 6, addLabel: 'Adaugă legătură', emptyText: 'Nicio legătură adăugată.',
           sub: [{ name: 't', label: 'Text', w: 'half', max: 160 }, { name: 'u', label: 'Adresa', type: 'url', w: 'half', max: 1000, placeholder: 'https://…' }]

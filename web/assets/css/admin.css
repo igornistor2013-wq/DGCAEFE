@@ -177,6 +177,7 @@ button{cursor:pointer}
 .tbl .t a:hover{color:var(--blue);text-decoration:underline}
 .tbl .s{color:var(--muted);font-size:.875rem;margin-top:.1rem;overflow-wrap:anywhere}
 .tbl .nowrap{white-space:nowrap}
+.tbl .nr{display:inline-block;min-width:1.55rem;margin-right:.55rem;padding:.05rem .35rem;border-radius:3px;background:var(--blue);color:#fff;font-size:.8125rem;font-weight:800;line-height:1.35;text-align:center}
 .tbl td.main-cell{min-width:15rem;width:40%}
 .tbl .acts{white-space:nowrap;text-align:right;width:1%}
 .tbl .acts .icon-btn{color:var(--blue)}

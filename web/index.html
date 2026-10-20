@@ -173,32 +173,29 @@
       <div class="inv-ctl" id="invCtl" data-open="false">
         <div class="inv-fp" id="invFilters">
           <div class="inv-strip" id="gpOverview"></div>
-          <div class="chips inv-chips" id="invStatus" role="group" aria-label="Filtrare după starea proiectului"></div>
         </div>
         <div class="field-icon inv-search">
           <label class="sr" for="invQ">Căutare în proiecte</label>
           <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
-          <input class="input" id="invQ" type="search" placeholder="Căutați un proiect sau un minister" autocomplete="off">
+          <input class="input" id="invQ" type="search" placeholder="Proiect, minister sau partener" autocomplete="off">
         </div>
         <div class="inv-sort">
           <label class="sr" for="invSort">Ordonarea proiectelor</label>
           <select class="select" id="invSort">
-            <option value="nr">Ordinea din raport (1–19)</option>
-            <option value="maturitate">După etapa de maturitate</option>
-            <option value="progres-desc">Progres, descrescător</option>
-            <option value="progres-asc">Progres, crescător</option>
+            <option value="nr">Ordinea din listă</option>
+            <option value="valoare">Valoarea, descrescător</option>
             <option value="minister">După minister</option>
+            <option value="obiectiv">După obiectivul economic</option>
           </select>
         </div>
         <button class="btn btn-line btn-sm inv-ftoggle" type="button" id="invFToggle" aria-expanded="false" aria-controls="invFilters">Filtre</button>
       </div>
       <div class="inv-meta">
         <p class="count" id="invCount" aria-live="polite"></p>
-        <p class="inv-legend" id="invLegend"></p>
         <button class="btn btn-line btn-sm" type="button" id="invToggle" aria-pressed="false" hidden>Deschide toate detaliile</button>
       </div>
       <div class="inv-head" id="invHead" aria-hidden="true">
-        <span class="h-no">Nr.</span><span>Proiect</span><span class="h-stage">Etapa de maturitate</span><span>Starea</span><span title="Bara arată etapa curentă; liniuța verticală arată etapa de referință">Progres</span>
+        <span class="h-no">Nr.</span><span>Proiect</span><span>Partener de finanțare</span><span class="h-val">Valoare indicativă</span>
       </div>
       <ol class="inv-list" id="invList" aria-label="Lista proiectelor investiționale"></ol>
       <div class="gp-foot" id="gpFoot"></div>

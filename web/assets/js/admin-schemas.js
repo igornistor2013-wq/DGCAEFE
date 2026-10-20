@@ -11,9 +11,8 @@
   const GROUPS = ['', 'buletin', 'oficial', 'stiri'];
   const LEVELS = ['cross', 'trans', 'inter'];
   const LEGAL_TYPES = ['Lege', 'HG', 'Ordin', 'Altele'];
-  // Proiectele investiționale din Planul de creștere: etapa de maturitate a proiectului și starea față de calendar.
-  const CLUSTERS = ['initiere', 'fezabilitate', 'maturitate', 'negociere', 'semnat'];
-  const INV_STATUS = ['termen', 'intarziere', 'blocat', 'implementare'];
+  // Proiectele investiționale din Planul de creștere: cele cinci obiective economice în care sunt grupate.
+  const INV_THEMES = ['export', 'energie', 'agricultura', 'cunoastere', 'social'];
   const CURRENCIES = ['EUR', 'USD', 'MDL'];
   const AMOUNT_QUAL = ['', 'max.', 'circa'];
 
@@ -324,36 +323,29 @@
       }
     };
 
+    // Proiectele investiționale: numai date generale (cine, cu cine, cât, când, unde, ce se face). Starea, progresul și
+    // întârzierile nu se păstrează aici; câmpurile vechi pe care le mai trimite un client sunt ignorate.
     const investments = {
       label: i => i.name,
       clean(b) {
-        const stage = int(b.stage, 'Etapa curentă', { min: 0, max: 1000 });
-        const refStage = int(b.refStage, 'Etapa de referință', { min: 0, max: 1000 });
-        const totalStages = int(b.totalStages, 'Numărul total de etape', { min: 1, max: 1000 });
-        if (totalStages !== null) {
-          if (stage !== null && stage > totalStages) throw bad('Etapa curentă nu poate fi mai mare decât numărul total de etape.');
-          if (refStage !== null && refStage > totalStages) throw bad('Etapa de referință nu poate fi mai mare decât numărul total de etape.');
-        }
-        let progress = num(b.progress, 'Progresul (%)', { min: 0, max: 100, dec: 1 });
-        if (progress === null && stage !== null && totalStages) progress = Math.round((stage / totalStages) * 1000) / 10;
-        const amount = num(b.amount, 'Valoarea (mil.)', { min: 0, max: 1e6, dec: 2 });
+        const amount = num(b.amount, 'Valoarea indicativă (milioane)', { min: 0, max: 1e6, dec: 2 });
         return {
           order: int(b.order, 'Numărul de ordine', { min: 0, max: 9999 }) || 0,
           name: str(b.name, 'Denumirea proiectului', { max: 300, req: true }),
+          theme: oneOf(b.theme, 'Obiectivul economic', ['', ...INV_THEMES], ''),
           ministry: str(b.ministry, 'Ministerul responsabil', { max: 100 }),
+          implementer: str(b.implementer, 'Instituția de implementare', { max: 300 }),
+          financier: str(b.financier, 'Partenerul de finanțare', { max: 300 }),
           amount,
           currency: oneOf(b.currency, 'Moneda', CURRENCIES, 'EUR'),
           amountQual: amount === null ? '' : oneOf(b.amountQual, 'Precizarea valorii', AMOUNT_QUAL, ''),
-          cluster: oneOf(b.cluster, 'Etapa de maturitate', CLUSTERS, 'initiere'),
-          status: oneOf(b.status, 'Starea proiectului', INV_STATUS, 'termen'),
-          progress,
-          stage,
-          refStage,
-          totalStages,
-          text: str(b.text, 'Stadiul curent', { max: 5000 }),
-          delays: str(b.delays, 'Întârzieri', { max: 3000 }),
-          next: str(b.next, 'Următorul pas', { max: 3000 }),
-          links: objList(b.links, 'Legături', 6, l => pairLink(l, 'Text legătură', 'Adresa legăturii')),
+          financing: str(b.financing, 'Structura finanțării', { max: 1500 }),
+          period: str(b.period, 'Perioada de implementare', { max: 200 }),
+          location: str(b.location, 'Localizarea', { max: 500 }),
+          text: str(b.text, 'Obiectivul și descrierea proiectului', { max: 5000 }),
+          results: strList(b.results, 'Rezultate preconizate', { max: 12, item: 500 }),
+          beneficiaries: str(b.beneficiaries, 'Beneficiarii', { max: 800 }),
+          links: objList(b.links, 'Legături utile', 6, l => pairLink(l, 'Text legătură', 'Adresa legăturii')),
           published: b.published === undefined ? true : bool(b.published)
         };
       }
@@ -394,7 +386,7 @@
         rights: strList(b.rights, 'Drepturile direcției', { max: 20, item: 700 }),
         responsibilities: strList(b.responsibilities, 'Responsabilitățile direcției', { max: 25, item: 700 }),
         growth: {
-          asOf: date(g.asOf, 'Situația proiectelor la data de'),
+          asOf: date(g.asOf, 'Datele proiectelor sunt actualizate la data de'),
           intro: str(g.intro, 'Proiecte investiționale, introducere', { max: 1200 }),
           note: str(g.note, 'Proiecte investiționale, notă explicativă', { max: 1500 }),
           sources: objList(g.sources, 'Proiecte investiționale, surse de date', 6, l => pairLink(l, 'Text', 'Adresa'))
@@ -421,5 +413,5 @@
     return { news, documents, events, legal, gallery, programs, investments, cleanSettings };
   }
 
-  return { create, sniff, slug, filesIn, SECTIONS, GROUPS, LEVELS, LEGAL_TYPES, CLUSTERS, INV_STATUS, CURRENCIES, AMOUNT_QUAL, IMG_EXT, DOC_EXT, UPLOAD_RE };
+  return { create, sniff, slug, filesIn, SECTIONS, GROUPS, LEVELS, LEGAL_TYPES, INV_THEMES, CURRENCIES, AMOUNT_QUAL, IMG_EXT, DOC_EXT, UPLOAD_RE };
 });

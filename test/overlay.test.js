@@ -5,8 +5,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const overlay = require('../web/assets/js/content-overlay.js');
 const AdminSchemas = require('../web/assets/js/admin-schemas.js');
-const { buildPublic } = require('../lib/public');
-const { seedContent, seedUpgrades, oldContent } = require('../test-support/old-content');
+const { buildPublic, LEGACY_INVESTMENT_FIELDS } = require('../lib/public');
+const { seedContent, seedUpgrades, oldContent, rev3Content } = require('../test-support/old-content');
 
 const clone = v => JSON.parse(JSON.stringify(v));
 const names = set => [...set].sort();
@@ -117,11 +117,11 @@ test('proiectele de investiții șterse sau modificate de om nu revin după ce a
   const { seed, upgrades } = seedDefs();
   const first = overlay.apply(oldContent(), seed, upgrades).content;
   first.investments = first.investments.filter(p => p.order !== 3);
-  first.investments.find(p => p.order === 5).status = 'blocat';
+  first.investments.find(p => p.order === 5).beneficiaries = 'Beneficiari scriși de om.';
   const again = overlay.apply(first, seed, upgrades);
   assert.equal(again.changed.size, 0);
   assert.equal(again.content.investments.length, 18);
-  assert.equal(again.content.investments.find(p => p.order === 5).status, 'blocat');
+  assert.equal(again.content.investments.find(p => p.order === 5).beneficiaries, 'Beneficiari scriși de om.');
 });
 
 test('mai multe versiuni: se aplică doar cele mai noi decât cea salvată și nu se coboară niciodată', () => {
@@ -172,25 +172,140 @@ test('datele de intrare nu sunt modificate', () => {
   assert.equal(JSON.stringify([stored, seed, upgrades]), before);
 });
 
-test('versiunea 3: introducerea secțiunii „Investiții” se înlocuiește doar dacă nu a fost modificată de om', () => {
+test('versiunile 3 și 4: introducerea și nota secțiunii „Investiții” se înlocuiesc doar dacă nu au fost modificate de om', () => {
   const { seed, upgrades } = seedDefs();
-  const step = upgrades.find(u => u.rev === 3);
-  assert.ok(step && step.settings.growth.length === 1, 'versiunea 3 descrie vechiul text implicit');
-  const oldGrowth = step.settings.growth[0];
-  assert.match(oldGrowth.intro, /grupate după gradul de maturitate/);
-  assert.doesNotMatch(seed.settings.growth.intro, /grupate după gradul de maturitate/);
-  const stored = growth => ({ ...clone(seed), settings: { ...clone(seed.settings), seedRev: 2, growth: clone(growth) } });
+  const step3 = upgrades.find(u => u.rev === 3);
+  const step4 = upgrades.find(u => u.rev === 4);
+  assert.ok(step3 && step3.settings.growth.length === 1, 'versiunea 3 descrie vechiul text implicit');
+  assert.ok(step4 && step4.settings.growth.length === 2, 'versiunea 4 descrie ambele texte implicite vechi');
+  const [rev2, rev3] = step4.settings.growth;
+  assert.match(rev2.intro, /grupate după gradul de maturitate/);
+  assert.doesNotMatch(rev3.intro, /grupate după gradul de maturitate/);
+  for (const old of [rev2, rev3]) {
+    assert.match(old.note, /Bara de progres/);
+    assert.doesNotMatch(seed.settings.growth.note, /progres/i);
+  }
+  assert.doesNotMatch(seed.settings.growth.intro, /maturitate|stare|progres/i);
+  const stored = (growth, rev) => ({ ...clone(seed), settings: { ...clone(seed.settings), seedRev: rev, growth: clone(growth) } });
 
-  const untouched = overlay.apply(stored(oldGrowth), seed, upgrades);
-  assert.deepEqual(untouched.content.settings.growth, seed.settings.growth, 'textul implicit vechi primește textul nou');
-  assert.equal(untouched.content.settings.seedRev, seed.settings.seedRev);
-  assert.ok(untouched.changed.has('settings'));
+  // textele implicite ale oricărei versiuni vechi primesc textul nou
+  for (const [old, rev] of [[rev2, 2], [rev3, 3]]) {
+    const r = overlay.apply(stored(old, rev), seed, upgrades);
+    assert.deepEqual(r.content.settings.growth, seed.settings.growth, `de la versiunea ${rev}`);
+    assert.equal(r.content.settings.seedRev, seed.settings.seedRev);
+    assert.ok(r.changed.has('settings'));
+  }
 
-  for (const mine of [{ ...oldGrowth, asOf: '2026-11-02' }, { ...oldGrowth, intro: 'Introducerea mea.' }, { ...oldGrowth, note: 'Nota mea.' }]) {
-    const r = overlay.apply(stored(mine), seed, upgrades);
-    assert.deepEqual(r.content.settings.growth, mine, 'ce a modificat omul rămâne');
+  // textul scris de om rămâne, iar cel implicit din aceeași secțiune se înlocuiește (data sau sursele modificate nu opresc actualizarea)
+  const edited = [
+    [{ ...rev3, asOf: '2026-11-02' }, { asOf: '2026-11-02', intro: seed.settings.growth.intro, note: seed.settings.growth.note, sources: [] }],
+    [{ ...rev3, intro: 'Introducerea mea.' }, { asOf: rev3.asOf, intro: 'Introducerea mea.', note: seed.settings.growth.note, sources: [] }],
+    [{ ...rev3, note: 'Nota mea.' }, { asOf: rev3.asOf, intro: seed.settings.growth.intro, note: 'Nota mea.', sources: [] }],
+    [{ ...rev3, sources: [{ t: 'Sursa mea', u: 'https://exemplu.md' }] }, { asOf: rev3.asOf, intro: seed.settings.growth.intro, note: seed.settings.growth.note, sources: [{ t: 'Sursa mea', u: 'https://exemplu.md' }] }]
+  ];
+  for (const [mine, expected] of edited) {
+    const r = overlay.apply(stored(mine, 3), seed, upgrades);
+    assert.deepEqual(r.content.settings.growth, expected, JSON.stringify(mine).slice(0, 80));
     assert.equal(r.content.settings.seedRev, seed.settings.seedRev);
   }
+});
+
+test('chei cu punct în upgrades.json („grup.text”): se înlocuiește doar textul din grup, iar grupul nepotrivit nu se atinge', () => {
+  const seed = { settings: { seedRev: 2, orgName: 'Nou', g: { a: 'a nou', b: 'b nou', n: { c: 'c nou' } } } };
+  const upgrades = [{ rev: 2, settings: { 'g.a': ['a vechi'], 'g.b': ['b vechi'], 'g.n.c': ['c vechi'], 'g.lipsa': ['x'], 'h.a': ['x'] } }];
+  const run = g => overlay.apply({ settings: { orgName: 'Al meu', g } }, clone(seed), upgrades).content.settings.g;
+  assert.deepEqual(run({ a: 'a vechi', b: 'scris de om', n: { c: 'c vechi' } }), { a: 'a nou', b: 'scris de om', n: { c: 'c nou' } });
+  assert.deepEqual(run({ a: 'scris de om', b: 'b vechi', n: { c: 'scris de om' } }), { a: 'scris de om', b: 'b nou', n: { c: 'scris de om' } });
+  assert.deepEqual(run('nu este grup'), 'nu este grup');
+  assert.deepEqual(run(undefined), seed.settings.g, 'grupul care lipsește cu totul se ia din conținutul de pornire');
+});
+
+/* ---------- versiunea 4: proiecte numai cu date generale ---------- */
+const LEGACY = ['cluster', 'status', 'progress', 'stage', 'refStage', 'totalStages', 'delays', 'next'];
+const NEW_FIELDS = ['theme', 'implementer', 'financier', 'financing', 'period', 'location', 'results', 'beneficiaries'];
+
+test('versiunea 4: proiectele salvate cu stare și progres trec la date generale, fără să se piardă ce a scris omul', () => {
+  const { seed, upgrades } = seedDefs();
+  const stored = rev3Content();
+  assert.ok(stored.investments.every(p => LEGACY.every(k => k in p)), 'conținutul de pornire al versiunii 3 are câmpurile vechi');
+
+  const mine = stored.investments.find(p => p.order === 3);
+  mine.name = 'Denumirea scrisă de mine';
+  mine.amount = 250;
+  mine.published = false;
+  const deleted = stored.investments.splice(stored.investments.findIndex(p => p.order === 7), 1)[0];
+  stored.investments.push({
+    id: 'adaugat-de-om', order: 20, name: 'Proiect adăugat de mine', ministry: 'MF', amount: 10, currency: 'EUR', amountQual: '', cluster: 'initiere', status: 'termen', progress: 10, stage: 8,
+    refStage: 8, totalStages: 77, text: 'Textul meu despre stadiu.', delays: 'Întârzieri.', next: 'Pasul meu.', links: [{ t: 'Sursa', u: 'https://exemplu.md' }], published: true,
+    createdAt: '2026-10-21T08:00:00.000Z', updatedAt: '2026-10-21T08:00:00.000Z'
+  });
+
+  const r = overlay.apply(clone(stored), seed, upgrades);
+  assert.ok(r.changed.has('investments') && r.changed.has('settings'));
+  assert.equal(r.content.investments.length, 19, '18 din listă + 1 adăugat de om');
+  for (const p of r.content.investments) for (const k of LEGACY) assert.ok(!(k in p), `proiectul ${p.order}: „${k}” a fost șters`);
+
+  // un proiect din listă: textul și datele generale vin din conținutul de pornire, ce a scris omul rămâne
+  const p3 = r.content.investments.find(p => p.id === mine.id);
+  const s3 = seed.investments.find(p => p.id === mine.id);
+  assert.equal(p3.name, 'Denumirea scrisă de mine');
+  assert.equal(p3.amount, 250);
+  assert.equal(p3.published, false);
+  for (const k of ['text', ...NEW_FIELDS]) assert.deepEqual(p3[k], s3[k], k);
+  assert.doesNotMatch(p3.text, /Stadiul actual/);
+
+  // proiectul șters de om nu revine
+  assert.ok(!r.content.investments.some(p => p.id === deleted.id));
+
+  // proiectul adăugat de om: pierde numai câmpurile vechi, își păstrează textul
+  const added = r.content.investments.find(p => p.id === 'adaugat-de-om');
+  assert.equal(added.text, 'Textul meu despre stadiu.');
+  assert.deepEqual(added.links, [{ t: 'Sursa', u: 'https://exemplu.md' }]);
+  assert.equal(added.name, 'Proiect adăugat de mine');
+  for (const k of NEW_FIELDS) assert.ok(!(k in added), `„${k}” nu se inventează pentru un proiect care nu există în conținutul de pornire`);
+
+  // restul conținutului nu se atinge
+  for (const name of ['news', 'documents', 'events', 'legal', 'programs', 'gallery']) assert.deepEqual(r.content[name], stored[name], name);
+  assert.deepEqual(r.content.settings.growth, seed.settings.growth);
+  assert.equal(r.content.settings.seedRev, seed.settings.seedRev);
+
+  // a doua aplicare nu mai schimbă nimic
+  const again = overlay.apply(clone(r.content), seed, upgrades);
+  assert.equal(again.changed.size, 0);
+  assert.deepEqual(again.content, r.content);
+});
+
+test('versiunea 4: de la oricare versiune mai veche se ajunge la același rezultat, iar proiectele deja noi nu se ating', () => {
+  const { seed, upgrades } = seedDefs();
+  const fromV1 = overlay.apply(oldContent(), seed, upgrades).content;
+  assert.deepEqual(fromV1.investments, seed.investments, 'conținutul versiunii 1 primește direct proiectele noi');
+
+  const fromV3 = overlay.apply(rev3Content(), seed, upgrades).content;
+  assert.equal(fromV3.investments.length, 19);
+  const noNames = list => list.map(({ name, ...p }) => p); // eslint-disable-line no-unused-vars
+  assert.deepEqual(noNames(fromV3.investments).map(p => p.theme), noNames(seed.investments).map(p => p.theme));
+
+  // proiectele care au deja forma nouă nu se ating, nici dacă „seedRev” este vechi
+  const stored = rev3Content();
+  stored.investments = clone(seed.investments);
+  stored.investments[0].beneficiaries = 'Beneficiari scriși de om.';
+  const r = overlay.apply(stored, seed, upgrades);
+  assert.equal(r.content.investments[0].beneficiaries, 'Beneficiari scriși de om.');
+  assert.deepEqual(r.content.investments.slice(1), seed.investments.slice(1));
+  assert.ok(!r.changed.has('investments'));
+});
+
+test('migrările din upgrades.json: descrieri greșite sunt ignorate fără erori, iar o înregistrare fără câmpuri vechi nu se atinge', () => {
+  const seed = { settings: { seedRev: 2 }, investments: [{ id: 'a', text: 'nou', theme: 'export' }] };
+  const stored = { settings: {}, investments: [{ id: 'a', text: 'vechi', status: 'termen' }, { id: 'b', text: 'al omului' }, null, 5] };
+  for (const migrate of [undefined, null, 'x', [], { investments: 'x' }, { investments: null }, { necunoscut: { drop: ['status'] } }, { investments: { drop: 'status' } }]) {
+    const r = overlay.apply(clone(stored), clone(seed), [{ rev: 2, migrate }]);
+    assert.equal(r.content.investments[0].status, 'termen', JSON.stringify(migrate));
+    assert.equal(r.content.investments[1].text, 'al omului', JSON.stringify(migrate));
+  }
+  const r = overlay.apply(clone(stored), clone(seed), [{ rev: 2, migrate: { investments: { drop: ['status'], replace: ['text'], fill: ['theme', 'lipsa'] } } }]);
+  assert.deepEqual(r.content.investments.slice(0, 2), [{ id: 'a', text: 'nou', theme: 'export' }, { id: 'b', text: 'al omului' }]);
+  assert.deepEqual(r.content.investments.slice(2), [null, 5], 'valorile care nu sunt înregistrări rămân cum erau');
 });
 
 /* ---------- coerența conținutului livrat ---------- */
@@ -210,27 +325,41 @@ test('conținutul de pornire: versiunea, lista de actualizare și identificatori
       for (const id of ids) assert.ok(have.has(id), `${name}: ${id} nu există în conținutul de pornire`);
     }
     for (const [key, olds] of Object.entries(u.settings || {})) {
-      assert.ok(key in seed.settings, `settings: ${key} nu există în conținutul de pornire`);
+      const now = key.split('.').reduce((a, k) => (a && typeof a === 'object' ? a[k] : undefined), seed.settings);
+      assert.ok(now !== undefined, `settings: ${key} nu există în conținutul de pornire`);
       assert.ok(Array.isArray(olds) && olds.length, `settings.${key}: lista valorilor vechi`);
-      assert.ok(!olds.some(o => JSON.stringify(o) === JSON.stringify(seed.settings[key])), `settings.${key}: valoarea nouă nu poate fi și una veche`);
+      assert.ok(!olds.some(o => JSON.stringify(o) === JSON.stringify(now)), `settings.${key}: valoarea nouă nu poate fi și una veche`);
+    }
+    for (const [name, spec] of Object.entries(u.migrate || {})) {
+      assert.ok(overlay.COLLECTIONS.includes(name), `migrate: colecție necunoscută: ${name}`);
+      for (const rec of seed[name]) for (const k of spec.drop || []) assert.ok(!(k in rec), `${name}: conținutul de pornire nu mai poate avea câmpul „${k}”`);
+      for (const k of [...(spec.replace || []), ...(spec.fill || [])]) assert.ok(seed[name].every(rec => k in rec), `${name}: câmpul „${k}” trebuie să existe în tot conținutul de pornire`);
     }
   }
   const legal = seed.legal.map(x => `${x.type}|${x.nr}|${x.year}`);
   assert.equal(new Set(legal).size, legal.length, 'niciun act normativ nu apare de două ori');
 });
 
-test('proiectele din Planul de creștere: trec prin aceleași reguli ca la salvarea din administrare', () => {
+test('proiectele din Planul de creștere: trec prin aceleași reguli ca la salvarea din administrare și au numai date generale', () => {
   const { seed } = seedDefs();
   const { investments } = AdminSchemas.create({ bad: msg => Object.assign(new Error(msg), { status: 400 }), fileExists: () => true, programs: () => seed.programs });
   assert.equal(seed.investments.length, 19);
+  const allowed = new Set(['id', 'createdAt', 'updatedAt', 'order', 'name', 'theme', 'ministry', 'implementer', 'financier', 'amount', 'currency', 'amountQual', 'financing', 'period', 'location', 'text', 'results', 'beneficiaries', 'links', 'published']);
   for (const p of seed.investments) {
     const c = investments.clean(p);
-    for (const k of ['name', 'ministry', 'amount', 'currency', 'amountQual', 'cluster', 'status', 'progress', 'stage', 'refStage', 'totalStages', 'text', 'delays', 'next', 'published']) {
+    for (const k of ['order', 'name', 'theme', 'ministry', 'implementer', 'financier', 'amount', 'currency', 'amountQual', 'financing', 'period', 'location', 'text', 'results', 'beneficiaries', 'links', 'published']) {
       assert.deepEqual(c[k], p[k], `proiectul ${p.order}: „${k}” se schimbă la validare`);
     }
-    assert.ok(p.progress >= 0 && p.progress <= 100 && p.stage <= p.totalStages && p.refStage <= p.totalStages, `proiectul ${p.order}`);
+    assert.deepEqual(Object.keys(p).filter(k => !allowed.has(k)), [], `proiectul ${p.order}: câmpuri care nu mai există`);
+    for (const k of LEGACY) assert.ok(!(k in p), `proiectul ${p.order}: fără „${k}”`);
+    // datele generale pe care le are fiecare proiect din listă
+    for (const k of ['name', 'ministry', 'theme', 'financier', 'text']) assert.ok(String(p[k] || '').trim(), `proiectul ${p.order}: lipsește „${k}”`);
+    assert.ok(typeof p.amount === 'number' && p.amount > 0, `proiectul ${p.order}: valoarea`);
+    assert.ok(p.results.length >= 1, `proiectul ${p.order}: rezultatele preconizate`);
+    assert.match(p.financier, /\(([^()]{2,12})\)$|^BEI și BERD$|^BERD \/ BEI$|^Urmează a fi stabilit$/, `proiectul ${p.order}: partenerul de finanțare (denumire completă urmată de abreviere)`);
   }
   assert.deepEqual(seed.investments.map(p => p.order).sort((a, b) => a - b), Array.from({ length: 19 }, (_, i) => i + 1));
+  assert.equal(new Set(seed.investments.map(p => p.name)).size, 19, 'denumiri diferite');
 });
 
 test('textele și actele din conținutul de pornire sunt exact în forma în care le salvează panoul', () => {
@@ -244,18 +373,18 @@ test('textele și actele din conținutul de pornire sunt exact în forma în car
   }
 });
 
-test('cifrele din pagină se calculează din proiecte și corespund Raportului', () => {
+test('cele cinci obiective economice: fiecare proiect aparține unuia, iar împărțirea corespunde listei oficiale', () => {
   const { seed } = seedDefs();
   const count = key => seed.investments.reduce((m, p) => ({ ...m, [p[key]]: (m[p[key]] || 0) + 1 }), {});
-  assert.deepEqual(count('cluster'), { initiere: 5, fezabilitate: 6, maturitate: 1, negociere: 2, semnat: 5 });
-  assert.deepEqual(count('status'), { intarziere: 16, termen: 1, blocat: 1, implementare: 1 });
-  // proiectele la care se referă fiecare etapă de maturitate (după numărul din Raport)
-  const byCluster = c => seed.investments.filter(p => p.cluster === c).map(p => p.order).sort((a, b) => a - b);
-  assert.deepEqual(byCluster('initiere'), [9, 12, 13, 14, 18]);
-  assert.deepEqual(byCluster('fezabilitate'), [6, 7, 8, 10, 11, 15]);
-  assert.deepEqual(byCluster('maturitate'), [17]);
-  assert.deepEqual(byCluster('negociere'), [5, 16]);
-  assert.deepEqual(byCluster('semnat'), [1, 2, 3, 4, 19]);
+  assert.deepEqual(count('theme'), { export: 4, energie: 4, agricultura: 3, cunoastere: 4, social: 4 });
+  assert.deepEqual(Object.keys(count('theme')).sort(), AdminSchemas.INV_THEMES.slice().sort());
+  // proiectele fiecărui obiectiv (după numărul din lista oficială)
+  const byTheme = t => seed.investments.filter(p => p.theme === t).map(p => p.order).sort((a, b) => a - b);
+  assert.deepEqual(byTheme('export'), [3, 7, 8, 9]);
+  assert.deepEqual(byTheme('energie'), [12, 13, 14, 16]);
+  assert.deepEqual(byTheme('agricultura'), [2, 4, 17]);
+  assert.deepEqual(byTheme('cunoastere'), [1, 5, 6, 11]);
+  assert.deepEqual(byTheme('social'), [10, 15, 18, 19]);
 });
 
 test('conținutul livrat nu poartă legături către rapoarte interne', () => {
@@ -278,4 +407,17 @@ test('conținutul public: proiectele ascunse nu se publică, ordinea este cea di
   assert.ok(!('seedRev' in pub.settings));
   assert.equal(data.settings.seedRev, seed.settings.seedRev, 'conținutul intern își păstrează „seedRev”');
   assert.ok(pub.lastUpdated >= seed.settings.updatedAt);
+});
+
+test('conținutul public nu trimite câmpuri de stare sau de progres, nici dacă au rămas într-un fișier salvat de versiunea anterioară', () => {
+  const { seed } = seedDefs();
+  const data = clone(seed);
+  Object.assign(data.investments[0], { cluster: 'semnat', status: 'termen', progress: 50, stage: 1, refStage: 2, totalStages: 77, delays: 'Întârzieri.', next: 'Pasul următor.' });
+  const pub = buildPublic(name => data[name]);
+  assert.equal(pub.investments.length, 19);
+  for (const p of pub.investments) for (const k of LEGACY_INVESTMENT_FIELDS) assert.ok(!(k in p), `„${k}” nu iese în pagina publică`);
+  assert.deepEqual(LEGACY_INVESTMENT_FIELDS.slice().sort(), LEGACY.slice().sort());
+  const first = pub.investments.find(p => p.id === data.investments[0].id);
+  for (const k of ['name', 'ministry', 'theme', 'financier', 'amount', 'text', 'results']) assert.deepEqual(first[k], data.investments[0][k], k);
+  assert.equal(data.investments[0].status, 'termen', 'conținutul intern nu este modificat de publicare');
 });

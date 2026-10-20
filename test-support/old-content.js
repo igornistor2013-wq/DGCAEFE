@@ -37,10 +37,46 @@ function oldContent(edits = {}) {
   };
 }
 
+// Proiectele investiționale așa cum le salva versiunea 3 a conținutului de pornire: cu etapă de maturitate, stare, progres și texte despre
+// stadiu și întârzieri, fără partenerul de finanțare, localizarea sau rezultatele. Sunt reconstituite din conținutul de pornire actual.
+const REV3_CLUSTERS = ['initiere', 'fezabilitate', 'maturitate', 'negociere', 'semnat'];
+function rev3Investments() {
+  return seedContent().investments.map((p, i) => ({
+    id: p.id,
+    order: p.order,
+    name: 'Denumire veche ' + p.order,
+    ministry: p.ministry,
+    amount: p.amount,
+    currency: p.currency,
+    amountQual: p.amountQual,
+    cluster: REV3_CLUSTERS[i % REV3_CLUSTERS.length],
+    status: i % 4 === 0 ? 'termen' : 'intarziere',
+    progress: 40 + i,
+    stage: 30 + i,
+    refStage: 35 + i,
+    totalStages: 77,
+    text: 'Stadiul actual al proiectului ' + p.order + '.',
+    delays: 'Etape în întârziere:\n1. Scrisoarea de angajament',
+    next: 'Pasul următor al proiectului ' + p.order + '.',
+    links: [],
+    published: true,
+    createdAt: '2026-10-20T12:00:00.000Z',
+    updatedAt: '2026-10-20T12:00:00.000Z'
+  }));
+}
+
+/* Tot conținutul, așa cum îl avea cineva care folosea versiunea 3 (proiecte cu stare și progres, textele secțiunii „Investiții” implicite din
+   acea versiune). `edits`: ce ar fi modificat administratorul în „settings”. */
+function rev3Content(edits = {}) {
+  const seed = seedContent();
+  const growth = clone(seedUpgrades().find(u => u.rev === 4).settings.growth[1]);
+  return { ...seed, investments: rev3Investments(), settings: { ...clone(seed.settings), seedRev: 3, growth, ...clone(edits) } };
+}
+
 // Scrie conținutul într-un folder de date („<dir>/content/<nume>.json”), în formatul serverului.
 function writeContent(dir, content) {
   fs.mkdirSync(path.join(dir, 'content'), { recursive: true });
   for (const [name, value] of Object.entries(content)) fs.writeFileSync(path.join(dir, 'content', name + '.json'), JSON.stringify(value, null, 2) + '\n');
 }
 
-module.exports = { seedContent, seedUpgrades, oldContent, writeContent, REV1_SETTINGS, NAMES };
+module.exports = { seedContent, seedUpgrades, oldContent, rev3Content, rev3Investments, writeContent, REV1_SETTINGS, NAMES };

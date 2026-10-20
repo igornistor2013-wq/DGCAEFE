@@ -45,6 +45,9 @@
         return '<select ' + attrs + '>' + options(f.options, v) + '</select>';
       case 'number':
         return '<input type="number" ' + attrs + ' value="' + esc(v == null ? '' : v) + '" step="' + (f.step || 1) + '" inputmode="' + (f.step ? 'decimal' : 'numeric') + '"' + (f.min != null ? ' min="' + f.min + '"' : '') + (f.maxv != null ? ' max="' + f.maxv + '"' : '') + '>';
+      case 'decimal':
+        // număr cu zecimale, scris cu virgulă sau cu punct: un câmp „number” respinge virgula în browserele cu alte setări de limbă
+        return '<input type="text" ' + attrs + ' value="' + esc(v == null ? '' : String(v).replace('.', ',')) + '" inputmode="decimal" autocomplete="off" maxlength="20">';
       case 'date':
         return '<input type="date" ' + attrs + ' value="' + esc(v) + '">';
       default:

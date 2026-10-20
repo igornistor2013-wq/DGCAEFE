@@ -305,34 +305,42 @@ test('textele paginii: versiunea conținutului de pornire se păstrează, nu se 
   assert.ok(!('seedRev' in pub.settings));
 });
 
-test('proiectele din Planul de creștere: validare, calculul progresului, ascunderea și ștergerea', async () => {
+test('proiectele din Planul de creștere: numai date generale, validare, ascunderea și ștergerea', async () => {
   const cases = [
     [{}, /„Denumirea proiectului” este obligatoriu/],
-    [{ name: 'P', cluster: 'altceva' }, /Etapa de maturitate/],
-    [{ name: 'P', status: 'gata' }, /Starea proiectului/],
+    [{ name: 'P', theme: 'altceva' }, /Obiectivul economic/],
     [{ name: 'P', currency: 'RON' }, /Moneda/],
-    [{ name: 'P', stage: 50, totalStages: 40 }, /Etapa curentă nu poate fi mai mare/],
-    [{ name: 'P', refStage: 41, totalStages: 40 }, /Etapa de referință nu poate fi mai mare/],
-    [{ name: 'P', progress: 101 }, /Progresul/],
+    [{ name: 'P', amount: 5, amountQual: 'aproximativ' }, /Precizarea valorii/],
     [{ name: 'P', amount: -1 }, /Valoarea/],
+    [{ name: 'P', results: Array.from({ length: 13 }, (_, i) => 'Rezultat ' + i) }, /Rezultate preconizate/],
+    [{ name: 'P', results: ['x'.repeat(501)] }, /Rezultate preconizate/],
+    [{ name: 'P', financing: 'x'.repeat(1501) }, /prea lung/],
     [{ name: 'P', links: [{ t: 'Text', u: 'javascript:alert(1)' }] }, /adres/i],
+    [{ name: 'P', links: [{ t: 'Text', u: '' }] }, /legătură/i],
     [{ name: 'x'.repeat(301) }, /prea lung/]
   ];
   for (const [body, re] of cases) {
     const r = await call('POST', '/api/admin/investments', body);
-    assert.equal(r.status, 400, JSON.stringify(body));
-    assert.match(r.data.error, re, JSON.stringify(body));
+    assert.equal(r.status, 400, JSON.stringify(body).slice(0, 120));
+    assert.match(r.data.error, re, JSON.stringify(body).slice(0, 120));
   }
   const publicCount = async () => (await call('GET', '/api/public', undefined, { anonymous: true })).data.investments;
   const before = (await call('GET', '/api/admin/investments')).data;
   assert.equal(before.length, 19);
   assert.equal((await publicCount()).length, 19);
 
-  // ciornă: se salvează, dar nu apare public; progresul se calculează din etape
-  const c = await call('POST', '/api/admin/investments', { name: 'Proiect de test', ministry: 'MF', amount: '12,5', currency: 'MDL', amountQual: 'circa', cluster: 'fezabilitate', status: 'intarziere', stage: 10, refStage: 12, totalStages: 40, text: 'Stadiu.', delays: 'Etape în întârziere:\n1. Ceva', next: 'Pasul următor.', links: [{ t: 'Sursa', u: 'https://exemplu.md' }, { t: '', u: '' }], published: false });
+  // ciornă: se salvează, dar nu apare public; câmpurile vechi (etapă, stare, progres, întârzieri) trimise de un client vechi sunt ignorate
+  const c = await call('POST', '/api/admin/investments', {
+    name: 'Proiect de test', ministry: 'MF', theme: 'social', implementer: 'Unitatea de implementare', financier: 'Banca Mondială (BM)', amount: '12,5', currency: 'MDL', amountQual: 'circa',
+    financing: 'Împrumut de 10 mil. MDL.', period: '2027–2030', location: 'Chișinău', beneficiaries: 'Locuitorii municipiului', text: 'Descriere.',
+    results: ['Primul rezultat', '', '  Al doilea rezultat  '], links: [{ t: 'Sursa', u: 'https://exemplu.md' }, { t: '', u: '' }], published: false,
+    cluster: 'fezabilitate', status: 'intarziere', stage: 10, refStage: 12, totalStages: 40, progress: 25, delays: 'Etape în întârziere', next: 'Pasul următor.'
+  });
   assert.equal(c.status, 201);
-  assert.deepEqual([c.data.progress, c.data.amount, c.data.currency, c.data.amountQual, c.data.published], [25, 12.5, 'MDL', 'circa', false]);
+  assert.deepEqual([c.data.amount, c.data.currency, c.data.amountQual, c.data.published, c.data.theme], [12.5, 'MDL', 'circa', false, 'social']);
+  assert.deepEqual(c.data.results, ['Primul rezultat', 'Al doilea rezultat'], 'rândurile goale se elimină');
   assert.deepEqual(c.data.links, [{ t: 'Sursa', u: 'https://exemplu.md' }], 'rândurile goale se elimină');
+  for (const k of ['cluster', 'status', 'stage', 'refStage', 'totalStages', 'progress', 'delays', 'next']) assert.ok(!(k in c.data), `„${k}” nu se mai păstrează`);
   assert.equal((await publicCount()).length, 19, 'proiectul ascuns nu este public');
   assert.equal((await call('GET', '/api/admin/investments')).data.length, 20, 'în administrare apare și ciorna');
 
@@ -344,11 +352,17 @@ test('proiectele din Planul de creștere: validare, calculul progresului, ascund
   const pub = await publicCount();
   assert.equal(pub.length, 20);
   assert.equal(pub[pub.length - 1].id, c.data.id, 'se afișează după numărul de ordine');
+  for (const p of pub) for (const k of ['cluster', 'status', 'stage', 'progress', 'delays', 'next']) assert.ok(!(k in p), `pagina publică nu primește „${k}”`);
 
   // fără valoare, precizarea valorii nu are sens și se șterge
   const noAmount = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...u.data, amount: '', amountQual: 'max.' });
   assert.equal(noAmount.status, 200);
   assert.deepEqual([noAmount.data.amount, noAmount.data.amountQual], [null, '']);
+
+  // obiectivul economic se poate lăsa necompletat
+  const noTheme = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...u.data, theme: '' });
+  assert.equal(noTheme.status, 200);
+  assert.equal(noTheme.data.theme, '');
 
   const missing = await call('PUT', '/api/admin/investments/inexistent', { name: 'x' });
   assert.equal(missing.status, 404);
@@ -357,7 +371,7 @@ test('proiectele din Planul de creștere: validare, calculul progresului, ascund
   assert.equal((await publicCount()).length, 19);
   assert.equal((await call('DELETE', `/api/admin/investments/${c.data.id}`)).status, 404);
 
-  // un proiect din Raport poate fi ascuns și readus fără să se piardă nimic
+  // un proiect din listă poate fi ascuns și readus fără să se piardă nimic
   const first = before.find(p => p.order === 1);
   const hide = await call('PUT', `/api/admin/investments/${first.id}`, { ...first, published: false });
   assert.equal(hide.status, 200);

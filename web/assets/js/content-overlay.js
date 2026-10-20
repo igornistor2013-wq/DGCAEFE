@@ -7,9 +7,14 @@
    seed/content/settings.json poartă numărul versiunii conținutului de pornire: „seedRev” (lipsa lui înseamnă 1).
    seed/upgrades.json descrie, pentru fiecare versiune nouă, ce se schimbă la cei care au deja conținut salvat:
      [ { "rev": 2,
-         "settings": { "heroLead": [ "<vechea valoare implicită>", … ] },   // se înlocuiește doar dacă textul salvat este încă
-                                                                            // identic cu una dintre valorile implicite vechi
-         "add": { "legal": [ "<id>", … ] } } ]                              // înregistrări din seed care se adaugă dacă lipsesc
+         "settings": { "heroLead": [ "<vechea valoare implicită>", … ],     // se înlocuiește doar dacă textul salvat este încă
+                       "growth.note": [ "<vechea valoare>", … ] },          // identic cu una dintre valorile implicite vechi; cheia
+                                                                            // poate avea puncte, pentru un text dintr-un grup („growth.note”)
+         "add": { "legal": [ "<id>", … ] },                                 // înregistrări din seed care se adaugă dacă lipsesc
+         "migrate": { "investments": {                                      // înregistrările salvate în forma veche se aduc la forma nouă:
+           "drop": [ "<câmp care nu mai există>", … ],                      //   câmpurile acestea se șterg (o înregistrare care nu le mai are nu se atinge)
+           "replace": [ "<câmp>", … ],                                      //   aceste câmpuri se iau din înregistrarea din seed cu același id
+           "fill": [ "<câmp nou>", … ] } } } ]                              //   aceste câmpuri se completează din seed dacă lipsesc
    Un text modificat de om nu se atinge niciodată. Cheile de texte care lipsesc cu totul se completează din seed. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -67,9 +72,17 @@
         // 1. cheile care lipsesc cu totul se iau din seed
         for (const k of Object.keys(sd)) if (s[k] === undefined) s[k] = clone(sd[k]);
         // 2. textele rămase neschimbate față de vechea valoare implicită se înlocuiesc cu cele noi
+        //    (cheia „grup.text” se referă la un text din interiorul unui grup, de exemplu „growth.note”)
         for (const u of todo) {
           for (const [k, olds] of Object.entries(u.settings || {})) {
-            if (sd[k] !== undefined && Array.isArray(olds) && olds.some(o => same(o, s[k]))) s[k] = clone(sd[k]);
+            if (!Array.isArray(olds)) continue;
+            const path = k.split('.');
+            const last = path.pop();
+            const walk = o => path.reduce((a, p) => (isObj(a) ? a[p] : undefined), o);
+            const want = walk(sd);
+            const here = walk(s);
+            if (!isObj(want) || !isObj(here) || want[last] === undefined) continue;
+            if (olds.some(o => same(o, here[last]))) here[last] = clone(want[last]);
           }
         }
         // 3. înregistrările noi din seed se adaugă dacă lipsesc (și dacă nu le-a introdus deja cineva de mână)
@@ -82,6 +95,24 @@
                 content[name].push(clone(rec));
                 changed.add(name);
               }
+            }
+          }
+        }
+        // 4. înregistrările salvate în forma veche (cu câmpuri care nu mai există) se aduc la forma nouă
+        for (const u of todo) {
+          for (const [name, spec] of Object.entries(u.migrate || {})) {
+            if (!COLLECTIONS.includes(name) || !isObj(spec) || !Array.isArray(content[name])) continue;
+            const list = k => (Array.isArray(spec[k]) ? spec[k] : []);
+            const seeds = Array.isArray(seed[name]) ? seed[name] : [];
+            for (const rec of content[name]) {
+              if (!isObj(rec) || !list('drop').some(k => k in rec)) continue;
+              const from = seeds.find(x => x && x.id === rec.id);
+              for (const k of list('drop')) delete rec[k];
+              if (from) {
+                for (const k of list('replace')) if (from[k] !== undefined) rec[k] = clone(from[k]);
+                for (const k of list('fill')) if (rec[k] === undefined && from[k] !== undefined) rec[k] = clone(from[k]);
+              }
+              changed.add(name);
             }
           }
         }
