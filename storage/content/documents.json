@@ -412,23 +412,5 @@
     "description": "",
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "830272b71582",
-    "title": "EU City Lab on Land Strategies to Feed the City",
-    "section": "program",
-    "program": "urbact",
-    "group": "stiri",
-    "kind": "Știre",
-    "date": "2024-10-23",
-    "dateLabel": "23–24 octombrie 2024",
-    "year": null,
-    "en": false,
-    "order": 42,
-    "file": null,
-    "url": "https://gov.md/sites/default/files/Filepdf/4.eu_city_lab_on_land_strategies_to_feed_the_city.pdf",
-    "description": "",
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
