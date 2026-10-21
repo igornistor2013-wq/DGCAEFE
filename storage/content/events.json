@@ -24,18 +24,15 @@
   },
   {
     "id": "ev-urbact-call",
-    "prog": "URBACT",
+    "prog": "trilateral",
     "start": "2025-04-01",
     "end": "2025-06-30",
     "pub": "2025-04-02",
     "time": "",
-    "place": "Apel online",
-    "title": "Apel deschis pentru orașele din Moldova: Rețele de Transfer URBACT",
-    "summary": "Orașele din Republica Moldova au putut accesa sprijin financiar și expertiză pentru a prelua soluții inovatoare din alte orașe europene și a-și îmbunătăți politicile locale.",
-    "details": [
-      "Bugetul total al unei rețele este de 750.000 EUR, cu o alocare suplimentară de 120.000 EUR pentru expertiză externă.",
-      "Pentru orașele din Moldova, cofinanțarea poate ajunge până la 95% prin fondurile NDICI."
-    ],
+    "place": "Sala MOLDOVA",
+    "title": "Ședința trilateral",
+    "summary": "Discuții despre proiectele investitionale",
+    "details": [],
     "links": [
       {
         "t": "Cum vă implicați, pe urbact.eu",
@@ -43,6 +40,6 @@
       }
     ],
     "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
+    "updatedAt": "2026-10-21T19:41:45.245Z"
   }
 ]
