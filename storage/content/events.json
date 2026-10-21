@@ -72,29 +72,5 @@
     ],
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "ev-citylab",
-    "prog": "URBACT",
-    "start": "2024-10-23",
-    "end": "2024-10-24",
-    "pub": "",
-    "time": "",
-    "place": "Milano, Italia",
-    "title": "EU City Lab on Land Strategies to Feed the City",
-    "summary": "Laborator european dedicat strategiilor funciare pentru aprovizionarea cu alimente a orașelor.",
-    "details": [],
-    "links": [
-      {
-        "t": "Prezentarea evenimentului (PDF)",
-        "u": "https://gov.md/sites/default/files/Filepdf/eu_city_lab_on_land_strategies_to_feed_the_city1.pdf"
-      },
-      {
-        "t": "Programul evenimentului (PDF)",
-        "u": "https://gov.md/sites/default/files/Filepdf/eu_city_lab_milan_-_public_programme.pdf"
-      }
-    ],
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
