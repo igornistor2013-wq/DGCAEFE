@@ -61,12 +61,12 @@
     MF: 'Ministerul Finanțelor',
     MJ: 'Ministerul Justiției'
   };
-  // Pe cardurile din secțiunea „Proiecte investiționale” ministerul apare cu domeniul lui, pe scurt („Ministerul Energiei” → „Energie”).
+  // Pe cardurile din secțiunea „Proiecte investiționale” ministerul apare doar cu domeniul lui („Ministerul Energiei” → „Energie”).
   var MINISTRY_SHORT = {
-    MEC: 'Educație și cercetare',
-    MAIA: 'Agricultură și industrie alimentară',
-    MIDR: 'Infrastructură și dezvoltare regională',
-    MDED: 'Dezvoltare economică și digitalizare',
+    MEC: 'Educație',
+    MAIA: 'Agricultură',
+    MIDR: 'Infrastructură',
+    MDED: 'Economie',
     MS: 'Sănătate',
     MEN: 'Energie',
     MM: 'Mediu',

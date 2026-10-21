@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
+const crypto = require('crypto');
 const os = require('os');
 const path = require('path');
 const vm = require('vm');
@@ -41,7 +42,7 @@ test('cu opțiunea GitHub: pagina de administrare, scripturile, version.json și
   assert.match(csp[1], /object-src 'none'/);
   assert.ok(admin.indexOf('Content-Security-Policy') < admin.indexOf('<script'), 'politica precede scripturile');
 
-  const scripts = [...admin.matchAll(/<script src="\.\.\/assets\/js\/([\w-]+\.js)" defer><\/script>/g)].map(m => m[1]);
+  const scripts = [...admin.matchAll(/<script src="\.\.\/assets\/js\/([\w-]+\.js)(?:\?v=[0-9a-f]{10})?" defer><\/script>/g)].map(m => m[1]);
   assert.deepEqual(scripts, ['common.js', 'admin-core.js', 'admin-forms.js', 'admin-pages.js', 'admin-system.js', 'admin-schemas.js', 'content-overlay.js', 'admin-github-core.js', 'admin-github.js', 'admin.js']);
 
   const v = JSON.parse(textOf(files.get('version.json')));
@@ -56,11 +57,36 @@ test('cu opțiunea GitHub: pagina de administrare, scripturile, version.json și
 test('tot ce referă pagina de administrare există în versiunea construită', () => {
   const files = build({ github: { repo: 'org/site' }, commit: SHA });
   const admin = textOf(files.get('admin/index.html'));
-  const refs = [...admin.matchAll(/(?:src|href)="\.\.\/(assets\/[^"#?]+)"/g)].map(m => m[1]);
+  const refs = [...admin.matchAll(/(?:src|href)="\.\.\/(assets\/[^"#?]+)(?:\?[^"#]*)?"/g)].map(m => m[1]);
   assert.ok(refs.length > 10);
   for (const r of refs) assert.ok(files.has(r), `lipsește ${r}`);
   // și fișierele de care depind scripturile publice
   for (const n of ['assets/js/site.js', 'assets/js/common.js', 'assets/css/site.css']) assert.ok(files.has(n), n);
+});
+
+// GitHub Pages lasă fișierele în memoria browserului până la 10 minute. Fără amprentă în adresă, după o publicare pagina nouă ar putea porni cu
+// scripturile vechi și ar părea neschimbată („nu s-a schimbat nimic”).
+test('scripturile și stilurile au în adresă amprenta conținutului lor, în pagina publică și în cea de administrare', () => {
+  const sum = file => crypto.createHash('sha1').update(fs.readFileSync(path.join(cfg.WEB_DIR, 'assets', file))).digest('hex').slice(0, 10);
+  const seen = new Map();
+  for (const [opts, pages] of [[undefined, ['index.html']], [{ github: { repo: 'org/site' }, commit: SHA }, ['index.html', 'admin/index.html']]]) {
+    const files = build(opts);
+    for (const page of pages) {
+      const html = textOf(files.get(page));
+      const refs = [...html.matchAll(/(?:src|href)="(?:\.\.\/)?assets\/((?:js|css)\/[\w.-]+\.(?:js|css))([^"]*)"/g)];
+      assert.ok(refs.length >= 3, `${page}: scripturile și stilurile sunt referite`);
+      for (const [, file, query] of refs) {
+        assert.equal(query, `?v=${sum(file)}`, `${page}: ${file} are amprenta corectă`);
+        seen.set(file, query);
+      }
+    }
+  }
+  assert.ok(seen.has('js/site.js') && seen.has('js/common.js') && seen.has('css/site.css') && seen.has('js/admin-github.js'));
+  assert.notEqual(seen.get('js/site.js'), seen.get('js/common.js'), 'fișiere diferite, amprente diferite');
+  // fișierele în sine rămân la aceleași adrese (fără amprentă în numele lor), deci adresele relative din CSS și din alte scripturi nu se strică
+  const files = build({ github: { repo: 'org/site' } });
+  for (const n of ['assets/js/site.js', 'assets/css/site.css', 'assets/js/admin-github.js']) assert.ok(files.has(n), n);
+  assert.doesNotMatch(textOf(files.get('assets/css/site.css')), /\?v=[0-9a-f]{10}/);
 });
 
 test('scripturile și stilurile de administrare sunt valide', () => {

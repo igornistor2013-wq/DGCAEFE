@@ -46,6 +46,9 @@ function createApp() {
   app.get('/healthz', (req, res) => res.type('text/plain').send('ok'));
   app.use('/api', buildApi());
 
+  // Scripturile și stilurile se verifică la fiecare încărcare (cu ETag: dacă nu s-au schimbat, răspunsul este „304”), ca o versiune nouă să apară
+  // imediat; fonturile și imaginile rămân în memoria browserului 7 zile.
+  for (const dir of ['js', 'css']) app.use(`/assets/${dir}`, express.static(path.join(cfg.WEB_DIR, 'assets', dir), { maxAge: 0 }));
   app.use('/assets', express.static(path.join(cfg.WEB_DIR, 'assets'), { maxAge: '7d' }));
   app.use('/uploads', express.static(path.join(cfg.DATA_DIR, 'uploads'), { maxAge: '30d', immutable: true, index: false }));
   app.use(

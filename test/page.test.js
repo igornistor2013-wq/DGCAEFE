@@ -75,13 +75,14 @@ function objectFrom(name) {
   return new Function(`return ${m[1]}`)(); // eslint-disable-line no-new-func
 }
 
-test('cardurile ministerelor: denumiri scurte pe domeniu („Energie”), iar primul card este „Total”', () => {
+test('cardurile ministerelor: rubrici dintr-un cuvânt („Energie”, „Sănătate”), iar primul card este „Total”', () => {
   const full = objectFrom('MINISTRY');
   const short = objectFrom('MINISTRY_SHORT');
   assert.deepEqual(Object.keys(short).sort(), Object.keys(full).sort(), 'fiecare minister are și denumirea scurtă');
-  assert.deepEqual([short.MEN, short.MM, short.MS, short.MEC], ['Energie', 'Mediu', 'Sănătate', 'Educație și cercetare']);
+  assert.deepEqual([short.MEN, short.MM, short.MS, short.MEC, short.MIDR, short.MAIA, short.MDED], ['Energie', 'Mediu', 'Sănătate', 'Educație', 'Infrastructură', 'Agricultură', 'Economie']);
   for (const [k, v] of Object.entries(short)) {
     assert.ok(v && !/^Ministerul\b/.test(v), `${k}: denumirea scurtă nu începe cu „Ministerul”`);
+    assert.doesNotMatch(v, /\s/, `${k}: denumirea scurtă este un singur cuvânt, ca o rubrică („${v}”)`);
     assert.ok(v.length < full[k].length, `${k}: denumirea scurtă este mai scurtă decât cea întreagă`);
   }
   // toate ministerele proiectelor livrate au denumire scurtă
