@@ -25,9 +25,9 @@
   {
     "id": "ev-urbact-call",
     "prog": "trilateral",
-    "start": "2025-04-01",
-    "end": "2025-06-30",
-    "pub": "2025-04-02",
+    "start": "2026-10-08",
+    "end": "2026-10-08",
+    "pub": "2026-10-01",
     "time": "",
     "place": "Sala MOLDOVA",
     "title": "Ședința trilateral",
@@ -40,6 +40,6 @@
       }
     ],
     "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-21T19:42:01.238Z"
+    "updatedAt": "2026-10-21T19:43:03.450Z"
   }
 ]
