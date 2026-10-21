@@ -90,7 +90,7 @@
         { name: 'summary', label: 'Rezumat', type: 'textarea', max: 500, rows: 3, hint: 'Se afișează pe cardul din lista de noutăți.' },
         { name: 'body', label: 'Textul știrii', type: 'rich', max: 20000, rows: 10 },
         { name: 'image', label: 'Imagine', type: 'image', maxEdge: 1600, thumb: true, hint: 'Opțională. Se afișează pe card și în fereastra știrii.' },
-        { name: 'imageAlt', label: 'Descrierea imaginii', type: 'text', max: 200, showIf: v => !!v.image, hint: 'O propoziție scurtă pentru persoanele care nu văd imaginea.' },
+        { name: 'imageAlt', label: 'Descrierea imaginii', type: 'text', max: 100, showIf: v => !!v.image, hint: 'O propoziție scurtă pentru persoanele care nu văd imaginea.' },
         { name: 'attachment', label: 'Document atașat', type: 'doc', hint: 'Opțional: PDF, Word, Excel etc., disponibil pentru descărcare.' },
         { name: 'linkUrl', label: 'Legătură externă', type: 'url', max: 1000, w: 'twothirds', placeholder: 'https://…', hint: 'Opțional: o pagină unde cititorii pot afla mai multe.' },
         { name: 'linkLabel', label: 'Textul legăturii', type: 'text', max: 80, w: 'third', placeholder: 'Citește mai mult' },
@@ -679,7 +679,7 @@
           { name: 'title', label: 'Titlu', type: 'text', max: 200 },
           { name: 'album', label: 'Album', type: 'text', max: 80, w: 'half', list: albums },
           { name: 'date', label: 'Data', type: 'date', w: 'half' },
-          { name: 'alt', label: 'Descrierea imaginii', type: 'text', max: 200, hint: 'O propoziție care spune ce se vede în fotografie. Este citită de cititoarele de ecran.' }
+          { name: 'alt', label: 'Descrierea imaginii', type: 'text', max: 100, hint: 'O propoziție care spune ce se vede în fotografie (cel mult 100 de caractere, cum cere HG nr. 728/2023). Este citită de cititoarele de ecran.' }
         ],
         values: g,
         saveLabel: 'Salvează modificările',

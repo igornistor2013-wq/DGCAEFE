@@ -206,7 +206,7 @@
           summary: str(b.summary, 'Rezumat', { max: 500 }),
           body: str(b.body, 'Textul știrii', { max: 20000 }),
           image: file(b.image, 'Imagine', 'img'),
-          imageAlt: str(b.imageAlt, 'Descrierea imaginii', { max: 200 }),
+          imageAlt: str(b.imageAlt, 'Descrierea imaginii', { max: 100 }),
           attachment: file(b.attachment, 'Document atașat', 'docs'),
           linkUrl: url(b.linkUrl, 'Legătură externă'),
           linkLabel: str(b.linkLabel, 'Textul legăturii', { max: 80 }),
@@ -295,7 +295,7 @@
           title: str(b.title, 'Titlu', { max: 200 }),
           album: str(b.album, 'Albumul', { max: 80 }),
           date: date(b.date, 'Data'),
-          alt: str(b.alt, 'Descrierea imaginii', { max: 200 }),
+          alt: str(b.alt, 'Descrierea imaginii', { max: 100 }),
           sample: !!(ex && ex.sample && ex.file && ex.file.path === f.path),
           file: f
         };

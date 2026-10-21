@@ -30,11 +30,14 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
+      # Aflăm adresa pe care va fi publicată pagina (cu sau fără domeniu propriu); ea intră în pagina 404, în adresa canonică și în politica de securitate.
+      - id: pages
+        uses: actions/configure-pages@v5
       - name: Construiește pagina (cu panoul de administrare pentru acest depozit)
         run: >-
           node scripts/build-static.js --out dist
+          --site-url "${{ steps.pages.outputs.base_url }}"
           --github-repo "$GITHUB_REPOSITORY" --github-branch "$GITHUB_REF_NAME" --commit "$GITHUB_SHA"
-      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist

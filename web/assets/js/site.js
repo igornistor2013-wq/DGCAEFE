@@ -101,6 +101,8 @@
     return a;
   }
   function kindOf(d) { return DG.fileKind(d.file ? d.file.path : d.url); }
+  // Titlul unui document în limba engleză este marcat ca atare (cititoarele de ecran îl pronunță corect).
+  function titleHtml(d) { return d.en ? '<span lang="en">' + esc(d.title) + '</span>' : esc(d.title); }
   function ftBadge(d) { var k = kindOf(d); return '<span class="ft ft-' + k.cls + '" aria-hidden="true">' + k.label + '</span>'; }
   function docMeta(d) {
     return [d.kind, DG.dateText(d) || (d.section === 'rapoarte' && d.year ? String(d.year) : ''), d.en ? 'în limba engleză' : '', d.file && d.file.size ? DG.formatSize(d.file.size) : ''].filter(Boolean).join(', ');
@@ -244,12 +246,12 @@
     var href = '#stire/' + n.id;
     var thumb = n.image && (n.image.thumb || n.image.path);
     return '<article class="news-card">' +
-      (thumb ? '<a class="news-media" href="' + href + '" data-news="' + esc(n.id) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(thumb) + '" alt="" loading="lazy"></a>' : '') +
+      (thumb ? '<a class="news-media" href="' + href + '" data-news="' + esc(n.id) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(thumb) + '" alt="" width="480" height="270" loading="lazy"></a>' : '') +
       '<div class="news-body"><p class="card-meta">' + (n.tag ? '<span class="tag">' + esc(n.tag) + '</span>' : '') +
       '<time datetime="' + esc(n.date) + '">' + esc(DG.dateText(n)) + '</time></p>' +
       '<h3><a href="' + href + '" data-news="' + esc(n.id) + '">' + esc(n.title) + '</a></h3>' +
       (n.summary ? '<p>' + esc(n.summary) + '</p>' : '') +
-      '<a class="more-link" href="' + href + '" data-news="' + esc(n.id) + '" aria-label="Citiți: ' + esc(n.title) + '">Citește mai departe ' + ico('arrow-r') + '</a>' +
+      '<a class="more-link" href="' + href + '" data-news="' + esc(n.id) + '">Citește mai departe<span class="sr">: ' + esc(n.title) + '</span> ' + ico('arrow-r') + '</a>' +
       editLink('news', n.id) + '</div></article>';
   }
 
@@ -348,7 +350,7 @@
     }).join('') + '</ul>' + (total ? '<p class="org-total">Efectivul direcției: <b>' + countRo(total, 'unitate', 'unități') + '</b></p>' : '') : '';
 
     var roles = [['Drepturile direcției', s.rights], ['Responsabilitățile direcției', s.responsibilities]].filter(function (r) { return r[1] && r[1].length; });
-    $('#rolesBlock').hidden = !roles.length;
+    $('#drepturi-responsabilitati').hidden = !roles.length;
     $('#rolesList').innerHTML = roles.map(function (r, i) {
       var key = 'role:' + i;
       var open = !!accState[key];
@@ -416,9 +418,9 @@
     return m ? MINISTRY_LC[m.toLowerCase()] || m : NO_MIN;
   }
   function fullName(k) { return hasOwn(MINISTRY, k) ? MINISTRY[k] : ''; }
-  function shortName(k) { return hasOwn(MINISTRY_SHORT, k) ? MINISTRY_SHORT[k] : ''; }
+  function ministryShort(k) { return hasOwn(MINISTRY_SHORT, k) ? MINISTRY_SHORT[k] : ''; }
   // Numele de pe card: cel scurt („Energie”); un minister care nu este în listă rămâne așa cum a fost scris.
-  function minName(k) { return k === NO_MIN ? 'Minister nespecificat' : shortName(k) || fullName(k) || k; }
+  function minName(k) { return k === NO_MIN ? 'Minister nespecificat' : ministryShort(k) || fullName(k) || k; }
   // Ministerele care promovează proiecte, cu numărul de proiecte al fiecăruia: cele cu mai multe proiecte primele.
   function ministries() {
     var by = Object.create(null);
@@ -485,7 +487,7 @@
   function invMatches(p) {
     var mk = minKey(p);
     if (inv.min !== 'all' && mk !== inv.min) return false;
-    return DG.matches([p.name, p.ministry, fullName(mk), shortName(mk), p.financier, p.implementer, p.location].join(' '), inv.q);
+    return DG.matches([p.name, p.ministry, fullName(mk), ministryShort(mk), p.financier, p.implementer, p.location].join(' '), inv.q);
   }
 
   function invSorted(items) {
@@ -660,7 +662,7 @@
       panel.setAttribute('aria-labelledby', 'tab-' + rep.year);
       var items = reports.filter(function (d) { return docYear(d) === rep.year; });
       panel.innerHTML = '<div class="rp-year">' + rep.year + '</div><div>' + items.map(function (d, i) {
-        return '<div class="rp-item"><h4>' + esc(d.title) + '</h4><p>' + esc([i === 0 && rep.year === years[0] ? 'Cel mai recent raport publicat' : '', docMeta(d)].filter(Boolean).join('. ') || 'Document publicat') + '</p>' +
+        return '<div class="rp-item"><h4>' + titleHtml(d) + '</h4><p>' + esc([i === 0 && rep.year === years[0] ? 'Cel mai recent raport publicat' : '', docMeta(d)].filter(Boolean).join('. ') || 'Document publicat') + '</p>' +
           '<div class="rp-docs"><a class="btn btn-primary"' + docAttrs(d) + '>' + ico(d.file ? 'down' : 'ext') + ' Deschide documentul</a>' + editLink('documents', d.id) + '</div></div>';
       }).join('') + '</div>';
     }
@@ -669,7 +671,7 @@
     $('#acordBox').innerHTML = '<h3>Acordul cu Guvernul României</h3><p class="amount">100 mil. EUR</p>' +
       '<p class="panel-intro">Program de asistență tehnică și financiară, în baza unui ajutor financiar nerambursabil acordat de România Republicii Moldova. Documentele sunt ordonate după etapele de implementare.</p>' +
       (acord.length ? '<ol class="steps">' + acord.map(function (d) {
-        return '<li><a' + docAttrs(d) + '><span>' + esc(d.title) + '</span>' + ico(d.file ? 'down' : 'ext') + '</a></li>';
+        return '<li><a' + docAttrs(d) + '><span>' + titleHtml(d) + '</span>' + ico(d.file ? 'down' : 'ext') + '</a></li>';
       }).join('') + '</ol>' : '<p class="empty">Nu există documente publicate.</p>');
   }
 
@@ -688,13 +690,15 @@
   }
 
   function renderProgNav() {
+    // câte o listă de file (role="tablist") pentru fiecare nivel, cu titlul nivelului drept nume; un titlu nu poate sta direct într-o listă de file
     $('#progNav').innerHTML = LEVEL_ORDER.map(function (lv) {
       var list = D.programs.filter(function (p) { return p.level === lv; });
       if (!list.length) return '';
-      return '<h4>' + LEVELS[lv].name + '</h4>' + list.map(function (p) {
+      return '<div class="prog-lv"><h4 id="pgh-' + lv + '">' + LEVELS[lv].name + '</h4><div class="prog-tabs" role="tablist" aria-labelledby="pgh-' + lv + '" aria-orientation="vertical">' + list.map(function (p) {
         var on = p.id === prog.id;
-        return '<button class="prog-btn" type="button" role="tab" id="ptab-' + esc(p.id) + '" aria-controls="progPanel" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '" data-id="' + esc(p.id) + '"><span>' + esc(shortName(p)) + '</span><span class="pcount">' + progDocs(p).length + '</span></button>';
-      }).join('');
+        var n = progDocs(p).length;
+        return '<button class="prog-btn" type="button" role="tab" id="ptab-' + esc(p.id) + '" aria-controls="progPanel" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '" data-id="' + esc(p.id) + '"><span>' + esc(shortName(p)) + '</span><span class="pcount">' + n + '<span class="sr"> ' + plural(n, 'document', 'documente') + '</span></span></button>';
+      }).join('') + '</div></div>';
     }).join('');
   }
 
@@ -732,7 +736,7 @@
       var p = d.section === 'program' ? progOf(d.program) : null;
       sec = '<span class="doc-sec">' + esc(p ? shortName(p) : SECTION_LABEL[d.section] || '') + '</span>';
     }
-    return '<li class="doc-item"><a class="doc"' + docAttrs(d) + '>' + ftBadge(d) + '<span class="doc-t">' + esc(d.title) + '<small>' + esc(docMeta(d)) + '</small></span>' +
+    return '<li class="doc-item"><a class="doc"' + docAttrs(d) + '>' + ftBadge(d) + '<span class="doc-t">' + titleHtml(d) + '<small>' + esc(docMeta(d)) + '</small></span>' +
       (showSection ? sec : '') + ico(d.file ? 'down' : 'ext') + '</a>' + editLink('documents', d.id) + '</li>';
   }
 
@@ -863,7 +867,7 @@
     var items = galleryItems();
     $('#galGrid').innerHTML = items.length ? items.slice(0, gal.shown).map(function (g, i) {
       var label = g.title || 'Fotografie';
-      return '<li class="g-item"><button class="g-btn" type="button" data-g="' + i + '" aria-label="Deschide fotografia: ' + esc(label) + '"><span class="g-img"><img src="' + esc(g.file.thumb || g.file.path) + '" alt="" loading="lazy"></span>' +
+      return '<li class="g-item"><button class="g-btn" type="button" data-g="' + i + '"><span class="sr">Deschide fotografia: </span><span class="g-img"><img src="' + esc(g.file.thumb || g.file.path) + '" alt="" width="466" height="350" loading="lazy"></span>' +
         '<span class="g-cap"><strong>' + esc(label) + '</strong><span>' + esc([DG.fmtDate(g.date), g.album].filter(Boolean).join(' · ')) + '</span></span></button>' +
         (g.sample ? '<span class="g-sample">Imagine de exemplu</span>' : '') + editLink('gallery', g.id) + '</li>';
     }).join('') : '<li class="empty">Nu există fotografii publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/gallery">Încărcați fotografii</a>.' : '') + '</li>';
@@ -908,6 +912,17 @@
 
   /* ================= Contacte ================= */
   var contactTo = '';
+  var mapOn = false; // harta Google se încarcă doar după ce vizitatorul o cere (Google primește atunci adresa IP a vizitatorului)
+
+  function mapFrame(src) {
+    return '<iframe class="map" title="Harta: sediul Cancelariei de Stat, Chișinău" tabindex="-1" referrerpolicy="no-referrer-when-downgrade" src="' + esc(src) + '"></iframe>';
+  }
+  function mapGate(c) {
+    return '<div class="map-gate"><span class="map-gate-ico">' + ico('pin') + '</span><div class="map-gate-body"><p class="map-gate-t">Harta sediului</p>' +
+      '<p>Harta este furnizată de Google. Dacă o afișați, browserul dvs. se conectează la serverele Google, care primesc adresa IP și date tehnice despre dispozitiv. Până atunci nu se transmite nimic. Adresa sediului este scrisă mai jos, în text.</p>' +
+      '<p class="map-gate-btns"><button class="btn btn-primary" type="button" id="mapLoad">Afișează harta</button>' +
+      (c.mapLink ? '<a class="btn btn-line" href="' + esc(c.mapLink) + '" target="_blank" rel="noopener">Deschide în Google Maps ' + ico('ext') + '</a>' : '') + '</p></div></div>';
+  }
 
   function renderContact() {
     var c = D.settings.contact || {};
@@ -924,8 +939,13 @@
       (c.hotlinePhone ? item('shield', 'Linia anticorupție', '<p><a href="' + esc(telHref(c.hotlinePhone)) + '">' + esc(c.hotlinePhone) + '</a>' + (c.hotlineHours ? ', ' + esc(c.hotlineHours) : '') + '</p>') : '');
     var map = $('#contactMap');
     map.hidden = !c.mapEmbed;
-    map.innerHTML = c.mapEmbed ? '<iframe class="map" title="Harta: sediul Cancelariei de Stat, Chișinău" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="' + esc(c.mapEmbed) + '"></iframe>' : '';
+    map.innerHTML = c.mapEmbed ? (mapOn ? mapFrame(c.mapEmbed) : mapGate(c)) : '';
     $('#toAddr').textContent = contactTo;
+    // datele de contact din declarația de accesibilitate și din notificarea privind datele personale
+    var mailHtml = contactTo ? '<a href="mailto:' + esc(contactTo) + '">' + esc(contactTo) + '</a>' : '';
+    var phoneHtml = c.phones && c.phones[0] ? '<a href="' + esc(telHref(c.phones[0])) + '">' + esc(c.phones[0]) + '</a>' : '';
+    $$('.js-mail').forEach(function (el) { if (mailHtml) el.innerHTML = mailHtml; });
+    $$('.js-phone').forEach(function (el) { if (phoneHtml) el.innerHTML = phoneHtml; });
     $('#contactForm').hidden = !contactTo;
   }
 
@@ -958,6 +978,42 @@
     });
   }
 
+  /* ================= Informații despre site: declarații și harta site-ului ================= */
+  var INFO_IDS = ['accesibilitate', 'date-personale', 'harta-site'];
+
+  // Deschide declarația sau harta site-ului (adresele #accesibilitate, #date-personale, #harta-site).
+  function goInfo(id) {
+    var host = document.getElementById(id);
+    if (!host) return;
+    var b = $('button[data-acc]', host);
+    if (b) accToggle(b, true);
+    scrollToEl(host);
+    if (b) setTimeout(function () { b.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
+  }
+
+  // Harta site-ului: structura paginii pe niveluri, construită din ce este afișat acum (o secțiune ascunsă nu apare).
+  function renderSiteMap() {
+    function shown(id) { var el = document.getElementById(id); return el && !el.hidden ? el : null; }
+    function textOf(sel, fallback) { var el = $(sel); return el ? el.textContent.trim() : fallback; }
+    function item(href, text, kids) {
+      return '<li><a href="' + esc(href) + '">' + esc(text) + '</a>' + (kids && kids.length ? '<ul>' + kids.join('') + '</ul>' : '') + '</li>';
+    }
+    var sections = [
+      ['noutati', '#h-noutati', 'Noutăți'], ['despre', '#h-despre', 'Despre direcție'], ['plan-crestere', '#h-plan', 'Proiecte investiționale'],
+      ['cadrul-legal', '#h-legal', 'Cadrul legal'], ['cooperare-externa', '#h-coop', 'Cooperare externă'], ['programe', '#h-prog', 'Programe de cooperare'],
+      ['documente', '#h-doc', 'Documente și publicații'], ['evenimente', '#h-ev', 'Evenimente'], ['galerie', '#h-gal', 'Galerie foto'],
+      ['contacte', '#h-contact', 'Contacte'], ['informatii', '#h-info', 'Informații despre acest site']
+    ];
+    var kids = {
+      despre: [['functii', '#h-fn', 'Funcțiile de bază'], ['structura', '#h-org', 'Structura și efectivul'], ['drepturi-responsabilitati', '#h-roles', 'Drepturi și responsabilități']]
+        .filter(function (k) { return shown(k[0]); }).map(function (k) { return item('#' + k[0], textOf(k[1], k[2])); }),
+      programe: D.programs.map(function (p) { return item('#program/' + p.id, p.name); }),
+      informatii: INFO_IDS.map(function (id) { return item('#' + id, textOf('#info-b-' + (id === 'accesibilitate' ? 'acc' : id === 'date-personale' ? 'date' : 'harta') + ' .acc-t', id)); })
+    };
+    $('#siteMap').innerHTML = '<ul class="sm">' + item('#top', 'Prima pagină') +
+      sections.filter(function (x) { return shown(x[0]); }).map(function (x) { return item('#' + x[0], textOf(x[1], x[2]), kids[x[0]]); }).join('') + '</ul>';
+  }
+
   /* ================= Subsol ================= */
   function renderFooter() {
     var s = D.settings;
@@ -965,7 +1021,7 @@
     $('#footName').textContent = s.orgName;
     $('#footParent').textContent = s.parentName;
     $('#footAddress').textContent = c.address || '';
-    $('#footNote').textContent = s.footerNote || '';
+    $('#footNote').textContent = '© ' + new Date().getFullYear() + ' ' + (s.parentName || s.orgName || '') + (s.footerNote ? '. ' + s.footerNote : '');
     var u = D.lastUpdated ? new Date(D.lastUpdated) : null;
     $('#updated').textContent = u && !isNaN(u) ? 'Pagina a fost actualizată la ' + u.getDate() + ' ' + DG.MONTHS[u.getMonth()] + ' ' + u.getFullYear() + '. ' : '';
     var fa = $('#footAdmin');
@@ -991,7 +1047,7 @@
     D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: (LEVELS[p.level] || LEVELS.inter).name + ', ' + (p.strand || '') + '. Deschide pagina programului', k: 'interreg program ' + (p.desc || '') + ' ' + (ALIAS[p.id] || ''), go: function () { goProgram(p.id); } }); });
     D.investments.forEach(function (p) {
       var mk = minKey(p);
-      idx.push({ cat: 'Investiții', t: p.name, s: [mk !== NO_MIN && mk, moneyText(p), finParts(p.financier).short].filter(Boolean).join(' · '), k: [fullName(mk), shortName(mk), p.financier, p.implementer, p.location, p.text, (p.results || []).join(' ')].join(' '), go: function () { goInvestment(p.id); } });
+      idx.push({ cat: 'Investiții', t: p.name, s: [mk !== NO_MIN && mk, moneyText(p), finParts(p.financier).short].filter(Boolean).join(' · '), k: [fullName(mk), ministryShort(mk), p.financier, p.implementer, p.location, p.text, (p.results || []).join(' ')].join(' '), go: function () { goInvestment(p.id); } });
     });
     (D.settings.duties || []).forEach(function (d, i) {
       if (d.text || (d.items && d.items.length)) idx.push({ cat: 'Despre direcție', t: d.title, s: 'Funcție de bază. Deschide atribuțiile', k: (d.text || '') + ' ' + (d.items || []).join(' '), go: function () { goFunction(i); } });
@@ -1000,6 +1056,17 @@
     D.gallery.forEach(function (g) { idx.push({ cat: 'Galerie foto', t: g.title || 'Fotografie', s: [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · '), k: g.alt || '', go: function () { gal.album = 'all'; renderGallery(); var i = D.gallery.indexOf(g); gal.shown = Math.max(gal.shown, i + 1); renderGallery(); openLightbox(i); } }); });
     idx.push({ cat: 'Platforme', t: 'Platforma pentru gestionarea asistenței externe (AMP)', s: 'amp.gov.md', k: 'aid management platform proiecte donatori', u: 'https://amp.gov.md/portal/' });
     idx.push({ cat: 'Platforme', t: 'Platforma de Parteneriat pentru Moldova', s: 'gov.md', k: 'partnership platform', u: 'https://gov.md/ro/platforma-de-parteneriat-pentru-moldova' });
+    [['Servicii publice', 'servicii.gov.md', 'portalul serviciilor publice servicii electronice'], ['Consultări publice', 'particip.gov.md', 'participare proiecte de acte normative'],
+      ['Achiziții publice (MTender)', 'mtender.gov.md', 'licitații tenders contracte'], ['Cariere în sectorul public', 'cariere.gov.md', 'posturi vacante concursuri angajare'],
+      ['Date deschise', 'date.gov.md', 'open data seturi de date'], ['Statistică', 'statistica.gov.md', 'Biroul Național de Statistică'],
+      ['Baza de date statistice (Statbank)', 'statbank.statistica.md', 'statistici indicatori statbank Biroul Național de Statistică']].forEach(function (x) {
+      idx.push({ cat: 'Portaluri oficiale', t: x[0], s: x[1], k: x[2], u: 'https://' + x[1] });
+    });
+    idx.push({ cat: 'Contacte', t: 'Date de contact ale Cancelariei de Stat', s: 'Adresă, telefon, e-mail, harta sediului', k: 'contact adresa telefon e-mail program de lucru audiențe Piața Marii Adunări Naționale Chișinău', go: function () { location.hash = '#contacte'; } });
+    idx.push({ cat: 'Portaluri oficiale', t: 'Petiții, cereri și audiențe', s: 'gov.md', k: 'petiție cerere audiență plângere sesizare adresare', u: 'https://gov.md/ro/node/1030' });
+    idx.push({ cat: 'Informații despre site', t: 'Declarația de accesibilitate', s: 'Tastatură, contrast ridicat, mărirea textului, sesizări', k: 'accesibilitate WCAG dizabilități cititor de ecran', go: function () { goInfo('accesibilitate'); } });
+    idx.push({ cat: 'Informații despre site', t: 'Protecția datelor cu caracter personal', s: 'Ce date se prelucrează, cookie-uri, drepturile dvs.', k: 'confidențialitate GDPR Legea 195/2024 cookie date personale', go: function () { goInfo('date-personale'); } });
+    idx.push({ cat: 'Informații despre site', t: 'Harta site-ului', s: 'Toate secțiunile paginii', k: 'sitemap hartă structura paginii', go: function () { goInfo('harta-site'); } });
     INDEX = idx;
   }
 
@@ -1221,6 +1288,13 @@
     $$('a', list).forEach(function (a) {
       a.addEventListener('click', function () { list.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); });
     });
+    // Esc închide meniul deschis și readuce cursorul pe butonul „Meniu”
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || !list.classList.contains('open') || document.querySelector('dialog[open]')) return;
+      list.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.focus();
+    });
 
     var ids = ['noutati', 'despre', 'plan-crestere', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'galerie', 'contacte'];
     if ('IntersectionObserver' in window) {
@@ -1346,10 +1420,11 @@
       $('#tab-' + rep.year).focus();
     });
     years.addEventListener('keydown', function (e) {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(e.key) < 0) return;
+      e.preventDefault();
       var tabs = $$('.year', years);
       var i = tabs.map(function (t) { return Number(t.getAttribute('data-y')); }).indexOf(rep.year);
-      var j = (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      var j = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
       rep.year = Number(tabs[j].getAttribute('data-y'));
       renderCoop();
       $('#tab-' + rep.year).focus();
@@ -1362,13 +1437,13 @@
       if (b) { selectProgram(b.getAttribute('data-id')); $('#ptab-' + b.getAttribute('data-id')).focus(); }
     });
     nav.addEventListener('keydown', function (e) {
-      if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) < 0) return;
+      if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(e.key) < 0) return;
       e.preventDefault();
       var order = [];
       LEVEL_ORDER.forEach(function (lv) { D.programs.forEach(function (p) { if (p.level === lv) order.push(p.id); }); });
       var i = order.indexOf(prog.id);
       var fwd = e.key === 'ArrowDown' || e.key === 'ArrowRight';
-      var id = order[(i + (fwd ? 1 : -1) + order.length) % order.length];
+      var id = e.key === 'Home' ? order[0] : e.key === 'End' ? order[order.length - 1] : order[(i + (fwd ? 1 : -1) + order.length) % order.length];
       selectProgram(id);
       $('#ptab-' + id).focus();
     });
@@ -1379,6 +1454,24 @@
       renderProg();
       var again = $('#progPanel [data-g="' + c.getAttribute('data-g') + '"]');
       if (again) again.focus();
+    });
+
+    // harta Google (se încarcă doar la cerere) și legăturile către declarații
+    $('#contactMap').addEventListener('click', function (e) {
+      if (!e.target.closest('#mapLoad')) return;
+      var c = (D.settings && D.settings.contact) || {};
+      if (!c.mapEmbed) return;
+      mapOn = true;
+      $('#contactMap').innerHTML = mapFrame(c.mapEmbed);
+      var f = $('#contactMap iframe');
+      if (f) f.focus();
+    });
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a || e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+      var id = a.getAttribute('href').slice(1);
+      // dacă adresa din bară este deja aceasta, „hashchange” nu se declanșează: deschidem declarația aici
+      if (INFO_IDS.indexOf(id) > -1 && location.hash === '#' + id) { e.preventDefault(); goInfo(id); }
     });
 
     // documente
@@ -1455,6 +1548,8 @@
     if (m) goProgram(m[1]);
     m = /^#proiect\/([\w-]+)$/.exec(h);
     if (m) goInvestment(m[1]);
+    m = /^#(accesibilitate|date-personale|harta-site)$/.exec(h);
+    if (m) goInfo(m[1]);
   }
 
   /* ================= Pornire ================= */
@@ -1471,6 +1566,7 @@
     renderEvents();
     renderGallery();
     renderContact();
+    renderSiteMap();
     renderFooter();
     buildIndex();
   }

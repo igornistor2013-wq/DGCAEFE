@@ -1,4 +1,5 @@
 'use strict';
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
@@ -8,13 +9,19 @@ const store = require('./lib/store');
 const auth = require('./lib/auth');
 const { buildApi } = require('./lib/api');
 const { trustProxySetting } = require('./lib/proxy');
+const { buildPublic } = require('./lib/public');
+const prerender = require('./lib/prerender');
 
 const NOT_FOUND = `<!doctype html><html lang="ro"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagina nu a fost găsită</title>
 <body style="font:18px/1.6 system-ui,sans-serif;max-width:36em;margin:15vh auto;padding:0 24px;color:#1b2535"><h1 style="font-size:1.6rem">Pagina nu a fost găsită</h1><p>Adresa nu există sau a fost mutată.</p><p><a href="/">Înapoi la prima pagină</a></p></body></html>`;
 
+// Prima pagină și pagina „404” pornesc de la șabloanele din web/, completate cu textele din setări (vezi lib/prerender.js).
+const readWeb = name => fs.readFileSync(path.join(cfg.WEB_DIR, name), 'utf8');
+
 function createApp() {
   store.init();
   auth.init();
+  const siteUrl = prerender.normalizeSiteUrl(cfg.SITE_URL);
 
   const app = express();
   app.disable('x-powered-by');
@@ -60,9 +67,21 @@ function createApp() {
     },
     express.static(path.join(cfg.WEB_DIR, 'admin'), { index: 'index.html' })
   );
-  app.get('/', (req, res) => res.sendFile(path.join(cfg.WEB_DIR, 'index.html'), { headers: { 'Cache-Control': 'no-cache' } }));
+  app.get('/', (req, res) => {
+    const html = prerender.fillIndex(readWeb('index.html'), buildPublic(store.list), { siteUrl });
+    res.set('Cache-Control', 'no-cache').type('html').send(html);
+  });
+  app.get('/robots.txt', (req, res) => res.type('text/plain').send(prerender.robotsTxt(siteUrl)));
 
-  app.use((req, res) => res.status(404).type('html').send(NOT_FOUND));
+  app.use((req, res) => {
+    let html;
+    try {
+      html = prerender.fillNotFound(readWeb('404.html'), buildPublic(store.list), '/');
+    } catch (e) {
+      html = NOT_FOUND; // dacă șablonul lipsește sau nu poate fi citit, răspunsul simplu de mai sus
+    }
+    res.status(404).set('Cache-Control', 'no-cache').type('html').send(html);
+  });
   return app;
 }
 
