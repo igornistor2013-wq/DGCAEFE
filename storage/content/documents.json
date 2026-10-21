@@ -88,23 +88,5 @@
     "description": "",
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "bd69c0476e6a",
-    "title": "Financing Agreement for the Interreg programme (Interreg VI-B) NEXT Black Sea Basin",
-    "section": "program",
-    "program": "bsb",
-    "group": "",
-    "kind": "Acord de finanțare",
-    "date": "",
-    "dateLabel": "",
-    "year": null,
-    "en": true,
-    "order": 12,
-    "file": null,
-    "url": "https://gov.md/sites/default/files/Filepdf/2._fa_interreg_next_bsb_eng.pdf",
-    "description": "",
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
