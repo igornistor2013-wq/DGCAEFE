@@ -376,23 +376,5 @@
     "description": "",
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "b2fdcef996a1",
-    "title": "EU City Lab on Funding the Energy Transition",
-    "section": "program",
-    "program": "urbact",
-    "group": "stiri",
-    "kind": "Știre",
-    "date": "2024-11-20",
-    "dateLabel": "20–21 noiembrie 2024",
-    "year": null,
-    "en": false,
-    "order": 41,
-    "file": null,
-    "url": "https://gov.md/sites/default/files/Filepdf/5.eu_city_lab_on_funding_the_energy_transition.pdf",
-    "description": "",
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
