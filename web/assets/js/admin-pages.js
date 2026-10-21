@@ -25,15 +25,6 @@
   const LEVEL_LABEL = { cross: 'Transfrontalier', trans: 'Transnațional', inter: 'Interregional' };
   const LEGAL_TYPES = [['Lege', 'Lege'], ['HG', 'Hotărâre de Guvern'], ['Ordin', 'Ordin'], ['Altele', 'Alt act normativ']];
   const LEGAL_SHORT = { Lege: 'Legea', HG: 'HG', Ordin: 'Ordinul', Altele: 'Act' };
-  // Proiectele investiționale din Planul de creștere: cele cinci obiective economice
-  const THEMES = [
-    ['export', 'Infrastructură pentru export'],
-    ['energie', 'Securitate energetică'],
-    ['agricultura', 'Agricultură competitivă'],
-    ['cunoastere', 'Economia cunoașterii'],
-    ['social', 'Infrastructură socială']
-  ];
-  const THEME_LABEL = Object.fromEntries(THEMES);
   const money = p => (p.amount == null ? '' : [p.amountQual, String(p.amount).replace('.', ','), 'mil.', p.currency || 'EUR'].filter(Boolean).join(' '));
   const nextOrder = () => (ADM.data.investments || []).reduce((m, x) => Math.max(m, x.order || 0), 0) + 1;
 
@@ -260,7 +251,7 @@
     investments: {
       key: 'investments',
       title: 'Proiecte investiționale',
-      intro: 'Proiectele din Planul de creștere afișate în secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”). Pentru fiecare proiect se completează numai date generale: ministerul, partenerul de finanțare, valoarea, perioada, localizarea, obiectivul și rezultatele. Un proiect cu „Publicat” debifat rămâne aici, dar nu apare vizitatorilor.',
+      intro: 'Proiectele din Planul de creștere afișate în secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”). Proiectele se grupează pe pagină după ministerul care le promovează. Pentru fiecare proiect se completează numai date generale: ministerul, partenerul de finanțare, valoarea, perioada, localizarea, obiectivul și rezultatele. Un proiect cu „Publicat” debifat rămâne aici, dar nu apare vizitatorilor.',
       add: 'Adaugă proiect',
       editTitle: it => 'Editare proiect investițional',
       count: ['proiect', 'proiecte'],
@@ -268,23 +259,22 @@
       emptyTitle: 'Nu există încă niciun proiect.',
       emptyText: 'Apăsați „Adaugă proiect” pentru a-l introduce pe primul.',
       load: ['investments'],
-      defaults: () => ({ order: nextOrder(), currency: 'EUR', theme: '', published: true }),
+      defaults: () => ({ order: nextOrder(), currency: 'EUR', published: true }),
       sort: (a, b) => (a.order || 0) - (b.order || 0) || String(a.name).localeCompare(String(b.name), 'ro'),
-      search: p => [p.name, p.ministry, p.financier, p.implementer, p.location, THEME_LABEL[p.theme], p.text].join(' '),
-      filters: [{ key: 'theme', label: 'Obiectiv economic', options: [['', 'Toate obiectivele']].concat(THEMES), test: (p, v) => p.theme === v }],
+      search: p => [p.name, p.ministry, p.financier, p.implementer, p.location, p.text].join(' '),
+      filters: [{ key: 'ministry', label: 'Ministerul', options: () => [['', 'Toate ministerele']].concat(ADM.distinct(ADM.data.investments || [], 'ministry').map(x => [x, x])), test: (p, v) => p.ministry === v }],
       columns: [
-        { label: 'Proiect', cell: p => '<div class="t">' + (p.order ? '<span class="nr" title="Numărul de ordine">' + esc(p.order) + '</span>' : '') + '<a href="#/investments/' + esc(p.id) + '">' + esc(p.name) + '</a>' + (p.published === false ? ' <span class="badge badge-draft">Ascuns</span>' : '') + '</div><div class="s">' + esc([p.ministry, money(p)].filter(Boolean).join(' · ')) + '</div>' },
-        { label: 'Obiectiv economic', cell: p => esc(THEME_LABEL[p.theme] || '') || '<span class="muted">—</span>' },
+        { label: 'Proiect', cell: p => '<div class="t">' + (p.order ? '<span class="nr" title="Numărul de ordine">' + esc(p.order) + '</span>' : '') + '<a href="#/investments/' + esc(p.id) + '">' + esc(p.name) + '</a>' + (p.published === false ? ' <span class="badge badge-draft">Ascuns</span>' : '') + '</div>' + (money(p) ? '<div class="s">' + esc(money(p)) + '</div>' : '') },
+        { label: 'Ministerul', cell: p => esc(p.ministry || '') || '<span class="muted">—</span>' },
         { label: 'Partener de finanțare', cell: p => esc(p.financier || '') || '<span class="muted">—</span>' }
       ],
       view: p => (p.published === false ? '' : ADM.pubUrl('/#proiect/' + p.id)),
       fields: () => [
         { name: 'name', label: 'Denumirea proiectului', type: 'text', required: true, max: 300 },
         { name: 'order', label: 'Numărul de ordine', type: 'number', min: 0, maxv: 9999, w: 'third', hint: 'Ordinea în lista de pe pagină: numerele mici apar primele.' },
-        { name: 'theme', label: 'Obiectivul economic', type: 'select', options: [['', 'Nealocat']].concat(THEMES), w: 'third', hint: 'Grupa din Planul de creștere în care apare proiectul.' },
-        { name: 'published', label: 'Publicat (vizibil vizitatorilor)', type: 'checkbox', w: 'third', hint: 'Debifați ca să ascundeți proiectul de pe pagina publică.' },
+        { name: 'published', label: 'Publicat (vizibil vizitatorilor)', type: 'checkbox', w: 'twothirds', hint: 'Debifați ca să ascundeți proiectul de pe pagina publică.' },
         { type: 'heading', label: 'Date generale', hint: 'Completați numai ce se știe din documentele proiectului; câmpurile goale nu apar pe pagină.' },
-        { name: 'ministry', label: 'Ministerul responsabil', type: 'text', max: 100, w: 'third', list: ADM.distinct(ADM.data.investments || [], 'ministry'), hint: 'Prescurtarea, de exemplu MEC, MIDR, MEN.' },
+        { name: 'ministry', label: 'Ministerul responsabil', type: 'text', max: 100, w: 'third', list: ADM.distinct(ADM.data.investments || [], 'ministry'), hint: 'Prescurtarea, de exemplu MEC, MIDR, MEN. Pe pagină, proiectele se grupează după acest câmp.' },
         { name: 'financier', label: 'Partenerul de finanțare', type: 'text', max: 300, w: 'twothirds', list: ADM.distinct(ADM.data.investments || [], 'financier'), hint: 'Denumirea completă, urmată de prescurtare între paranteze, de exemplu: Banca Europeană de Investiții (BEI).' },
         { name: 'implementer', label: 'Instituția de implementare', type: 'text', max: 300, list: ADM.distinct(ADM.data.investments || [], 'implementer') },
         { name: 'amount', label: 'Valoarea indicativă (milioane)', type: 'decimal', w: 'third', placeholder: '151,5', hint: 'În milioane, în moneda aleasă alături. Ex.: 151,5 înseamnă 151,5 milioane.' },

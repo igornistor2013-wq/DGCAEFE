@@ -151,7 +151,6 @@
           "text"
         ],
         "fill": [
-          "theme",
           "implementer",
           "financier",
           "financing",
@@ -159,6 +158,30 @@
           "location",
           "results",
           "beneficiaries"
+        ]
+      }
+    }
+  },
+  {
+    "rev": 5,
+    "note": "Despre direcție și Proiecte investiționale: dispar nota despre Regulament și lista beneficiarilor finali de sub proiecte; proiectele se grupează după ministerele care le promovează, iar câmpul „obiectiv economic” dispare.",
+    "settings": {
+      "growth": [
+        {
+          "asOf": "2026-10-20",
+          "intro": "Direcția coordonează proiectele investiționale din Planul de creștere economică pentru Republica Moldova (Growth Plan): asigură o abordare guvernamentală coerentă și o comunicare eficientă între autoritățile naționale, instituțiile financiare internaționale și Comisia Europeană. Proiectele sunt grupate pe cele cinci obiective economice ale Planului. Deschideți un proiect din listă pentru a vedea datele sale generale: ministerul responsabil, partenerul de finanțare, valoarea, perioada, localizarea, obiectivele și rezultatele preconizate.",
+          "note": "Valorile sunt indicative și provin din fișele proiectelor și din prezentările ministerelor; ele se pot modifica pe parcursul pregătirii proiectelor. Sumele sunt exprimate în milioane, în moneda indicată pentru fiecare proiect.",
+          "sources": []
+        }
+      ],
+      "growth.intro": [
+        "Direcția coordonează proiectele investiționale din Planul de creștere economică pentru Republica Moldova (Growth Plan): asigură o abordare guvernamentală coerentă și o comunicare eficientă între autoritățile naționale, instituțiile financiare internaționale și Comisia Europeană. Proiectele sunt grupate pe cele cinci obiective economice ale Planului. Deschideți un proiect din listă pentru a vedea datele sale generale: ministerul responsabil, partenerul de finanțare, valoarea, perioada, localizarea, obiectivele și rezultatele preconizate."
+      ]
+    },
+    "migrate": {
+      "investments": {
+        "drop": [
+          "theme"
         ]
       }
     }

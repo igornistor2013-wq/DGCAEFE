@@ -96,15 +96,13 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 /* ---------- Prezentare: câmp albastru cu cercuri translucide, ca pe ie.mf.gov.md ----------
    Totul curge într-o singură coloană, pe toată lățimea paginii (titlu, prezentare, căutare, acces rapid), fără împărțire în
    jumătăți. Pe ecrane late conținutul este centrat, iar modelul cu cercuri este simetric, pe ambele margini; pe telefon textul
-   rămâne aliniat la stânga, ca să se citească ușor. Nivelurile de cooperare urmează într-un panou lat, care urcă peste marginea
-   de jos a câmpului albastru. */
-:root{--overlap:clamp(3.5rem,7vw,5.5rem)}
+   rămâne aliniat la stânga, ca să se citească ușor. */
 .intro{position:relative;isolation:isolate;overflow:hidden;background:var(--blue);color:#fff}
 .intro::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background-image:radial-gradient(circle 2.45rem at 50% 50%,rgba(255,255,255,.065) 96%,transparent 100%);
   background-size:7rem 7rem;background-position:calc(100% - 3.5rem) 1rem;
   -webkit-mask-image:linear-gradient(100deg,transparent 30%,#000 80%);mask-image:linear-gradient(100deg,transparent 30%,#000 80%)}
-.intro-in{padding-block:clamp(1.75rem,4vw,3rem) calc(var(--overlap) + clamp(2rem,4vw,3rem))}
+.intro-in{padding-block:clamp(1.75rem,4vw,3rem) clamp(2.25rem,5vw,3.75rem)}
 .crumbs ol{display:flex;flex-wrap:wrap;gap:.2rem .5rem;font-size:.875rem;color:rgba(255,255,255,.8);margin-bottom:1.5rem}
 .crumbs li+li::before{content:"›";margin-right:.5rem;color:rgba(255,255,255,.5)}
 .crumbs a{color:rgba(255,255,255,.8)}
@@ -112,7 +110,7 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .crumbs [aria-current]{color:#fff;font-weight:700}
 .intro h1{color:#fff;font-weight:800;text-transform:uppercase;font-size:clamp(1.85rem,3.8vw,3.05rem);line-height:1.1;letter-spacing:.005em;max-width:24em;margin-bottom:1.25rem}
 .h1-b{color:var(--accent)}
-.lead{font-size:1.125rem;line-height:1.6;color:rgba(255,255,255,.93);max-width:46rem;margin-bottom:1.75rem;text-wrap:pretty}
+.lead{font-size:1.125rem;line-height:1.6;color:rgba(255,255,255,.93);max-width:64rem;margin-bottom:1.75rem;text-wrap:pretty}
 .search-box{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:6px;padding:.4rem .4rem .4rem 1.1rem;box-shadow:0 10px 28px rgba(0,8,50,.28)}
 .search-box:focus-within{box-shadow:0 0 0 3px var(--focus-dark),0 10px 28px rgba(0,8,50,.28)}
 .search-box .ico{color:var(--muted)}
@@ -134,13 +132,9 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
   .quick,.quick ul{justify-content:center}
 }
 
-/* Panoul nivelurilor de cooperare */
-.levels-sec{position:relative;z-index:2;margin-top:calc(-1 * var(--overlap))}
-.intro-levels{background:#fff;color:var(--ink);border:1px solid rgba(8,28,92,.12);border-radius:12px;padding:clamp(1.1rem,2.4vw,1.75rem);box-shadow:0 24px 60px rgba(0,8,50,.3),0 2px 8px rgba(0,8,50,.1)}
-.levels-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.25rem 1.5rem;margin-bottom:1rem}
-.levels-title{font-size:1.375rem}
-.levels-all{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--head);font-weight:700;font-size:.9375rem;text-decoration:none;white-space:nowrap}
-.levels-all:hover{text-decoration:underline}
+/* Panoul nivelurilor de cooperare, la începutul secțiunii „Programe” */
+.levels-box{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:var(--rc);padding:clamp(1.1rem,2.4vw,1.75rem);box-shadow:var(--shadow);margin-bottom:clamp(1.5rem,3vw,2.25rem)}
+.levels-title{font-size:1.375rem;margin-bottom:1rem}
 
 /* Diagrama nivelurilor de cooperare: trei cadre încuibate în jurul Republicii Moldova, ca aria cooperării să se citească dintr-o
    privire (cu cât cadrul e mai larg, cu atât zona e mai întinsă). Tonul se adâncește spre centru; textul rămâne mereu la contrast
@@ -164,7 +158,7 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .lv-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.1rem .75rem}
 .lv-name{font-size:1.125rem}
 .lv-strand{font-size:.8125rem;color:var(--muted);white-space:nowrap}
-.lv-scope{max-width:38em;margin:.25rem 0 .75rem;font-size:.9375rem;line-height:1.45}
+.lv-scope{margin:.25rem 0 .75rem;font-size:.9375rem;line-height:1.45}
 .lv-progs{display:flex;flex-wrap:wrap;gap:.5rem}
 .lv-chip{display:inline-flex;align-items:center;min-height:2.5rem;padding:.3rem .85rem;background:#fff;border:1px solid var(--blue);border-radius:var(--r);color:var(--blue);font-family:var(--head);font-size:.9375rem;font-weight:600;line-height:1.2;text-decoration:none;transition:background-color .15s,color .15s}
 .lv-chip:hover{background:var(--blue);color:#fff}
@@ -190,7 +184,7 @@ mark{background:#FFE98A;color:inherit;border-radius:2px;padding:0 .05em}
 .sec-alt{background:var(--paper)}
 .sec-head{margin-bottom:clamp(1.75rem,3.5vw,2.75rem)}
 .sec-head h2{font-size:clamp(1.45rem,2.6vw,2rem);font-weight:800;text-transform:uppercase;letter-spacing:.005em;margin-bottom:.7rem}
-.sec-head p{margin:0;color:var(--muted);max-width:68ch;text-wrap:pretty}
+.sec-head p{margin:0;color:var(--muted);text-wrap:pretty}
 .sec-head .src{margin-top:.55rem;font-size:.875rem}
 .sec-head .src a{color:var(--muted)}
 .more{text-align:center;margin:2rem 0 0}
@@ -262,7 +256,7 @@ dialog.dlg::backdrop{background:rgba(4,20,70,.66)}
 .news-dlg h2{font-size:clamp(1.5rem,3vw,2rem);margin-bottom:1rem}
 .news-dlg figure{margin:0 0 1.25rem}
 .news-dlg figure img{width:100%;max-height:26rem;object-fit:cover;border-radius:var(--r)}
-.prose{max-width:66ch}
+.prose{max-width:none}
 .prose h3{font-size:1.25rem;margin:1.5em 0 .5em}
 .prose h4{font-size:1.05rem;margin:1.25em 0 .4em}
 .prose ul,.prose ol{margin:0 0 1em 1.25rem}
@@ -271,15 +265,16 @@ dialog.dlg::backdrop{background:rgba(4,20,70,.66)}
 .prose li{margin-bottom:.35em}
 .news-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--line)}
 
-/* ---------- Despre direcție: prezentarea, principiile, cifrele, funcțiile, structura ---------- */
-.about{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(1.75rem,4vw,3.5rem);align-items:start}
-.about-text p{max-width:64ch;text-wrap:pretty}
-.about-lead{font-size:1.15rem;line-height:1.6}
-.about-cta{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.6rem}
-.about-princ{background:var(--blue);color:#fff;border-radius:var(--rc);padding:clamp(1.25rem,2.5vw,1.75rem);box-shadow:var(--shadow)}
-.about-princ h3{color:#fff;font-size:1.15rem;margin-bottom:1rem}
-.about-princ ul{display:grid;gap:.75rem}
-.about-princ li{display:grid;grid-template-columns:1.4rem minmax(0,1fr);gap:.7rem;align-items:start;font-weight:500;line-height:1.4}
+/* ---------- Despre direcție: prezentarea, principiile, cifrele, funcțiile, structura ----------
+   Totul curge pe toată lățimea paginii: textul într-un singur rând, apoi principiile de activitate, tot pe un singur rând. */
+.about-text p{margin:0 0 .85rem;font-size:1.0625rem;line-height:1.65;text-wrap:pretty}
+.about-text p:last-of-type{margin-bottom:0}
+.about-lead{font-size:1.125rem!important}
+.about-cta{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.about-princ{margin-top:clamp(1.5rem,3vw,2.25rem);background:var(--blue);color:#fff;border-radius:var(--rc);padding:clamp(1.15rem,2.2vw,1.6rem) clamp(1.25rem,2.6vw,2rem);box-shadow:var(--shadow)}
+.about-princ h3{color:#fff;font-size:1.15rem;margin-bottom:.9rem}
+.about-princ ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12.5rem),1fr));gap:.85rem 1.75rem}
+.about-princ li{display:grid;grid-template-columns:1.4rem minmax(0,1fr);gap:.6rem;align-items:start;font-weight:500;line-height:1.4}
 .about-princ .ico{width:1.35rem;height:1.35rem;color:var(--accent);margin-top:.05rem}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1rem;margin-top:clamp(1.75rem,4vw,2.5rem)}
 .stats a{display:flex;align-items:center;gap:.9rem;height:100%;padding:.9rem 1.15rem;background:#fff;border:1px solid var(--line);border-bottom:4px solid var(--blue);border-radius:var(--rc);box-shadow:var(--shadow);color:var(--ink);text-decoration:none;transition:box-shadow .2s,transform .2s}
@@ -289,7 +284,7 @@ dialog.dlg::backdrop{background:rgba(4,20,70,.66)}
 .about-block{margin-top:clamp(2.25rem,5vw,3.5rem);scroll-margin-top:calc(var(--hdr) + 1rem)}
 .about-bh{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:.75rem 1.5rem;margin-bottom:1.15rem}
 .about-h{font-size:1.35rem;margin-bottom:.4rem}
-.about-sub{margin:0;color:var(--muted);max-width:62ch;font-size:.975rem}
+.about-sub{margin:0;color:var(--muted);font-size:.975rem}
 .about-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:0 clamp(2rem,5vw,4rem);align-items:start}
 .about-two .about-h{margin-bottom:1.15rem}
 
@@ -309,12 +304,12 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .fn[data-open="false"] .fn-panel,.acc[data-open="false"] .acc-panel,.inv[data-open="false"] .inv-panel{display:none}
 .fn-panel{padding:.15rem 1.25rem 1.35rem calc(1.15rem + 2.25rem + .9rem)}
 .acc-panel{padding:.15rem 1.25rem 1.25rem 1.15rem}
-.fn-text{margin:0 0 1rem;max-width:72ch;font-size:.975rem;color:var(--ink);text-wrap:pretty}
+.fn-text{margin:0 0 1rem;font-size:.975rem;color:var(--ink);text-wrap:pretty}
 .fn-sub{margin:0 0 .6rem;font-family:var(--head);font-weight:700;font-size:.9rem;color:var(--blue)}
-.fn-items{counter-reset:a;display:grid;gap:.65rem;max-width:76ch}
+.fn-items{counter-reset:a;display:grid;gap:.65rem}
 .fn-items li{counter-increment:a;display:grid;grid-template-columns:1.8rem minmax(0,1fr);gap:.35rem;font-size:.95rem;line-height:1.5}
 .fn-items li::before{content:counter(a,lower-alpha) ")";font-weight:700;color:var(--blue)}
-.num-list{counter-reset:n;display:grid;gap:.65rem;max-width:72ch}
+.num-list{counter-reset:n;display:grid;gap:.65rem}
 .num-list li{counter-increment:n;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.35rem;font-size:.95rem;line-height:1.5}
 .num-list li::before{content:counter(n) ".";font-weight:700;color:var(--blue)}
 .acc-list{display:grid;gap:.6rem}
@@ -326,25 +321,14 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .org-n{font-family:var(--head);font-weight:800;font-size:1.3rem;line-height:1;color:var(--blue);text-align:right}
 .org-total{margin:1.25rem 0 0;padding-top:.9rem;border-top:1px solid var(--line);color:var(--muted)}
 .org-total b{font-family:var(--head);font-size:1.35rem;color:var(--blue-dd);margin-left:.2rem}
-.about-note{display:grid;grid-template-columns:1.4rem minmax(0,1fr);gap:.7rem;margin:clamp(2rem,4vw,3rem) 0 0;padding:1rem 1.25rem;background:#fff;border-left:4px solid var(--accent);border-radius:0 var(--r) var(--r) 0;font-size:.95rem;color:var(--muted);box-shadow:var(--shadow)}
-.about-note .ico{margin-top:.2rem;color:var(--blue)}
-.about-note span{max-width:92ch}
 
 /* ---------- Proiecte investiționale ---------- */
-/* fiecare obiectiv economic are o culoare proprie (în plus față de denumire, care apare întotdeauna lângă ea) */
-:root{--t-export:#063295;--t-energie:#A24A0B;--t-agricultura:#14683F;--t-cunoastere:#6A3E9C;--t-social:#0B6B7C}
-.tm-export{--tc:var(--t-export)}
-.tm-energie{--tc:var(--t-energie)}
-.tm-agricultura{--tc:var(--t-agricultura)}
-.tm-cunoastere{--tc:var(--t-cunoastere)}
-.tm-social{--tc:var(--t-social)}
-.tm-dot{display:inline-block;flex:none;width:.65rem;height:.65rem;border-radius:50%;background:var(--tc,var(--blue))}
 /* antetul: titlul și data actualizării pe un rând, apoi introducerea pe toată lățimea */
 .sec-head-inv{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:.2rem 1.5rem;margin-bottom:clamp(1.25rem,2.5vw,1.75rem)}
 .sec-head-inv h2{margin-bottom:.15rem}
 .sec-head-inv .src{margin:0;text-align:right}
-.sec-head-inv #growthIntro{grid-column:1/-1;max-width:112ch;font-size:1rem;line-height:1.6}
-/* comenzile listei: obiectivele economice, căutarea și ordonarea (pe ecrane înguste, obiectivele sunt sub butonul „Filtre”) */
+.sec-head-inv #growthIntro{grid-column:1/-1;font-size:1rem;line-height:1.6}
+/* comenzile listei: ministerele, căutarea și ordonarea (pe ecrane înguste, ministerele sunt sub butonul „Filtre”) */
 .inv-ctl{display:grid;grid-template-columns:minmax(14rem,34rem) auto minmax(0,1fr);grid-template-areas:"strip strip strip" "search sort .";gap:1rem .7rem;align-items:center;margin-bottom:1.1rem}
 .inv-fp{display:contents}
 .inv-strip{grid-area:strip}
@@ -352,19 +336,20 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .inv-sort{grid-area:sort}
 .inv-ftoggle{grid-area:ftoggle;display:none}
 .inv-ftoggle .n{display:inline-grid;place-items:center;min-width:1.3rem;height:1.3rem;margin-left:.45rem;padding:0 .3rem;border-radius:999px;background:var(--blue);color:#fff;font-size:.75rem;font-weight:800;line-height:1}
-/* cele cinci obiective pe un singur rând: câte proiecte are fiecare */
+/* ministerele care promovează proiectele: câte proiecte are fiecare; un clic filtrează lista */
 .gp-cap{margin:0 0 .6rem;font-size:.9375rem;color:var(--muted)}
 .gp-cap b{color:var(--ink)}
-.tm-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.6rem}
-.tm-card{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:.2rem;width:100%;height:100%;text-align:left;padding:.75rem .9rem .85rem;background:#fff;border:1px solid var(--line);border-top:4px solid var(--tc);border-radius:var(--r);cursor:pointer;color:var(--ink);transition:background-color .15s,border-color .15s,box-shadow .15s}
-.tm-card:hover:not(:disabled){background:var(--blue-l);border-color:var(--blue-m);border-top-color:var(--tc)}
-.tm-card[aria-pressed="true"]{background:var(--blue-l);border-color:var(--blue);border-top-color:var(--tc);box-shadow:inset 0 0 0 1px var(--blue)}
-.tm-card:disabled{cursor:default;opacity:.6}
-.tm-num{display:flex;align-items:baseline;gap:.45rem}
-.tm-num b{font-family:var(--head);font-weight:800;font-size:1.6rem;line-height:1;color:var(--tc)}
-.tm-num small{font-size:.8rem;color:var(--muted)}
-.tm-name{font-family:var(--head);font-weight:700;font-size:.95rem;line-height:1.25;color:var(--blue-dd)}
-.tm-desc{font-size:.8125rem;line-height:1.35;color:var(--muted)}
+.mn-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem}
+.mn-card{display:grid;grid-template-columns:3.4rem minmax(0,1fr);grid-template-areas:"num name" "num abbr";align-content:center;align-items:center;column-gap:.8rem;row-gap:.05rem;width:100%;height:100%;min-height:4.4rem;text-align:left;padding:.65rem .9rem;background:#fff;border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:var(--r);cursor:pointer;color:var(--ink);transition:background-color .15s,border-color .15s,box-shadow .15s}
+.mn-card:hover{background:var(--blue-l);border-color:var(--blue-m);border-left-color:var(--blue)}
+.mn-card[aria-pressed="true"]{background:var(--blue-l);border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.mn-all{border-left-color:var(--accent)}
+.mn-all:hover,.mn-all[aria-pressed="true"]{border-left-color:var(--accent)}
+.mn-num{grid-area:num;display:flex;flex-direction:column;align-items:center;gap:.1rem;text-align:center}
+.mn-num b{font-family:var(--head);font-weight:800;font-size:1.75rem;line-height:1;color:var(--blue)}
+.mn-num small{font-size:.75rem;line-height:1.1;color:var(--muted)}
+.mn-name{grid-area:name;font-family:var(--head);font-weight:700;font-size:.9375rem;line-height:1.25;color:var(--blue-dd)}
+.mn-abbr{grid-area:abbr;font-size:.8125rem;font-weight:700;color:var(--muted)}
 /* lista proiectelor: un rând pe proiect, cu aceleași coloane și în antet */
 .inv-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1.25rem;margin-bottom:.7rem}
 .inv-meta .count{margin:0 auto 0 0;font-size:.95rem;font-weight:700;color:var(--ink)}
@@ -380,11 +365,9 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .inv-no{display:grid;place-items:center;width:2.6rem;height:2.6rem;background:var(--blue);color:#fff;border-radius:var(--r);font-family:var(--head);font-weight:800;font-size:1.1rem}
 .inv-main{display:flex;flex-direction:column;gap:.2rem;min-width:0}
 .inv-name{font-family:var(--head);font-weight:700;font-size:1.05rem;line-height:1.3;color:var(--blue-dd);overflow-wrap:anywhere}
-.inv-sub{display:flex;flex-wrap:wrap;align-items:center;gap:.1rem 1rem;font-size:.875rem;color:var(--muted)}
+.inv-sub{display:flex;flex-wrap:wrap;align-items:baseline;gap:.1rem .65rem;font-size:.875rem;color:var(--muted)}
 .inv-min{font-weight:700;color:var(--ink)}
-.inv-min abbr,.inv-fin abbr{text-decoration:none;cursor:help}
-.inv-theme{display:inline-flex;align-items:flex-start;gap:.4rem}
-.inv-theme .tm-dot{margin-top:.38em}
+.inv-fin abbr{text-decoration:none;cursor:help}
 .inv-fin{min-width:0;font-size:.9rem;font-weight:600;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
 .inv-fin .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .inv-val{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:0 .3rem;text-align:right;white-space:nowrap}
@@ -400,14 +383,14 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .inv-col .prose ul,.inv-col .prose ol{margin-bottom:.65em}
 .inv-res{display:grid;gap:.4rem;margin:0;padding-left:1.25rem;list-style:disc;font-size:.95rem}
 .inv-res li::marker{color:var(--blue)}
-.inv-facts{display:grid;gap:.85rem;margin:0;padding:1rem 1.1rem;background:#F6F8FC;border:1px solid var(--line);border-left:4px solid var(--tc,var(--blue));border-radius:0 var(--r) var(--r) 0}
+.inv-facts{display:grid;gap:.85rem;margin:0;padding:1rem 1.1rem;background:#F6F8FC;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:0 var(--r) var(--r) 0}
 .inv-facts dt{font-size:.8125rem;font-weight:500;color:var(--muted)}
 .inv-facts dd{margin:.1rem 0 0;font-weight:500;line-height:1.4;overflow-wrap:anywhere}
 .inv-act{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-top:1.4rem;padding-top:1rem;border-top:1px solid var(--line)}
 .gp-foot{display:grid;gap:1rem;margin-top:1.5rem}
 .gp-note{display:grid;grid-template-columns:1.4rem minmax(0,1fr);gap:.7rem;padding:1rem 1.25rem;background:var(--blue-l);border-left:4px solid var(--blue);border-radius:0 var(--r) var(--r) 0;font-size:.95rem}
 .gp-note .ico{margin-top:.2rem;color:var(--blue)}
-.gp-note p,.gp-src{margin:0;max-width:78ch}
+.gp-note p,.gp-src{margin:0}
 .gp-src{font-size:.9rem;color:var(--muted)}
 .fold{background:#fff;border:1px solid var(--line);border-radius:var(--rc)}
 .fold summary{cursor:pointer;padding:.75rem 1.1rem;font-family:var(--head);font-weight:700;font-size:.95rem;color:var(--blue)}
@@ -416,7 +399,6 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .abbr-list dt{display:inline;font-weight:700;color:var(--blue-dd)}
 .abbr-list dt::after{content:" – ";font-weight:400}
 .abbr-list dd{display:inline;margin:0;color:var(--muted)}
-#planBox .callout{margin-top:1.5rem}
 
 /* ---------- Tabele ---------- */
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--rc);background:#fff;box-shadow:var(--shadow)}
@@ -428,15 +410,14 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .law-no{white-space:nowrap}
 .law-no .type{display:block;font-size:.8125rem;font-weight:500;color:var(--blue);margin-bottom:.15rem}
 .law-no strong{font-family:var(--head);font-size:1.1rem;font-weight:700;color:var(--blue-dd)}
-.law-title{max-width:46ch}
 .law-topic{color:var(--muted);font-size:.9rem}
 .law-act{white-space:nowrap}
 .law-act .btn+.btn,.law-act .btn+.edit-link,.law-act .edit-link{margin-left:.35rem}
 .table .empty-row td{text-align:center;color:var(--muted);padding:2rem 1rem}
 .callout{display:flex;gap:1rem 2rem;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:1.2rem 1.5rem;background:#fff;border:1px solid var(--line);border-bottom:4px solid var(--blue);border-radius:var(--rc);box-shadow:var(--shadow);margin-top:1.75rem}
-.callout p{margin:0;font-weight:700;max-width:62ch}
+.callout p{margin:0;font-weight:700;flex:1 1 22rem;min-width:0}
 .callout small{display:block;font-weight:400;color:var(--muted);font-size:.9rem;margin-top:.15rem}
-.callout .btns{display:flex;gap:.5rem;flex-wrap:wrap}
+.callout .btns{display:flex;gap:.5rem;flex-wrap:wrap;flex:none}
 
 /* ---------- Cooperare externă ---------- */
 .coop{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:1.5rem;align-items:stretch}
@@ -467,7 +448,7 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 
 /* ---------- Programe ---------- */
 .callout-amber{border-bottom-color:var(--accent)}
-.prog{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:1.75rem;align-items:start;margin-top:1.75rem}
+.prog{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:1.75rem;align-items:start;margin-top:1.75rem;scroll-margin-top:calc(var(--hdr) + .5rem)}
 .prog-nav{position:sticky;top:calc(var(--hdr) + 1rem)}
 .prog-nav h4{font-family:var(--sans);font-size:.875rem;font-weight:700;color:var(--muted);margin:1.4rem 0 .4rem}
 .prog-nav h4:first-child{margin-top:0}
@@ -483,7 +464,6 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .prog-top a{color:#fff;font-size:.9rem;font-weight:500;display:inline-flex;align-items:center;gap:.3rem}
 .lglyph{flex:none;color:#fff}
 .prog-body{padding:1.5rem clamp(1.1rem,3vw,2rem) 1.85rem}
-.prog-desc{max-width:68ch}
 .facts{display:flex;gap:1rem 2.25rem;flex-wrap:wrap;margin:1.25rem 0 .5rem;padding:1rem 0;border-block:1px solid var(--line)}
 .fact{max-width:15rem;font-size:.9rem;color:var(--muted)}
 .fact b{display:block;font-family:var(--head);font-weight:800;font-size:1.45rem;line-height:1.15;color:var(--blue);margin-bottom:.15rem}
@@ -524,13 +504,13 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .st-past{background:var(--paper);color:var(--muted);border:1px solid var(--line)}
 .st-now{background:var(--accent);color:#2B2100}
 .st-next{background:var(--blue);color:#fff}
-.event h3{font-size:1.3rem;margin-bottom:.5rem;max-width:56ch}
-.event p{max-width:66ch;margin-bottom:.8rem}
+.event h3{font-size:1.3rem;margin-bottom:.5rem}
+.event p{margin-bottom:.8rem}
 .ev-more summary{cursor:pointer;color:var(--blue);font-family:var(--head);font-weight:700;font-size:.95rem;list-style:none;display:inline-flex;align-items:center;gap:.5rem}
 .ev-more summary::-webkit-details-marker{display:none}
 .ev-more summary::before{content:"+";display:inline-grid;place-items:center;width:1.3rem;height:1.3rem;border:1.5px solid currentColor;border-radius:50%;font-family:var(--sans);font-weight:500;font-size:1rem;line-height:1}
 .ev-more[open] summary::before{content:"−"}
-.ev-more ul{margin:.9rem 0 0 1.25rem;list-style:disc;max-width:66ch;font-size:.975rem}
+.ev-more ul{margin:.9rem 0 0 1.25rem;list-style:disc;font-size:.975rem}
 .ev-more li{margin-bottom:.45rem}
 .ev-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.9rem}
 
@@ -698,16 +678,8 @@ dialog.search-dlg[open]{display:flex}
 
 /* ---------- Planul de creștere și Despre: ecrane mijlocii ---------- */
 @media (max-width:62rem){
-  .about{grid-template-columns:minmax(0,1fr)}
   .about-two{grid-template-columns:minmax(0,1fr)}
-  .tm-cards{grid-template-columns:minmax(0,1fr);gap:.5rem}
-  .tm-card{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name num" "desc num";align-items:center;gap:.1rem 1rem;border-top:1px solid var(--line);border-left:5px solid var(--tc);padding:.6rem 1rem}
-  .tm-card:hover:not(:disabled),.tm-card[aria-pressed="true"]{border-top-color:var(--blue-m)}
-  .tm-card[aria-pressed="true"]{border-top-color:var(--blue)}
-  .tm-num{grid-area:num;flex-direction:column;align-items:flex-end;gap:.1rem}
-  .tm-num b{font-size:1.45rem}
-  .tm-name{grid-area:name}
-  .tm-desc{grid-area:desc}
+  .mn-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
   .inv-head{display:none}
   .inv-ctl{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"search search" "sort ftoggle" "filters filters";gap:.7rem}
   .inv-ctl .select{width:100%}
@@ -750,6 +722,11 @@ dialog.search-dlg[open]{display:flex}
   .abbr-list{grid-template-columns:minmax(0,1fr)}
 }
 
+/* telefoane: ministerele în filtre, câte unul pe rând */
+@media (max-width:34rem){
+  .mn-cards{grid-template-columns:minmax(0,1fr)}
+}
+
 /* telefoane foarte înguste sau cu text mărit: partenerul și valoarea trec pe rânduri separate, sub numele proiectului */
 @media (max-width:30rem){
   html[data-fs="1"] .inv-btn,html[data-fs="2"] .inv-btn{grid-template-columns:2.25rem minmax(0,1fr) 1.5rem;grid-template-areas:"no main chev" "fin fin fin" "val val val"}
@@ -772,7 +749,7 @@ html[data-contrast="high"] .sec-alt{background:#fff}
 html[data-contrast="high"] .intro,html[data-contrast="high"] .foot,html[data-contrast="high"] .prog-top,html[data-contrast="high"] .panel-accent{background:#000;color:#fff}
 html[data-contrast="high"] .intro::before{display:none}
 html[data-contrast="high"] .intro .search-box{border:2px solid #fff;box-shadow:none}
-html[data-contrast="high"] .intro-levels{border:3px solid #fff;box-shadow:0 0 0 2px #000}
+html[data-contrast="high"] .levels-box{border:2px solid #000;box-shadow:none}
 html[data-contrast="high"] .quick a{border-color:#fff;background:#000}
 html[data-contrast="high"] .utility{background:#fff;border-bottom:2px solid #000}
 html[data-contrast="high"] .masthead{box-shadow:0 2px 0 #000}
@@ -792,15 +769,13 @@ html[data-contrast="high"] .rp-year{border-right-color:#000}
 html[data-contrast="high"] .table th{background:#000;color:#fff}
 html[data-contrast="high"] .about-princ,html[data-contrast="high"] .fn-no{background:#000;color:#fff;box-shadow:none}
 html[data-contrast="high"] .about-princ .ico{color:#FFE24D}
-html[data-contrast="high"] .fn,html[data-contrast="high"] .acc,html[data-contrast="high"] .inv,html[data-contrast="high"] .stats a,html[data-contrast="high"] .fold,html[data-contrast="high"] .about-note,html[data-contrast="high"] .gp-note{border:2px solid #000;border-left-width:6px;box-shadow:none}
+html[data-contrast="high"] .fn,html[data-contrast="high"] .acc,html[data-contrast="high"] .inv,html[data-contrast="high"] .stats a,html[data-contrast="high"] .fold,html[data-contrast="high"] .gp-note{border:2px solid #000;border-left-width:6px;box-shadow:none}
 html[data-contrast="high"] .stats a{border-bottom-width:5px}
 html[data-contrast="high"] .fn[data-open="true"] .fn-no{background:#fff;color:#000;border-color:#000}
 html[data-contrast="high"] .fn-no{border:2px solid #000}
-html[data-contrast="high"] .tm-card{border:2px solid #000;border-top-width:6px}
-html[data-contrast="high"] .tm-card[aria-pressed="true"]{background:#000;color:#fff}
-html[data-contrast="high"] .tm-card[aria-pressed="true"] .tm-name,html[data-contrast="high"] .tm-card[aria-pressed="true"] .tm-num b,html[data-contrast="high"] .tm-card[aria-pressed="true"] .tm-num small,html[data-contrast="high"] .tm-card[aria-pressed="true"] .tm-desc{color:#fff}
-html[data-contrast="high"] .tm-card:disabled{opacity:1;border-style:dashed}
-html[data-contrast="high"] .tm-dot{background:#000}
+html[data-contrast="high"] .mn-card{border:2px solid #000;border-left-width:6px}
+html[data-contrast="high"] .mn-card[aria-pressed="true"]{background:#000;color:#fff}
+html[data-contrast="high"] .mn-card[aria-pressed="true"] .mn-name,html[data-contrast="high"] .mn-card[aria-pressed="true"] .mn-num b,html[data-contrast="high"] .mn-card[aria-pressed="true"] .mn-num small,html[data-contrast="high"] .mn-card[aria-pressed="true"] .mn-abbr{color:#fff}
 html[data-contrast="high"] .inv-no{background:#000;border:2px solid #000}
 html[data-contrast="high"] .inv-ftoggle .n{background:#000}
 html[data-contrast="high"] .inv-head{color:#000}
@@ -810,12 +785,12 @@ html[data-contrast="high"] .inv-btn:hover,html[data-contrast="high"] button.fn-b
 html[data-contrast="high"] .inv-panel{border-top:2px solid #000}
 html[data-contrast="high"] .inv-col h4{border-bottom-color:#000}
 html[data-contrast="high"] .stats a{text-decoration:none}
-html[data-contrast="high"] .stats b,html[data-contrast="high"] .org-n,html[data-contrast="high"] .tm-num b{color:#000}
+html[data-contrast="high"] .stats b,html[data-contrast="high"] .org-n,html[data-contrast="high"] .mn-num b{color:#000}
 html[data-contrast="high"] .amount,html[data-contrast="high"] .h1-b,html[data-contrast="high"] .foot-h,html[data-contrast="high"] .quick-title{color:#FFE24D}
 
 /* ---------- Tipărire ---------- */
 @media print{
-  .utility,.mainnav,.adminbar,.search-open,.search-box,.quick,.levels-sec,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.contact-map,.maplink,.form,.skip,.flagstrip,.foot-admin{display:none!important}
+  .utility,.mainnav,.adminbar,.search-open,.search-box,.quick,.levels-box,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.contact-map,.maplink,.form,.skip,.flagstrip,.foot-admin{display:none!important}
   body{font-size:11pt;color:#000;background:#fff}
   .masthead{position:static;box-shadow:none;border-bottom:1px solid #000}
   .sec,.sec-alt{padding:1rem 0;background:#fff;border:0}
@@ -844,7 +819,7 @@ html[data-contrast="high"] .amount,html[data-contrast="high"] .h1-b,html[data-co
   .inv-act{margin-top:0;padding-top:0;border-top:0}
   .inv-act:has(a){margin-top:.8rem;padding-top:.6rem;border-top:1px solid #999}
   .inv-act [data-copy-inv]{display:none!important}
-  .about,.about-two{grid-template-columns:1fr}
+  .about-two{grid-template-columns:1fr}
   .about-princ{background:#fff;color:#000;border:1px solid #000;box-shadow:none}
   .about-princ h3,.about-princ .ico{color:#000}
   .inv,.stats a{box-shadow:none;break-inside:avoid}
@@ -854,7 +829,7 @@ html[data-contrast="high"] .amount,html[data-contrast="high"] .h1-b,html[data-co
   .inv-no,.inv-main,.inv-fin,.inv-val,.inv-chev{grid-area:auto}
   .inv-fin:empty,.inv-val:empty{display:block}
   .acc-btn{grid-template-columns:minmax(0,1fr) auto}
-  .org-sq i,.inv-no,.tm-dot{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .org-sq i,.inv-no{print-color-adjust:exact;-webkit-print-color-adjust:exact}
   a{color:#000;text-decoration:none}
   .foot{background:#fff;color:#000;border-top:1px solid #000}
   .foot a,.foot-name,.foot-h{color:#000}

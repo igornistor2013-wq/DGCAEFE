@@ -101,19 +101,6 @@
     </div>
   </section>
 
-  <!-- NIVELURILE DE COOPERARE: panou pe toată lățimea, care urcă peste marginea de jos a câmpului albastru -->
-  <section class="levels-sec" aria-labelledby="levelsTitle">
-    <div class="wrap">
-      <div class="intro-levels">
-        <header class="levels-head">
-          <h2 class="levels-title" id="levelsTitle">Programe de cooperare, pe niveluri</h2>
-          <a class="levels-all" href="#programe">Toate programele <svg class="ico" aria-hidden="true"><use href="#i-arrow-r"/></svg></a>
-        </header>
-        <div class="levels" id="levels"></div>
-      </div>
-    </div>
-  </section>
-
   <!-- NOUTĂȚI -->
   <section class="sec" id="noutati" aria-labelledby="h-noutati">
     <div class="wrap">
@@ -131,10 +118,8 @@
       <header class="sec-head">
         <div><h2 id="h-despre">Despre direcție</h2></div>
       </header>
-      <div class="about">
-        <div class="about-text" id="aboutText"></div>
-        <aside class="about-princ" id="aboutPrinc" aria-labelledby="h-princ"></aside>
-      </div>
+      <div class="about-text" id="aboutText"></div>
+      <aside class="about-princ" id="aboutPrinc" aria-labelledby="h-princ"></aside>
       <ul class="stats" id="aboutStats" aria-label="Direcția în cifre"></ul>
 
       <div class="about-block" id="functii">
@@ -158,7 +143,6 @@
           <div class="acc-list" id="rolesList"></div>
         </div>
       </div>
-      <p class="about-note" id="aboutNote"></p>
     </div>
   </section>
 
@@ -185,7 +169,6 @@
             <option value="nr">Ordinea din listă</option>
             <option value="valoare">Valoarea, descrescător</option>
             <option value="minister">După minister</option>
-            <option value="obiectiv">După obiectivul economic</option>
           </select>
         </div>
         <button class="btn btn-line btn-sm inv-ftoggle" type="button" id="invFToggle" aria-expanded="false" aria-controls="invFilters">Filtre</button>
@@ -199,7 +182,6 @@
       </div>
       <ol class="inv-list" id="invList" aria-label="Lista proiectelor investiționale"></ol>
       <div class="gp-foot" id="gpFoot"></div>
-      <div id="planBox"></div>
     </div>
   </section>
 
@@ -273,6 +255,11 @@
         <div><h2 id="h-prog">Programe de cooperare transfrontalieră, transnațională și interregională</h2><p>Acordurile de finanțare, documentele de program și materialele informative pentru cele cinci programe Interreg 2021–2027 la care participă Republica Moldova.</p></div>
         <p class="src">Sursa: <a href="https://gov.md/ro/programe-de-cooperare-transfrontaliera-transnationala-si-interregionala" target="_blank" rel="noopener">gov.md</a></p>
       </header>
+      <!-- NIVELURILE DE COOPERARE -->
+      <section class="levels-box" aria-labelledby="levelsTitle">
+        <h3 class="levels-title" id="levelsTitle">Programe de cooperare, pe niveluri</h3>
+        <div class="levels" id="levels"></div>
+      </section>
       <div id="auditBox"></div>
       <div class="prog">
         <div class="prog-nav" id="progNav" role="tablist" aria-label="Programe" aria-orientation="vertical"></div>

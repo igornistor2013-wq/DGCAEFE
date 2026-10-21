@@ -308,7 +308,7 @@ test('textele paginii: versiunea conținutului de pornire se păstrează, nu se 
 test('proiectele din Planul de creștere: numai date generale, validare, ascunderea și ștergerea', async () => {
   const cases = [
     [{}, /„Denumirea proiectului” este obligatoriu/],
-    [{ name: 'P', theme: 'altceva' }, /Obiectivul economic/],
+    [{ name: 'P', ministry: 'x'.repeat(101) }, /Ministerul responsabil/],
     [{ name: 'P', currency: 'RON' }, /Moneda/],
     [{ name: 'P', amount: 5, amountQual: 'aproximativ' }, /Precizarea valorii/],
     [{ name: 'P', amount: -1 }, /Valoarea/],
@@ -329,7 +329,7 @@ test('proiectele din Planul de creștere: numai date generale, validare, ascunde
   assert.equal(before.length, 19);
   assert.equal((await publicCount()).length, 19);
 
-  // ciornă: se salvează, dar nu apare public; câmpurile vechi (etapă, stare, progres, întârzieri) trimise de un client vechi sunt ignorate
+  // ciornă: se salvează, dar nu apare public; câmpurile vechi (etapă, stare, progres, întârzieri, obiectiv economic) trimise de un client vechi sunt ignorate
   const c = await call('POST', '/api/admin/investments', {
     name: 'Proiect de test', ministry: 'MF', theme: 'social', implementer: 'Unitatea de implementare', financier: 'Banca Mondială (BM)', amount: '12,5', currency: 'MDL', amountQual: 'circa',
     financing: 'Împrumut de 10 mil. MDL.', period: '2027–2030', location: 'Chișinău', beneficiaries: 'Locuitorii municipiului', text: 'Descriere.',
@@ -337,10 +337,10 @@ test('proiectele din Planul de creștere: numai date generale, validare, ascunde
     cluster: 'fezabilitate', status: 'intarziere', stage: 10, refStage: 12, totalStages: 40, progress: 25, delays: 'Etape în întârziere', next: 'Pasul următor.'
   });
   assert.equal(c.status, 201);
-  assert.deepEqual([c.data.amount, c.data.currency, c.data.amountQual, c.data.published, c.data.theme], [12.5, 'MDL', 'circa', false, 'social']);
+  assert.deepEqual([c.data.ministry, c.data.amount, c.data.currency, c.data.amountQual, c.data.published], ['MF', 12.5, 'MDL', 'circa', false]);
   assert.deepEqual(c.data.results, ['Primul rezultat', 'Al doilea rezultat'], 'rândurile goale se elimină');
   assert.deepEqual(c.data.links, [{ t: 'Sursa', u: 'https://exemplu.md' }], 'rândurile goale se elimină');
-  for (const k of ['cluster', 'status', 'stage', 'refStage', 'totalStages', 'progress', 'delays', 'next']) assert.ok(!(k in c.data), `„${k}” nu se mai păstrează`);
+  for (const k of ['cluster', 'status', 'stage', 'refStage', 'totalStages', 'progress', 'delays', 'next', 'theme']) assert.ok(!(k in c.data), `„${k}” nu se mai păstrează`);
   assert.equal((await publicCount()).length, 19, 'proiectul ascuns nu este public');
   assert.equal((await call('GET', '/api/admin/investments')).data.length, 20, 'în administrare apare și ciorna');
 
@@ -352,17 +352,20 @@ test('proiectele din Planul de creștere: numai date generale, validare, ascunde
   const pub = await publicCount();
   assert.equal(pub.length, 20);
   assert.equal(pub[pub.length - 1].id, c.data.id, 'se afișează după numărul de ordine');
-  for (const p of pub) for (const k of ['cluster', 'status', 'stage', 'progress', 'delays', 'next']) assert.ok(!(k in p), `pagina publică nu primește „${k}”`);
+  for (const p of pub) for (const k of ['cluster', 'status', 'stage', 'progress', 'delays', 'next', 'theme']) assert.ok(!(k in p), `pagina publică nu primește „${k}”`);
 
   // fără valoare, precizarea valorii nu are sens și se șterge
   const noAmount = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...u.data, amount: '', amountQual: 'max.' });
   assert.equal(noAmount.status, 200);
   assert.deepEqual([noAmount.data.amount, noAmount.data.amountQual], [null, '']);
 
-  // obiectivul economic se poate lăsa necompletat
-  const noTheme = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...u.data, theme: '' });
-  assert.equal(noTheme.status, 200);
-  assert.equal(noTheme.data.theme, '');
+  // proiectele se grupează după minister: se poate schimba, iar câmpul se poate lăsa și necompletat
+  const otherMin = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...u.data, ministry: 'MIDR' });
+  assert.equal(otherMin.status, 200);
+  assert.equal(otherMin.data.ministry, 'MIDR');
+  const noMin = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...u.data, ministry: '' });
+  assert.equal(noMin.status, 200);
+  assert.equal(noMin.data.ministry, '');
 
   const missing = await call('PUT', '/api/admin/investments/inexistent', { name: 'x' });
   assert.equal(missing.status, 404);

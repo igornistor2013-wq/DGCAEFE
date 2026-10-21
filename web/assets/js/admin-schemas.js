@@ -11,8 +11,7 @@
   const GROUPS = ['', 'buletin', 'oficial', 'stiri'];
   const LEVELS = ['cross', 'trans', 'inter'];
   const LEGAL_TYPES = ['Lege', 'HG', 'Ordin', 'Altele'];
-  // Proiectele investiționale din Planul de creștere: cele cinci obiective economice în care sunt grupate.
-  const INV_THEMES = ['export', 'energie', 'agricultura', 'cunoastere', 'social'];
+  // Proiectele investiționale din Planul de creștere: moneda și precizarea valorii (proiectele se grupează după ministerul responsabil).
   const CURRENCIES = ['EUR', 'USD', 'MDL'];
   const AMOUNT_QUAL = ['', 'max.', 'circa'];
 
@@ -332,7 +331,6 @@
         return {
           order: int(b.order, 'Numărul de ordine', { min: 0, max: 9999 }) || 0,
           name: str(b.name, 'Denumirea proiectului', { max: 300, req: true }),
-          theme: oneOf(b.theme, 'Obiectivul economic', ['', ...INV_THEMES], ''),
           ministry: str(b.ministry, 'Ministerul responsabil', { max: 100 }),
           implementer: str(b.implementer, 'Instituția de implementare', { max: 300 }),
           financier: str(b.financier, 'Partenerul de finanțare', { max: 300 }),
@@ -369,7 +367,6 @@
         quickLinks: objList(b.quickLinks, 'Acces rapid', 8, l => pairLink(l, 'Text', 'Adresa', { anchor: true })),
         aboutP1: str(b.aboutP1, 'Despre direcție, primul paragraf', { max: 1200 }),
         aboutP2: str(b.aboutP2, 'Despre direcție, al doilea paragraf', { max: 1200 }),
-        aboutNote: str(b.aboutNote, 'Despre direcție, sursa informațiilor', { max: 800 }),
         principles: strList(b.principles, 'Principiile de activitate', { max: 10, item: 160 }),
         duties: objList(b.duties, 'Funcțiile de bază', 12, d => {
           const title = str(d && d.title, 'Titlul funcției', { max: 140 });
@@ -413,5 +410,5 @@
     return { news, documents, events, legal, gallery, programs, investments, cleanSettings };
   }
 
-  return { create, sniff, slug, filesIn, SECTIONS, GROUPS, LEVELS, LEGAL_TYPES, INV_THEMES, CURRENCIES, AMOUNT_QUAL, IMG_EXT, DOC_EXT, UPLOAD_RE };
+  return { create, sniff, slug, filesIn, SECTIONS, GROUPS, LEVELS, LEGAL_TYPES, CURRENCIES, AMOUNT_QUAL, IMG_EXT, DOC_EXT, UPLOAD_RE };
 });

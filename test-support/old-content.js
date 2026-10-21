@@ -73,10 +73,27 @@ function rev3Content(edits = {}) {
   return { ...seed, investments: rev3Investments(), settings: { ...clone(seed.settings), seedRev: 3, growth, ...clone(edits) } };
 }
 
+/* Tot conținutul, așa cum îl avea cineva care folosea versiunea 4: proiectele aveau și „obiectivul economic” (theme), introducerea secțiunii
+   „Investiții” vorbea despre cele cinci obiective, iar în „Despre direcție” exista nota despre Regulament (aboutNote). Restul este conținutul
+   de pornire actual. `edits`: ce ar fi modificat administratorul în „settings”. */
+const REV4_THEMES = { export: [3, 7, 8, 9], energie: [12, 13, 14, 16], agricultura: [2, 4, 17], cunoastere: [1, 5, 6, 11], social: [10, 15, 18, 19] };
+const REV4_ABOUT_NOTE = 'Informațiile din această secțiune provin din Regulamentul de activitate al Direcției generale, aprobat de secretarul general al Guvernului în aprilie 2026. '
+  + 'Activitatea Direcției se desfășoară în conformitate cu Hotărârea Guvernului nr. 377/2018, Legea nr. 181/2014 privind finanțele publice și responsabilitatea bugetar-fiscală, '
+  + 'Legea nr. 595/1999 privind tratatele internaționale și celelalte acte din secțiunea „Cadrul legal”.';
+function rev4Investments() {
+  const themeOf = order => Object.keys(REV4_THEMES).find(t => REV4_THEMES[t].includes(order));
+  return seedContent().investments.map(p => ({ ...p, theme: themeOf(p.order) }));
+}
+function rev4Content(edits = {}) {
+  const seed = seedContent();
+  const growth = clone(seedUpgrades().find(u => u.rev === 5).settings.growth[0]);
+  return { ...seed, investments: rev4Investments(), settings: { ...clone(seed.settings), seedRev: 4, growth, aboutNote: REV4_ABOUT_NOTE, ...clone(edits) } };
+}
+
 // Scrie conținutul într-un folder de date („<dir>/content/<nume>.json”), în formatul serverului.
 function writeContent(dir, content) {
   fs.mkdirSync(path.join(dir, 'content'), { recursive: true });
   for (const [name, value] of Object.entries(content)) fs.writeFileSync(path.join(dir, 'content', name + '.json'), JSON.stringify(value, null, 2) + '\n');
 }
 
-module.exports = { seedContent, seedUpgrades, oldContent, rev3Content, rev3Investments, writeContent, REV1_SETTINGS, NAMES };
+module.exports = { seedContent, seedUpgrades, oldContent, rev3Content, rev3Investments, rev4Content, rev4Investments, REV4_THEMES, REV4_ABOUT_NOTE, writeContent, REV1_SETTINGS, NAMES };
