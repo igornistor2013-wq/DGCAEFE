@@ -170,6 +170,8 @@
     grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
     'arrow-l': '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
     'arrow-r': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    pause: '<rect x="14" y="3" width="5" height="18" rx="1" fill="currentColor"/><rect x="5" y="3" width="5" height="18" rx="1" fill="currentColor"/>',
+    play: '<polygon points="6 3 20 12 6 21 6 3" fill="currentColor"/>',
     'chev-l': '<path d="m15 18-6-6 6-6"/>',
     'chev-r': '<path d="m9 18 6-6-6-6"/>',
     'chev-d': '<path d="m6 9 6 6 6-6"/>',
@@ -277,6 +279,12 @@
     };
   }
 
-  window.DG = { MONTHS: MONTHS, esc: esc, norm: norm, terms: terms, matches: matches, fmtDate: fmtDate, dateText: dateText, today: today, formatSize: formatSize, rich: rich, fileKind: fileKind, icon: icon, sprite: sprite, toast: toast, copyText: copyText, debounce: debounce };
+  var api = { MONTHS: MONTHS, esc: esc, norm: norm, terms: terms, matches: matches, fmtDate: fmtDate, dateText: dateText, today: today, formatSize: formatSize, rich: rich, fileKind: fileKind, icon: icon, sprite: sprite, toast: toast, copyText: copyText, debounce: debounce };
+  // În Node (construirea paginii) se folosesc doar funcțiile care scriu text: aceleași reguli ca în browser, fără să atingă o pagină.
+  if (typeof module === 'object' && module.exports) {
+    module.exports = api;
+    return;
+  }
+  window.DG = api;
   sprite();
 })();

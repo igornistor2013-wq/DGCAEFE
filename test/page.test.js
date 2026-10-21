@@ -201,29 +201,78 @@ test('legăturile care deschid o fereastră nouă au rel="noopener", în pagină
   assert.match(css, /a\[target="_blank"\]::after/);
 });
 
-test('informațiile obligatorii pe pagina unei autorități: declarația de accesibilitate, protecția datelor, harta site-ului, portaluri oficiale', () => {
-  const info = sectionOf('informatii');
-  for (const id of ['accesibilitate', 'date-personale', 'harta-site']) {
-    assert.match(info, new RegExp(`class="acc" id="${id}"`), `#${id} este în secțiunea de informații`);
-    assert.match(html, new RegExp(`href="#${id}"`), `există legătură către #${id}`);
-  }
-  assert.match(info, /id="siteMap"/);
-  assert.match(site, /function renderSiteMap\(/);
-  assert.match(site, /renderSiteMap\(\);/, 'harta site-ului se construiește la încărcarea datelor');
-  // declarația de accesibilitate: standardul, starea de conformitate, modul de sesizare, data
-  const acc = /id="accesibilitate"[\s\S]*?id="date-personale"/.exec(info)[0];
-  for (const re of [/WCAG/, /conformitate/i, /Limitări cunoscute/, /Sesizări/, /Edge[\s\S]*Firefox[\s\S]*Chrome[\s\S]*Opera[\s\S]*Safari/, /2026/]) assert.match(acc, re, String(re));
-  // protecția datelor: temeiul legal, drepturile, autoritatea de control
-  const pd = /id="date-personale"[\s\S]*?id="harta-site"/.exec(info)[0];
-  for (const re of [/195\/2024/, /accesul la date/, /datepersonale\.md/, /cookie/i, /Google/]) assert.match(pd, re, String(re));
-  // portalurile oficiale din subsol
+test('subsolul păstrează portalurile oficiale și legăturile utile', () => {
   const foot = /<footer class="foot">[\s\S]*<\/footer>/.exec(html)[0];
   for (const host of ['gov.md/ro"', 'servicii.gov.md', 'particip.gov.md', 'mtender.gov.md', 'cariere.gov.md', 'date.gov.md', 'statistica.gov.md', 'statbank.statistica.md', 'amp.gov.md']) assert.ok(foot.includes(host), `subsol: ${host}`);
-  assert.match(foot, /href="#accesibilitate"/);
-  assert.match(foot, /href="#date-personale"/);
-  assert.match(foot, /href="#harta-site"/);
-  // „Harta site-ului” este și în partea de sus, la îndemână
-  assert.match(/class="utility"[\s\S]*?<\/div>\s*<\/div>/.exec(html)[0], /href="#harta-site"/);
+  assert.match(foot, /Petiții, cereri și audiențe/);
+  assert.match(foot, /href="#contacte"/);
+  assert.match(foot, /<p id="footNote"><\/p>/, 'nota de licență din setări rămâne');
+});
+
+test('secțiunea „Informații despre acest site” și linia „Pagina a fost actualizată… Administrare” din subsol au fost scoase, cu tot ce ducea la ele', () => {
+  const foot = /<footer class="foot">[\s\S]*<\/footer>/.exec(html)[0];
+  // secțiunea cu cele trei casete (declarația de accesibilitate, protecția datelor, harta site-ului)
+  assert.doesNotMatch(html, /\bid="(informatii|accesibilitate|date-personale|harta-site|siteMap)"/);
+  assert.doesNotMatch(html, /href="#(informatii|accesibilitate|date-personale|harta-site)"/, 'nicio legătură nu mai duce la ea (nici din meniul de sus, nici din subsol)');
+  assert.doesNotMatch(html, /INFORMAȚII DESPRE SITE|Informații despre acest site|Declarația de accesibilitate|Harta site-ului/);
+  // linia de jos din subsol: fără data actualizării și fără legătura către administrare; rămâne doar nota de licență
+  assert.doesNotMatch(foot, /id="updated"|footAdmin|foot-admin|Pagina a fost actualizată|Administrare/);
+  assert.match(foot, /<div class="foot-bottom">\s*<p id="footNote"><\/p>\s*<\/div>/);
+  // codul paginii nu mai are nimic din ele
+  for (const re of [/INFO_IDS/, /goInfo/, /renderSiteMap/, /siteMap/, /harta-site/, /date-personale/, /accesibilitate/, /informatii/, /#updated/, /footAdmin/, /Pagina a fost actualizată/]) assert.doesNotMatch(site, re, String(re));
+  assert.doesNotMatch(css, /\.sm-|\.sm\{|\.info-date|\.foot-admin/);
+  // pagina „404” nu trimite nici ea acolo
+  assert.doesNotMatch(read('404.html'), /harta-site|accesibilitate|date-personale|informatii/);
+});
+
+test('rubrica „Noutăți” vine imediat înainte de „Galerie foto”: în pagină, în meniul principal, în subsol, la urmărirea derulării și în pagina „404”', () => {
+  const order = ['despre', 'plan-crestere', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'noutati', 'galerie', 'contacte'];
+  const main = [...html.matchAll(/<section class="(sec[^"]*)" id="([^"]+)"/g)];
+  assert.deepEqual(main.map(m => m[2]), order, 'ordinea secțiunilor în pagină');
+  // fundalurile se alternează (fără două secțiuni alăturate la fel), deci rubrica mutată nu strică ritmul paginii
+  main.forEach((m, i) => assert.ok(i === 0 || /\bsec-alt\b/.test(m[1]) !== /\bsec-alt\b/.test(main[i - 1][1]), `fundalul secțiunii #${m[2]} se alternează`));
+  const nav = /<ul id="navList">([\s\S]*?)<\/ul>/.exec(html)[1];
+  assert.deepEqual([...nav.matchAll(/href="#([^"]+)"/g)].map(m => m[1]), order, 'meniul principal');
+  const foot = /<h2 class="foot-h">Pe această pagină<\/h2>\s*<ul>([\s\S]*?)<\/ul>/.exec(html)[1];
+  const footIds = [...foot.matchAll(/href="#([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(footIds, order.filter(x => footIds.includes(x)), 'subsolul păstrează aceeași ordine');
+  assert.ok(footIds.indexOf('noutati') > -1 && footIds.indexOf('noutati') + 1 === footIds.indexOf('galerie'), 'în subsol, Noutăți înaintea Galeriei');
+  const spy = /var ids = \[([^\]]*)\];/.exec(site)[1];
+  assert.deepEqual([...spy.matchAll(/'([^']+)'/g)].map(m => m[1]), order, 'urmărirea derulării (meniul evidențiază rubrica curentă)');
+  const nf = [...read('404.html').matchAll(/href="\{\{BASE\}\}#([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(nf, order, 'pagina „404”');
+});
+
+test('partea de sus: ultimele noutăți în locul textului de prezentare, cu butoane de control și anunț pentru cititoarele de ecran', () => {
+  const hero = /<section class="hero-news"[\s\S]*?<\/section>/.exec(html);
+  assert.ok(hero, 'blocul cu noutăți există');
+  const h = hero[0];
+  assert.ok(html.indexOf('id="introLead"') < html.indexOf('id="heroNews"'), 'sub titlu, în locul textului de prezentare');
+  assert.match(h, /^<section class="hero-news" id="heroNews" aria-label="Ultimele noutăți" hidden>/, 'ascuns până sunt noutăți');
+  assert.match(h, /<!--hero-news-->/, 'locul diapozitivelor, completat la construirea paginii și în browser');
+  // butoanele au denumiri; pictogramele sunt ascunse cititoarelor de ecran
+  for (const id of ['hnPrev', 'hnPlay', 'hnNext']) assert.match(h, new RegExp(`<button class="hn-btn" id="${id}" type="button" aria-label="[^"]{8,}"><svg class="ico" aria-hidden="true"`), id);
+  assert.match(h, /id="hnLive" aria-live="polite" aria-atomic="true"/);
+  assert.match(h, /id="hnNum"/);
+  assert.match(h, /id="hnTotal"/);
+  // fără JavaScript butoanele n-ar face nimic, deci nu se arată
+  assert.match(html, /<noscript><style>\.hn-ctl,\.hn-progress\{display:none\}<\/style><\/noscript>/);
+  // fiecare element căutat de script există în pagină
+  const js = read('assets', 'js', 'hero-news.js');
+  for (const m of js.matchAll(/querySelector\('#([A-Za-z]+)'\)/g)) assert.ok(h.includes(`id="${m[1]}"`), `#${m[1]} din hero-news.js există în pagină`);
+  for (const m of js.matchAll(/querySelector\('\.([a-z-]+)'\)/g)) assert.ok(h.includes(m[1]), `.${m[1]} din hero-news.js există în pagină`);
+  // scriptul se încarcă înaintea celui principal, iar acesta îl cheamă cu noutățile publice (deja ordonate: cele mai noi primele)
+  assert.ok(html.indexOf('assets/js/hero-news.js') > html.indexOf('assets/js/common.js') && html.indexOf('assets/js/hero-news.js') < html.indexOf('assets/js/site.js'));
+  assert.match(html, /<script src="assets\/js\/hero-news\.js" defer><\/script>/);
+  assert.match(site, /window\.HeroNews\.render\(\$\('#heroNews'\), \$\('#introLead'\), D\.news, DG\)/);
+  // o știre deschisă din partea de sus: la închidere adresa revine sus (#top), nu la rubrica Noutăți
+  assert.match(site, /newsBack = a\.closest\('#heroNews'\) \? '#top' : '#noutati'/);
+  assert.match(site, /location\.search \+ newsBack\)/);
+  assert.match(html, /<section class="intro" id="top"/);
+  // stiluri: schimbare lină, dar fără animații pentru cine a cerut mișcare redusă; contrast ridicat și tipărire tratate
+  assert.match(css, /\.hn-slide\{[^}]*opacity:0;[^}]*visibility:hidden/);
+  assert.match(css, /@media \(prefers-reduced-motion:reduce\)\{[^@]*\.hn-slide,\.hn-slide\.is-active\{transition:none\}/);
+  assert.match(css, /html\[data-contrast="high"\] \.hn-btn/);
 });
 
 test('mărirea textului și contrastul ridicat: butoane cu denumiri clare și starea ținută minte', () => {

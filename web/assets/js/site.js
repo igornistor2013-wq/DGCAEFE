@@ -188,6 +188,8 @@
     $('#brandParent').textContent = s.parentName;
     $('#introTitle').innerHTML = heroTitleHtml(s.heroTitle || s.orgName);
     $('#introLead').textContent = s.heroLead || '';
+    // în locul textului de prezentare se derulează ultimele 10 noutăți (fără noutăți rămâne textul de prezentare)
+    if (window.HeroNews) window.HeroNews.render($('#heroNews'), $('#introLead'), D.news, DG);
     document.title = s.orgName + ' | ' + s.parentName;
     var q = s.quickLinks || [];
     $('.quick').hidden = !q.length;
@@ -941,11 +943,6 @@
     map.hidden = !c.mapEmbed;
     map.innerHTML = c.mapEmbed ? (mapOn ? mapFrame(c.mapEmbed) : mapGate(c)) : '';
     $('#toAddr').textContent = contactTo;
-    // datele de contact din declarația de accesibilitate și din notificarea privind datele personale
-    var mailHtml = contactTo ? '<a href="mailto:' + esc(contactTo) + '">' + esc(contactTo) + '</a>' : '';
-    var phoneHtml = c.phones && c.phones[0] ? '<a href="' + esc(telHref(c.phones[0])) + '">' + esc(c.phones[0]) + '</a>' : '';
-    $$('.js-mail').forEach(function (el) { if (mailHtml) el.innerHTML = mailHtml; });
-    $$('.js-phone').forEach(function (el) { if (phoneHtml) el.innerHTML = phoneHtml; });
     $('#contactForm').hidden = !contactTo;
   }
 
@@ -978,42 +975,6 @@
     });
   }
 
-  /* ================= Informații despre site: declarații și harta site-ului ================= */
-  var INFO_IDS = ['accesibilitate', 'date-personale', 'harta-site'];
-
-  // Deschide declarația sau harta site-ului (adresele #accesibilitate, #date-personale, #harta-site).
-  function goInfo(id) {
-    var host = document.getElementById(id);
-    if (!host) return;
-    var b = $('button[data-acc]', host);
-    if (b) accToggle(b, true);
-    scrollToEl(host);
-    if (b) setTimeout(function () { b.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
-  }
-
-  // Harta site-ului: structura paginii pe niveluri, construită din ce este afișat acum (o secțiune ascunsă nu apare).
-  function renderSiteMap() {
-    function shown(id) { var el = document.getElementById(id); return el && !el.hidden ? el : null; }
-    function textOf(sel, fallback) { var el = $(sel); return el ? el.textContent.trim() : fallback; }
-    function item(href, text, kids) {
-      return '<li><a href="' + esc(href) + '">' + esc(text) + '</a>' + (kids && kids.length ? '<ul>' + kids.join('') + '</ul>' : '') + '</li>';
-    }
-    var sections = [
-      ['noutati', '#h-noutati', 'Noutăți'], ['despre', '#h-despre', 'Despre direcție'], ['plan-crestere', '#h-plan', 'Proiecte investiționale'],
-      ['cadrul-legal', '#h-legal', 'Cadrul legal'], ['cooperare-externa', '#h-coop', 'Cooperare externă'], ['programe', '#h-prog', 'Programe de cooperare'],
-      ['documente', '#h-doc', 'Documente și publicații'], ['evenimente', '#h-ev', 'Evenimente'], ['galerie', '#h-gal', 'Galerie foto'],
-      ['contacte', '#h-contact', 'Contacte'], ['informatii', '#h-info', 'Informații despre acest site']
-    ];
-    var kids = {
-      despre: [['functii', '#h-fn', 'Funcțiile de bază'], ['structura', '#h-org', 'Structura și efectivul'], ['drepturi-responsabilitati', '#h-roles', 'Drepturi și responsabilități']]
-        .filter(function (k) { return shown(k[0]); }).map(function (k) { return item('#' + k[0], textOf(k[1], k[2])); }),
-      programe: D.programs.map(function (p) { return item('#program/' + p.id, p.name); }),
-      informatii: INFO_IDS.map(function (id) { return item('#' + id, textOf('#info-b-' + (id === 'accesibilitate' ? 'acc' : id === 'date-personale' ? 'date' : 'harta') + ' .acc-t', id)); })
-    };
-    $('#siteMap').innerHTML = '<ul class="sm">' + item('#top', 'Prima pagină') +
-      sections.filter(function (x) { return shown(x[0]); }).map(function (x) { return item('#' + x[0], textOf(x[1], x[2]), kids[x[0]]); }).join('') + '</ul>';
-  }
-
   /* ================= Subsol ================= */
   function renderFooter() {
     var s = D.settings;
@@ -1022,14 +983,6 @@
     $('#footParent').textContent = s.parentName;
     $('#footAddress').textContent = c.address || '';
     $('#footNote').textContent = '© ' + new Date().getFullYear() + ' ' + (s.parentName || s.orgName || '') + (s.footerNote ? '. ' + s.footerNote : '');
-    var u = D.lastUpdated ? new Date(D.lastUpdated) : null;
-    $('#updated').textContent = u && !isNaN(u) ? 'Pagina a fost actualizată la ' + u.getDate() + ' ' + DG.MONTHS[u.getMonth()] + ' ' + u.getFullYear() + '. ' : '';
-    var fa = $('#footAdmin');
-    if (STATIC && !GH) fa.remove(); // versiunea statică simplă nu are administrare
-    else {
-      fa.setAttribute('href', ADMIN);
-      fa.hidden = false;
-    }
   }
 
   /* ================= Căutare globală ================= */
@@ -1064,9 +1017,6 @@
     });
     idx.push({ cat: 'Contacte', t: 'Date de contact ale Cancelariei de Stat', s: 'Adresă, telefon, e-mail, harta sediului', k: 'contact adresa telefon e-mail program de lucru audiențe Piața Marii Adunări Naționale Chișinău', go: function () { location.hash = '#contacte'; } });
     idx.push({ cat: 'Portaluri oficiale', t: 'Petiții, cereri și audiențe', s: 'gov.md', k: 'petiție cerere audiență plângere sesizare adresare', u: 'https://gov.md/ro/node/1030' });
-    idx.push({ cat: 'Informații despre site', t: 'Declarația de accesibilitate', s: 'Tastatură, contrast ridicat, mărirea textului, sesizări', k: 'accesibilitate WCAG dizabilități cititor de ecran', go: function () { goInfo('accesibilitate'); } });
-    idx.push({ cat: 'Informații despre site', t: 'Protecția datelor cu caracter personal', s: 'Ce date se prelucrează, cookie-uri, drepturile dvs.', k: 'confidențialitate GDPR Legea 195/2024 cookie date personale', go: function () { goInfo('date-personale'); } });
-    idx.push({ cat: 'Informații despre site', t: 'Harta site-ului', s: 'Toate secțiunile paginii', k: 'sitemap hartă structura paginii', go: function () { goInfo('harta-site'); } });
     INDEX = idx;
   }
 
@@ -1296,7 +1246,7 @@
       toggle.focus();
     });
 
-    var ids = ['noutati', 'despre', 'plan-crestere', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'galerie', 'contacte'];
+    var ids = ['despre', 'plan-crestere', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'noutati', 'galerie', 'contacte'];
     if ('IntersectionObserver' in window) {
       var spy = new IntersectionObserver(function (entries) {
         entries.forEach(function (en) {
@@ -1341,8 +1291,14 @@
       var c = e.target.closest('[data-copy-news]');
       if (c) DG.copyText(location.href.split('#')[0] + '#stire/' + c.getAttribute('data-copy-news'), 'Adresa știrii a fost copiată');
     });
+    // după închiderea unei știri, adresa revine la locul de unde s-a deschis: partea de sus (noutățile din prezentare) sau rubrica Noutăți
+    var newsBack = '#noutati';
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#stire/"]');
+      if (a) newsBack = a.closest('#heroNews') ? '#top' : '#noutati';
+    }, true);
     newsDlg.addEventListener('close', function () {
-      if (location.hash.indexOf('#stire/') === 0) history.replaceState(null, '', location.pathname + location.search + '#noutati');
+      if (location.hash.indexOf('#stire/') === 0) history.replaceState(null, '', location.pathname + location.search + newsBack);
     });
 
     // secțiuni care se deschid: funcții, drepturi și responsabilități, proiecte
@@ -1456,7 +1412,7 @@
       if (again) again.focus();
     });
 
-    // harta Google (se încarcă doar la cerere) și legăturile către declarații
+    // harta Google (se încarcă doar la cerere)
     $('#contactMap').addEventListener('click', function (e) {
       if (!e.target.closest('#mapLoad')) return;
       var c = (D.settings && D.settings.contact) || {};
@@ -1465,13 +1421,6 @@
       $('#contactMap').innerHTML = mapFrame(c.mapEmbed);
       var f = $('#contactMap iframe');
       if (f) f.focus();
-    });
-    document.addEventListener('click', function (e) {
-      var a = e.target.closest && e.target.closest('a[href^="#"]');
-      if (!a || e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
-      var id = a.getAttribute('href').slice(1);
-      // dacă adresa din bară este deja aceasta, „hashchange” nu se declanșează: deschidem declarația aici
-      if (INFO_IDS.indexOf(id) > -1 && location.hash === '#' + id) { e.preventDefault(); goInfo(id); }
     });
 
     // documente
@@ -1548,8 +1497,6 @@
     if (m) goProgram(m[1]);
     m = /^#proiect\/([\w-]+)$/.exec(h);
     if (m) goInvestment(m[1]);
-    m = /^#(accesibilitate|date-personale|harta-site)$/.exec(h);
-    if (m) goInfo(m[1]);
   }
 
   /* ================= Pornire ================= */
@@ -1566,7 +1513,6 @@
     renderEvents();
     renderGallery();
     renderContact();
-    renderSiteMap();
     renderFooter();
     buildIndex();
   }

@@ -28,6 +28,7 @@
 <link rel="preload" href="assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/onest-latin-ext.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/site.css">
+<noscript><style>.hn-ctl,.hn-progress{display:none}</style></noscript>
 </head>
 <body>
 <a class="skip" href="#main">Salt la conținut</a>
@@ -41,7 +42,6 @@
     <p class="utility-links">
       <a href="https://gov.md/ro" target="_blank" rel="noopener">Guvernul Republicii Moldova</a>
       <a href="https://gov.md/ro/coordonarea-asistentei-externe-si-fonduri-europene" target="_blank" rel="noopener">Pagina pe gov.md</a>
-      <a href="#harta-site">Harta site-ului</a>
     </p>
     <div class="a11y" role="group" aria-label="Opțiuni de afișare">
       <button type="button" data-fs="-1" aria-label="A−, micșorează textul">A−</button>
@@ -66,7 +66,6 @@
         <svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg><span>Meniu</span>
       </button>
       <ul id="navList">
-        <li><a href="#noutati">Noutăți</a></li>
         <li><a href="#despre">Despre</a></li>
         <li><a href="#plan-crestere">Investiții</a></li>
         <li><a href="#cadrul-legal">Cadrul legal</a></li>
@@ -74,6 +73,7 @@
         <li><a href="#programe">Programe</a></li>
         <li><a href="#documente">Documente</a></li>
         <li><a href="#evenimente">Evenimente</a></li>
+        <li><a href="#noutati">Noutăți</a></li>
         <li><a href="#galerie">Galerie</a></li>
         <li><a href="#contacte">Contacte</a></li>
       </ul>
@@ -101,6 +101,20 @@
         </nav>
         <h1 id="introTitle">Direcția Generală Coordonare Asistență Externă și <span class="h1-b">Fonduri Europene</span></h1>
         <p class="lead" id="introLead">Asigurăm rolul Cancelariei de Stat de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare a Uniunii Europene, precum și coordonarea proiectelor investiționale din Planul de creștere. Aici găsiți proiectele, actele normative, rapoartele, acordurile de finanțare și evenimentele pentru potențialii beneficiari.</p>
+        <section class="hero-news" id="heroNews" aria-label="Ultimele noutăți" hidden>
+          <div class="hn-stage"><!--hero-news--></div>
+          <div class="hn-bar">
+            <a class="hn-more" id="hnMore" href="#noutati" tabindex="-1" aria-hidden="true">Citește mai departe <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-arrow-r"/></svg></a>
+            <div class="hn-ctl" role="group" aria-label="Derularea noutăților">
+              <button class="hn-btn" id="hnPrev" type="button" aria-label="Noutatea anterioară"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chev-l"/></svg></button>
+              <button class="hn-btn" id="hnPlay" type="button" aria-label="Oprește derularea automată"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pause"/></svg></button>
+              <button class="hn-btn" id="hnNext" type="button" aria-label="Noutatea următoare"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chev-r"/></svg></button>
+              <p class="hn-count"><span class="sr">Noutatea </span><span id="hnNum">1</span><span aria-hidden="true"> / </span><span class="sr"> din </span><span id="hnTotal">1</span></p>
+            </div>
+          </div>
+          <div class="hn-progress" aria-hidden="true"><i></i></div>
+          <p class="sr" id="hnLive" aria-live="polite" aria-atomic="true"></p>
+        </section>
         <form class="search-box" id="heroSearch" role="search">
           <label class="sr" for="heroQ">Căutare în toate secțiunile paginii</label>
           <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
@@ -112,17 +126,6 @@
           <ul id="quickLinks"></ul>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- NOUTĂȚI -->
-  <section class="sec" id="noutati" aria-labelledby="h-noutati">
-    <div class="wrap">
-      <header class="sec-head">
-        <div><h2 id="h-noutati">Noutăți</h2><p>Anunțuri, buletine informative și vești despre programele de cooperare și asistența externă.</p></div>
-      </header>
-      <div class="news-grid" id="newsGrid"></div>
-      <p class="more"><button class="btn btn-line" type="button" id="newsMore" hidden>Arată mai multe noutăți</button></p>
     </div>
   </section>
 
@@ -322,8 +325,19 @@
     </div>
   </section>
 
+  <!-- NOUTĂȚI -->
+  <section class="sec" id="noutati" aria-labelledby="h-noutati">
+    <div class="wrap">
+      <header class="sec-head">
+        <div><h2 id="h-noutati">Noutăți</h2><p>Anunțuri, buletine informative și vești despre programele de cooperare și asistența externă.</p></div>
+      </header>
+      <div class="news-grid" id="newsGrid"></div>
+      <p class="more"><button class="btn btn-line" type="button" id="newsMore" hidden>Arată mai multe noutăți</button></p>
+    </div>
+  </section>
+
   <!-- GALERIE FOTO -->
-  <section class="sec" id="galerie" aria-labelledby="h-gal">
+  <section class="sec sec-alt" id="galerie" aria-labelledby="h-gal">
     <div class="wrap">
       <header class="sec-head">
         <div><h2 id="h-gal">Galerie foto</h2><p>Fotografii de la evenimente, întâlniri și vizite de lucru.</p></div>
@@ -335,7 +349,7 @@
   </section>
 
   <!-- CONTACTE -->
-  <section class="sec sec-alt" id="contacte" aria-labelledby="h-contact">
+  <section class="sec" id="contacte" aria-labelledby="h-contact">
     <div class="wrap">
       <header class="sec-head">
         <div><h2 id="h-contact">Contacte</h2><p>Cancelaria de Stat, Casa Guvernului. Pentru petiții, cereri și audiențe folosiți adresa dedicată.</p></div>
@@ -382,77 +396,6 @@
       </div>
     </div>
   </section>
-  <!-- INFORMAȚII DESPRE SITE -->
-  <section class="sec" id="informatii" aria-labelledby="h-info">
-    <div class="wrap">
-      <header class="sec-head">
-        <div><h2 id="h-info">Informații despre acest site</h2><p>Declarația de accesibilitate, notificarea privind protecția datelor cu caracter personal și harta site-ului.</p></div>
-      </header>
-      <div class="acc-list">
-        <div class="acc" id="accesibilitate" data-open="false">
-          <h3 class="acc-h"><button class="acc-btn" type="button" id="info-b-acc" data-acc="info:acc" aria-expanded="false" aria-controls="info-p-acc"><span class="acc-t">Declarația de accesibilitate</span><span class="fn-n"></span><span class="fn-chev"><svg class="ico" aria-hidden="true"><use href="#i-chev-d"/></svg></span></button></h3>
-          <div class="acc-panel" id="info-p-acc" role="region" aria-labelledby="info-b-acc">
-            <div class="prose">
-              <p>Cancelaria de Stat își propune ca această pagină să poată fi folosită de toate persoanele, inclusiv de cele cu dizabilități, urmărind cerințele Hotărârii Guvernului nr. 728/2023 și ale Ghidului pentru accesibilitatea conținutului web (WCAG) 2.1, nivelul AA.</p>
-              <h4>Starea de conformitate</h4>
-              <p>Pagina este <strong>parțial conformă</strong> cu WCAG 2.1, nivelul AA. Părțile care nu sunt încă pe deplin conforme sunt enumerate mai jos, la „Limitări cunoscute”.</p>
-              <h4>Ce oferă pagina</h4>
-              <ul>
-                <li>Navigare completă cu tastatura: Tab și Shift+Tab pentru deplasare, Enter pentru deschidere, Esc pentru închiderea ferestrelor. Prima legătură din pagină, „Salt la conținut”, duce direct la conținutul principal.</li>
-                <li>Căutare în toată pagina: apăsați Ctrl+K sau tasta „/”, ori folosiți câmpul din partea de sus a paginii.</li>
-                <li>Mărirea textului (butoanele A−, A și A+ din partea de sus) și modul „Contrast ridicat”; alegerea rămâne salvată în browserul dvs.</li>
-                <li>Titluri și zone marcate corect, etichete pentru câmpurile formularelor, culori cu contrast suficient; textul rămâne lizibil la mărire până la 200% și se adaptează ecranului telefonului.</li>
-                <li>Fontul ONEST, indicat pentru paginile oficiale, și o variantă pentru tipărire.</li>
-                <li>Tehnologii web standard, pentru versiunile curente ale browserelor Microsoft Edge, Mozilla Firefox, Google Chrome, Opera și Safari.</li>
-              </ul>
-              <h4>Limitări cunoscute</h4>
-              <ul>
-                <li>Documentele (PDF, DOC) se deschid de pe gov.md sau din alte surse oficiale și nu sunt întotdeauna accesibile (de exemplu, scanări fără text selectabil).</li>
-                <li>Harta Google se afișează numai la cererea dvs. și se folosește mai greu cu tastatura sau cu cititorul de ecran; adresa sediului este scrisă și ca text, în secțiunea Contacte.</li>
-                <li>Pagina este în limba română; unele documente sunt în limba engleză și sunt marcate ca atare.</li>
-              </ul>
-              <h4>Evaluare</h4>
-              <p>Pagina a fost verificată cu instrumente automate de testare a accesibilității (axe, Lighthouse), cu validatorul HTML al W3C și manual (tastatură, mărirea textului, contrast). Verificările în browser au fost făcute în Chrome; funcționarea în Edge, Firefox, Opera și Safari urmează să fie confirmată prin teste separate. Nu a fost realizat un audit extern.</p>
-              <h4>Sesizări și solicitări</h4>
-              <p>Dacă întâmpinați dificultăți sau aveți nevoie de o informație într-un alt format, scrieți-ne la <span class="js-mail">adresa de e-mail din secțiunea Contacte</span> sau sunați la <span class="js-phone">numărul din secțiunea Contacte</span>. Vă vom răspunde cât mai repede posibil.</p>
-              <p class="info-date">Declarație pregătită la 21 octombrie 2026.</p>
-            </div>
-          </div>
-        </div>
-        <div class="acc" id="date-personale" data-open="false">
-          <h3 class="acc-h"><button class="acc-btn" type="button" id="info-b-date" data-acc="info:date" aria-expanded="false" aria-controls="info-p-date"><span class="acc-t">Protecția datelor cu caracter personal</span><span class="fn-n"></span><span class="fn-chev"><svg class="ico" aria-hidden="true"><use href="#i-chev-d"/></svg></span></button></h3>
-          <div class="acc-panel" id="info-p-date" role="region" aria-labelledby="info-b-date">
-            <div class="prose">
-              <p>Această pagină este administrată de Cancelaria de Stat a Republicii Moldova (adresa este în secțiunea Contacte). Mai jos este descris ce date se prelucrează atunci când o folosiți.</p>
-              <h4>Ce nu face această pagină</h4>
-              <ul>
-                <li>Nu are conturi pentru vizitatori și nu cere date personale pentru a citi conținutul.</li>
-                <li>Nu folosește cookie-uri de urmărire, reclame sau instrumente de analiză a traficului.</li>
-                <li>Nu încarcă fonturi, scripturi sau imagini de pe alte site-uri: totul se încarcă de pe aceeași adresă (cu excepția hărții, la cererea dvs.).</li>
-              </ul>
-              <h4>Ce se păstrează în browserul dvs.</h4>
-              <p>Alegerile de afișare (mărimea textului și contrastul ridicat) se salvează doar în memoria locală a browserului dvs. și nu se transmit nimănui.</p>
-              <h4>Formularul de contact</h4>
-              <p>Formularul nu trimite datele pe un server. El pregătește un mesaj în aplicația dvs. de e-mail, iar mesajul ajunge la Cancelaria de Stat numai dacă îl trimiteți dvs. Datele din mesaj (numele, adresa de e-mail și conținutul) sunt folosite pentru a vă răspunde. Pentru petiții și cereri, folosiți adresa dedicată din secțiunea Contacte.</p>
-              <h4>Harta și legăturile externe</h4>
-              <p>Harta Google se încarcă numai după ce apăsați „Afișează harta”; din acel moment Google primește adresa IP și date tehnice ale browserului dvs., conform politicii sale. Legăturile către alte site-uri (gov.md, legis.md, portaluri externe) deschid acele site-uri, care au propriile reguli de prelucrare a datelor.</p>
-              <h4>Jurnale tehnice</h4>
-              <p>Serverul care găzduiește pagina păstrează, ca orice server web, jurnale tehnice (adresa IP, data și ora accesării), necesare pentru securitate și funcționare.</p>
-              <h4>Drepturile dvs.</h4>
-              <p>Datele cu caracter personal se prelucrează în conformitate cu Legea nr. 195/2024 cu privire la protecția datelor cu caracter personal. Aveți dreptul, în condițiile legii, să cereți accesul la date, rectificarea sau ștergerea lor, restricționarea prelucrării și să vă opuneți prelucrării. Solicitările se trimit la <span class="js-mail">adresa de e-mail din secțiunea Contacte</span>. Aveți dreptul să depuneți o plângere la <a href="https://datepersonale.md" target="_blank" rel="noopener">Centrul Național pentru Protecția Datelor cu Caracter Personal</a>.</p>
-              <p class="info-date">Notificare pregătită la 21 octombrie 2026.</p>
-            </div>
-          </div>
-        </div>
-        <div class="acc" id="harta-site" data-open="false">
-          <h3 class="acc-h"><button class="acc-btn" type="button" id="info-b-harta" data-acc="info:harta" aria-expanded="false" aria-controls="info-p-harta"><span class="acc-t">Harta site-ului</span><span class="fn-n"></span><span class="fn-chev"><svg class="ico" aria-hidden="true"><use href="#i-chev-d"/></svg></span></button></h3>
-          <div class="acc-panel" id="info-p-harta" role="region" aria-labelledby="info-b-harta">
-            <div id="siteMap"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 </main>
 
 <footer class="foot">
@@ -469,12 +412,12 @@
       <div>
         <h2 class="foot-h">Pe această pagină</h2>
         <ul>
-          <li><a href="#noutati">Noutăți</a></li>
           <li><a href="#despre">Despre direcție</a></li>
           <li><a href="#plan-crestere">Proiecte investiționale</a></li>
           <li><a href="#cadrul-legal">Cadrul legal</a></li>
           <li><a href="#programe">Programe de cooperare</a></li>
           <li><a href="#documente">Documente</a></li>
+          <li><a href="#noutati">Noutăți</a></li>
           <li><a href="#galerie">Galerie foto</a></li>
         </ul>
       </div>
@@ -498,15 +441,11 @@
         <ul>
           <li><a href="https://gov.md/ro/node/1030" target="_blank" rel="noopener">Petiții, cereri și audiențe</a></li>
           <li><a href="#contacte">Contacte</a></li>
-          <li><a href="#harta-site">Harta site-ului</a></li>
-          <li><a href="#accesibilitate">Declarația de accesibilitate</a></li>
-          <li><a href="#date-personale">Protecția datelor personale</a></li>
         </ul>
       </div>
     </div>
     <div class="foot-bottom">
       <p id="footNote"></p>
-      <p><span id="updated"></span><a class="foot-admin" id="footAdmin" href="/admin/" hidden>Administrare</a></p>
     </div>
   </div>
 </footer>
@@ -528,6 +467,7 @@
 </dialog>
 
 <script src="assets/js/common.js" defer></script>
+<script src="assets/js/hero-news.js" defer></script>
 <script src="assets/js/site.js" defer></script>
 </body>
 </html>

@@ -100,7 +100,7 @@
           { name: 'parentName', label: 'Instituția-părinte', type: 'text', max: 200 },
           { type: 'heading', label: 'Prima pagină' },
           { name: 'heroTitle', label: 'Titlul din prima pagină', type: 'text', max: 160 },
-          { name: 'heroLead', label: 'Text de prezentare', type: 'textarea', max: 800, rows: 4 },
+          { name: 'heroLead', label: 'Text de prezentare', type: 'textarea', max: 800, rows: 4, hint: 'Se vede în partea de sus a paginii doar cât timp nu există nicio noutate publicată; altfel, în locul lui se derulează ultimele 10 noutăți.' },
           {
             name: 'quickLinks', label: 'Acces rapid', type: 'repeater', max: 8, addLabel: 'Adaugă legătură', emptyText: 'Nicio legătură adăugată.',
             hint: 'Adresa poate fi o pagină web (https://…) sau o secțiune a paginii, de exemplu #programe.',
