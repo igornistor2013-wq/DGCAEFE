@@ -44,33 +44,5 @@
     ],
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "ev-urbact-gender",
-    "prog": "URBACT",
-    "start": "2025-02-01",
-    "end": "2025-03-31",
-    "pub": "2025-02-10",
-    "time": "",
-    "place": "Online",
-    "title": "Două inițiative URBACT pentru egalitatea de gen în politicile locale",
-    "summary": "Un curs online și un webinar pentru autorități publice, experți și practicieni urbani interesați de soluții incluzive și sustenabile.",
-    "details": [
-      "Cursul online „Orașe egale de gen”: cinci module despre integrarea perspectivei de gen în planificarea urbană, cu sesiuni bilunare. Rezervat beneficiarilor URBACT din Rețelele de Planificare a Acțiunilor și Rețelele de Transfer al Inovației. Înscrieri până la 28 februarie 2025; certificat pentru cei care finalizează cel puțin patru module.",
-      "Webinarul „Mobilitatea incluzivă de gen în orașe”: 5 martie 2025, 14:00–15:30 CET, deschis tuturor celor interesați de mobilitatea urbană.",
-      "Inițiativele pornesc de la rapoartele URBACT privind egalitatea de gen în orașe (2019, 2022)."
-    ],
-    "links": [
-      {
-        "t": "Înscriere la curs",
-        "u": "https://forms.office.com/pages/responsepage.aspx?id=obcUcqOfhUCV2nxSQJYI7Y69SnkGbWZNgVxyUfZpLJ5UOTJQVDZIRUlHWDRXQzExVkU5TTg4SFNUQyQlQCN0PWcu&route=shorturl"
-      },
-      {
-        "t": "urbact.eu",
-        "u": "https://urbact.eu/"
-      }
-    ],
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
