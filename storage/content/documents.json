@@ -304,23 +304,5 @@
     "description": "",
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "d4c17987842f",
-    "title": "Buletin informativ dedicat Apelului Rețele de Transfer",
-    "section": "program",
-    "program": "urbact",
-    "group": "buletin",
-    "kind": "Buletin informativ",
-    "date": "2025-04-01",
-    "dateLabel": "aprilie 2025",
-    "year": null,
-    "en": false,
-    "order": 30,
-    "file": null,
-    "url": "https://gov.md/sites/default/files/Filepdf/buletin_informativ_dedicat_apelului_retele_de_transfer_aprilie_2025.pdf",
-    "description": "",
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
