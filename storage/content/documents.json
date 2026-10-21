@@ -106,23 +106,5 @@
     "description": "",
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "339b9d326d68",
-    "title": "Informații despre Peer review",
-    "section": "program",
-    "program": "ie",
-    "group": "",
-    "kind": "Informare",
-    "date": "",
-    "dateLabel": "",
-    "year": null,
-    "en": false,
-    "order": 21,
-    "file": null,
-    "url": "https://gov.md/sites/default/files/Filepdf/Informa%C8%9Bii%20Peer%20review%20RO.pdf",
-    "description": "",
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
