@@ -119,29 +119,5 @@
     ],
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "ev-ie-forum",
-    "prog": "Interreg Europe",
-    "start": "",
-    "end": "",
-    "pub": "2024-03-12",
-    "time": "",
-    "place": "Anvers, Belgia",
-    "title": "Forumul de cooperare interregională Interreg Europe „Europa, hai să cooperăm!”",
-    "summary": "Forumul a marcat extinderea programului Interreg Europe către șapte țări noi, până la 36 de țări, și lansarea celui de-al treilea apel pentru propuneri de proiecte.",
-    "details": [
-      "Prezentarea oportunităților de cofinanțare a proiectelor și a serviciilor Platformei de Învățare a Politicilor.",
-      "Networking pentru identificarea partenerilor de proiect și discuții directe cu secretariatul comun.",
-      "Circa 500 de participanți: factori de decizie naționali, regionali și locali, reprezentanți ai Comisiei Europene și ai altor instituții europene."
-    ],
-    "links": [
-      {
-        "t": "Pagina evenimentului",
-        "u": "https://www.interregeurope.eu/event/europecooperates2024"
-      }
-    ],
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
