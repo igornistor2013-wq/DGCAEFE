@@ -96,28 +96,5 @@
     ],
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "ev-bike",
-    "prog": "Regiunea Dunării",
-    "start": "2024-09-18",
-    "end": "2024-10-23",
-    "pub": "2024-10-04",
-    "time": "",
-    "place": "Sondaj online",
-    "title": "Studiu privind turismul pe bicicletă 2024",
-    "summary": "Un sondaj anonim de circa 10 minute despre experiențele de cicloturism și folosirea transportului public pentru distanțe lungi, cu accent pe Regiunea Dunării.",
-    "details": [
-      "Realizat de Federația Europeană a Bicicliștilor, în cadrul inițiativei EuroVelo, ca parte a proiectului Interreg Regiunea Dunării Active2Public Transport, cofinanțat de UE.",
-      "Răspunsurile sunt confidențiale și sunt folosite doar pentru analize agregate."
-    ],
-    "links": [
-      {
-        "t": "Sondajul",
-        "u": "https://eucyclistsfed.questionpro.com/a/TakeSurvey?tt=FFSxQ5YVrkoECHrPeIW9eQ%3D%3D"
-      }
-    ],
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
