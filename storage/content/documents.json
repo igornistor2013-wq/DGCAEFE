@@ -340,23 +340,5 @@
     "description": "",
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "f78f8932b69f",
-    "title": "Campusurile URBACT: un instrument valoros pentru dezvoltarea urbană durabilă",
-    "section": "program",
-    "program": "urbact",
-    "group": "buletin",
-    "kind": "Buletin informativ",
-    "date": "",
-    "dateLabel": "",
-    "year": null,
-    "en": false,
-    "order": 32,
-    "file": null,
-    "url": "https://gov.md/sites/default/files/Filepdf/newsletter.pdf",
-    "description": "",
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
