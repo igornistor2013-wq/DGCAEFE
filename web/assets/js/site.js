@@ -61,6 +61,19 @@
     MF: 'Ministerul Finanțelor',
     MJ: 'Ministerul Justiției'
   };
+  // Pe cardurile din secțiunea „Proiecte investiționale” ministerul apare cu domeniul lui, pe scurt („Ministerul Energiei” → „Energie”).
+  var MINISTRY_SHORT = {
+    MEC: 'Educație și cercetare',
+    MAIA: 'Agricultură și industrie alimentară',
+    MIDR: 'Infrastructură și dezvoltare regională',
+    MDED: 'Dezvoltare economică și digitalizare',
+    MS: 'Sănătate',
+    MEN: 'Energie',
+    MM: 'Mediu',
+    MC: 'Cultură',
+    MF: 'Finanțe',
+    MJ: 'Justiție'
+  };
   // Abrevieri explicate sub lista de proiecte; se afișează numai cele care apar în textele proiectelor publicate (plus ministerele folosite).
   var ABBR = [
     ['AFD', 'Agenția Franceză de Dezvoltare'], ['AND', 'Administrația Națională a Drumurilor'], ['BEI', 'Banca Europeană de Investiții'],
@@ -403,7 +416,9 @@
     return m ? MINISTRY_LC[m.toLowerCase()] || m : NO_MIN;
   }
   function fullName(k) { return hasOwn(MINISTRY, k) ? MINISTRY[k] : ''; }
-  function minName(k) { return k === NO_MIN ? 'Minister nespecificat' : fullName(k) || k; }
+  function shortName(k) { return hasOwn(MINISTRY_SHORT, k) ? MINISTRY_SHORT[k] : ''; }
+  // Numele de pe card: cel scurt („Energie”); un minister care nu este în listă rămâne așa cum a fost scris.
+  function minName(k) { return k === NO_MIN ? 'Minister nespecificat' : shortName(k) || fullName(k) || k; }
   // Ministerele care promovează proiecte, cu numărul de proiecte al fiecăruia: cele cu mai multe proiecte primele.
   function ministries() {
     var by = Object.create(null);
@@ -437,16 +452,16 @@
     var box = $('#gpOverview');
     var groups = ministries();
     if (inv.min !== 'all' && !groups.some(function (g) { return g.k === inv.min; })) inv.min = 'all';
-    var card = function (key, n, name, abbr) {
-      return '<li><button class="mn-card' + (key === 'all' ? ' mn-all' : '') + '" type="button" data-min="' + esc(key) + '" aria-pressed="' + (inv.min === key) + '">' +
+    var card = function (key, n, name, abbr, full) {
+      return '<li><button class="mn-card' + (key === 'all' ? ' mn-all' : '') + '" type="button" data-min="' + esc(key) + '"' + (full ? ' title="' + esc(full) + '"' : '') + ' aria-pressed="' + (inv.min === key) + '">' +
         '<span class="mn-num"><b>' + n + '</b><small>' + plural(n, 'proiect', 'proiecte') + '</small></span>' +
         '<span class="mn-name">' + esc(name) + '</span>' + (abbr ? '<span class="mn-abbr">' + esc(abbr) + '</span>' : '') + '</button></li>';
     };
     box.hidden = !total;
     box.innerHTML = !total ? '' :
       '<p class="gp-cap" id="h-th">Cele <b>' + total + '</b> ' + plural(total, 'proiect investițional', 'proiecte investiționale') + ' în infrastructură sunt grupate după ministerele care le promovează. <span>Alegeți un minister pentru a filtra lista.</span></p>' +
-      '<ol class="mn-cards" aria-labelledby="h-th">' + card('all', total, 'Toate ministerele', '') +
-      groups.map(function (g) { return card(g.k, g.n, g.name, g.k !== NO_MIN && fullName(g.k) ? g.k : ''); }).join('') + '</ol>';
+      '<ol class="mn-cards" aria-labelledby="h-th">' + card('all', total, 'Total', '', '') +
+      groups.map(function (g) { return card(g.k, g.n, g.name, g.k !== NO_MIN && fullName(g.k) ? g.k : '', fullName(g.k)); }).join('') + '</ol>';
   }
 
   // Pe ecrane înguste filtrul se strânge sub butonul „Filtre”, care arată dacă este activ.
@@ -470,7 +485,7 @@
   function invMatches(p) {
     var mk = minKey(p);
     if (inv.min !== 'all' && mk !== inv.min) return false;
-    return DG.matches([p.name, p.ministry, fullName(mk), p.financier, p.implementer, p.location].join(' '), inv.q);
+    return DG.matches([p.name, p.ministry, fullName(mk), shortName(mk), p.financier, p.implementer, p.location].join(' '), inv.q);
   }
 
   function invSorted(items) {
@@ -976,7 +991,7 @@
     D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: (LEVELS[p.level] || LEVELS.inter).name + ', ' + (p.strand || '') + '. Deschide pagina programului', k: 'interreg program ' + (p.desc || '') + ' ' + (ALIAS[p.id] || ''), go: function () { goProgram(p.id); } }); });
     D.investments.forEach(function (p) {
       var mk = minKey(p);
-      idx.push({ cat: 'Investiții', t: p.name, s: [mk !== NO_MIN && mk, moneyText(p), finParts(p.financier).short].filter(Boolean).join(' · '), k: [fullName(mk), p.financier, p.implementer, p.location, p.text, (p.results || []).join(' ')].join(' '), go: function () { goInvestment(p.id); } });
+      idx.push({ cat: 'Investiții', t: p.name, s: [mk !== NO_MIN && mk, moneyText(p), finParts(p.financier).short].filter(Boolean).join(' · '), k: [fullName(mk), shortName(mk), p.financier, p.implementer, p.location, p.text, (p.results || []).join(' ')].join(' '), go: function () { goInvestment(p.id); } });
     });
     (D.settings.duties || []).forEach(function (d, i) {
       if (d.text || (d.items && d.items.length)) idx.push({ cat: 'Despre direcție', t: d.title, s: 'Funcție de bază. Deschide atribuțiile', k: (d.text || '') + ' ' + (d.items || []).join(' '), go: function () { goFunction(i); } });

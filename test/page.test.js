@@ -68,6 +68,33 @@ test('proiectele investiționale: grupate după minister, fără obiective econo
   assert.match(css, /\.mn-cards\{display:grid/);
 });
 
+// Obiectele cu ministere din site.js (prescurtare → denumire), citite din cod fără să pornească pagina.
+function objectFrom(name) {
+  const m = new RegExp(`var ${name} = (\\{[^}]*\\});`).exec(site);
+  assert.ok(m, `${name} există în site.js`);
+  return new Function(`return ${m[1]}`)(); // eslint-disable-line no-new-func
+}
+
+test('cardurile ministerelor: denumiri scurte pe domeniu („Energie”), iar primul card este „Total”', () => {
+  const full = objectFrom('MINISTRY');
+  const short = objectFrom('MINISTRY_SHORT');
+  assert.deepEqual(Object.keys(short).sort(), Object.keys(full).sort(), 'fiecare minister are și denumirea scurtă');
+  assert.deepEqual([short.MEN, short.MM, short.MS, short.MEC], ['Energie', 'Mediu', 'Sănătate', 'Educație și cercetare']);
+  for (const [k, v] of Object.entries(short)) {
+    assert.ok(v && !/^Ministerul\b/.test(v), `${k}: denumirea scurtă nu începe cu „Ministerul”`);
+    assert.ok(v.length < full[k].length, `${k}: denumirea scurtă este mai scurtă decât cea întreagă`);
+  }
+  // toate ministerele proiectelor livrate au denumire scurtă
+  const seed = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'seed', 'content', 'investments.json'), 'utf8'));
+  for (const p of seed) assert.ok(short[p.ministry], `proiectul ${p.order}: ministerul „${p.ministry}” are denumire scurtă`);
+  // primul card este „Total”, iar cardul ministerului arată denumirea scurtă și abrevierea
+  assert.match(site, /card\('all', total, 'Total'/);
+  assert.doesNotMatch(site, /Toate ministerele/);
+  assert.match(site, /shortName\(k\) \|\| fullName\(k\) \|\| k/);
+  // căutarea găsește proiectele și după denumirea scurtă („sănătate” nu este în „Ministerul Sănătății”)
+  assert.match(site, /fullName\(mk\), shortName\(mk\)/);
+});
+
 test('textul nu mai este strâns în partea stângă: nicio limită de lățime pe textele secțiunilor', () => {
   for (const sel of ['.sec-head p', '.prose', '.about-sub', '.fn-text', '.fn-items', '.num-list', '#growthIntro', '.gp-note p', '.callout p', '.prog-desc', '.event h3', '.event p']) {
     const esc = sel.replace(/[.#]/g, c => '\\' + c);
