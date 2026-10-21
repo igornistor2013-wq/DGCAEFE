@@ -322,23 +322,5 @@
     "description": "",
     "createdAt": "2026-10-19T10:15:40.006Z",
     "updatedAt": "2026-10-19T10:15:40.006Z"
-  },
-  {
-    "id": "4331e51ecdf7",
-    "title": "URBACT în 2025: inovare urbană, colaborare și acțiune pentru orașe sustenabile",
-    "section": "program",
-    "program": "urbact",
-    "group": "buletin",
-    "kind": "Buletin informativ",
-    "date": "2025-02-01",
-    "dateLabel": "februarie 2025",
-    "year": null,
-    "en": false,
-    "order": 31,
-    "file": null,
-    "url": "https://gov.md/sites/default/files/Filepdf/10_februarie_2025_newsletter.pdf",
-    "description": "",
-    "createdAt": "2026-10-19T10:15:40.006Z",
-    "updatedAt": "2026-10-19T10:15:40.006Z"
   }
 ]
