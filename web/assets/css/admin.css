@@ -267,7 +267,7 @@ label,.lbl{display:block;font-weight:700;font-size:.9375rem;margin-bottom:.3rem}
 .up-btns label.btn:focus-within{outline:3px solid var(--focus);outline-offset:2px}
 
 /* ---------- Dialoguri ---------- */
-dialog.dlg{border:0;padding:0;border-radius:6px;width:min(50rem,100% - 1.5rem);max-height:calc(100dvh - 2rem);box-shadow:0 24px 64px rgba(4,20,70,.42);color:var(--ink);background:#fff;flex-direction:column;overflow:hidden}
+dialog.dlg{border:0;padding:0;border-radius:6px;width:min(50rem,100% - 1.5rem);max-height:calc(100dvh - 2rem);box-shadow:0 24px 64px rgba(4,20,70,.42);color:var(--ink);background:#fff;flex-direction:column;overflow:hidden;overflow:clip}
 dialog.dlg[open]{display:flex}
 dialog.dlg.dlg-sm{width:min(30rem,100% - 1.5rem)}
 dialog.dlg::backdrop{background:rgba(4,20,70,.62)}

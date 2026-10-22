@@ -302,3 +302,10 @@ test('descrierea imaginilor (text alternativ) are cel mult 100 de caractere, în
   for (const name of ['imageAlt', 'alt']) assert.match(forms, new RegExp(`name: '${name}', label: 'Descrierea imaginii', type: 'text', max: 100\\b`), `formularul: ${name}`);
   assert.doesNotMatch(fs.readFileSync(path.join(WEB, 'assets', 'js', 'admin-schemas.js'), 'utf8'), /Descrierea imaginii', \{ max: 200/);
 });
+
+test('administrare: fereastra de editare nu se poate derula singură (altfel, după alegerea unei fotografii rămâne o fereastră albă)', () => {
+  const css = fs.readFileSync(path.join(WEB, 'assets', 'css', 'admin.css'), 'utf8');
+  assert.match(/dialog\.dlg\{[^}]*\}/.exec(css)[0], /overflow:clip/);
+  const forms = fs.readFileSync(path.join(WEB, 'assets', 'js', 'admin-forms.js'), 'utf8');
+  assert.match(forms, /addEventListener\('scroll', \(\) => \{ if \(d\.scrollTop/);
+});

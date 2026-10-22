@@ -653,7 +653,13 @@
 
       current = state;
       ADM.guards.push(state.dirty);
+      // Fereastra în sine nu trebuie să se deruleze niciodată (doar corpul ei): altfel, după alegerea unei fotografii, antetul dispare și rămâne o fereastră albă.
+      if (!d.__noScroll) {
+        d.__noScroll = true;
+        d.addEventListener('scroll', () => { if (d.scrollTop || d.scrollLeft) { d.scrollTop = 0; d.scrollLeft = 0; } });
+      }
       d.showModal();
+      d.scrollTop = 0;
       d.querySelector('.dlg-body').scrollTop = 0;
       form.focusFirst();
     });
