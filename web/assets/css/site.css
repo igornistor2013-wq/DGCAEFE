@@ -116,12 +116,22 @@ abbr[title]{text-decoration:none;cursor:help}
 .h1-b{color:var(--accent)}
 .lead{font-size:1.125rem;line-height:1.6;color:rgba(255,255,255,.93);max-width:64rem;margin-bottom:1.75rem;text-wrap:pretty}
 
-/* Noutățile din partea de sus, în locul textului de prezentare: ultimele 10, câte una, schimbate la 10 secunde (web/assets/js/hero-news.js).
+/* Noutățile din partea de sus, în locul textului de prezentare: ultimele 3, câte una, schimbate la 10 secunde (web/assets/js/hero-news.js).
    Diapozitivele stau unul peste altul în aceeași celulă a unei grile, deci înălțimea este cea a celui mai înalt și, la schimbare, pagina nu „sare”. */
 .hero-news{position:relative;overflow:hidden;max-width:64rem;margin:0 0 1.75rem;padding:1.2rem clamp(1rem,3vw,1.75rem) 0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.3);border-radius:var(--rc)}
 .hn-stage{display:grid}
 .hn-slide{grid-area:1/1;align-self:center;min-width:0;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s}
 .hn-slide.is-active{opacity:1;visibility:visible;transition:opacity .45s ease,visibility 0s}
+.hn-slide.has-pic{display:grid;grid-template-columns:minmax(0,19rem) minmax(0,1fr);gap:0 clamp(1rem,2.5vw,1.75rem);align-items:center;text-align:left}
+.hn-pic{display:block;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.12);aspect-ratio:16/9;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.hn-pic img{width:100%;height:100%;object-fit:cover}
+.hn-slide.has-pic .hn-title{margin-inline:0}
+.hn-slide.has-pic .hn-meta{justify-content:flex-start}
+.hn-slide.has-pic .hn-text{min-width:0}
+@media (max-width:47.99rem){
+  .hn-slide.has-pic{grid-template-columns:minmax(0,1fr);gap:.9rem}
+  .hn-pic{max-width:22rem}
+}
 .hn-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .75rem;margin:0 0 .6rem;font-size:.875rem;line-height:1.4;color:rgba(255,255,255,.88)}
 .hn-tag{display:inline-block;padding:.08rem .6rem;border-radius:3px;background:var(--accent);color:#14171F;font-size:.8125rem;font-weight:700;line-height:1.5}
 .hn-title{width:fit-content;max-width:100%;margin:0 0 .6rem;font-family:var(--head);font-weight:700;font-size:clamp(1.25rem,2.3vw,1.65rem);line-height:1.28;text-wrap:balance;overflow-wrap:break-word;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}

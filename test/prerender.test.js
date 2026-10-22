@@ -284,7 +284,7 @@ test('serverul: prima pagină cu titlul gata scris, robots.txt și pagina „404
     await store.create('news', { title: 'Noutate de ultimă oră', date: '2099-01-01', summary: 'Rezumat <scurt>' });
     const withNews = await get('/');
     assert.match(withNews.text, /<div class="hn-slide is-active">[^]*?<a href="#stire\/[^"]+">Noutate de ultimă oră<\/a>[^]*?Rezumat &lt;scurt&gt;/);
-    assert.equal((withNews.text.match(/class="hn-slide/g) || []).length, 4, 'cele 3 noutăți de pornire și cea nouă');
+    assert.equal((withNews.text.match(/class="hn-slide/g) || []).length, 3, 'cea nouă și încă două dintre cele de pornire (se iau cele mai noi 3)');
 
     const robots = await get('/robots.txt');
     assert.equal(robots.status, 200);
@@ -330,17 +330,17 @@ const fakeNews = n => Array.from({ length: n }, (_, i) => ({ id: `n${i + 1}`, ti
 const heroStage = html => /<div class="hn-stage">([\s\S]*?)<\/div>\s*<div class="hn-bar">/.exec(html)[1];
 const heroOpen = html => /<section class="hero-news[^"]*"[^>]*>/.exec(html)[0];
 
-test('noutățile din partea de sus: ultimele 10 se scriu în HTML exact ca în browser, iar textul de prezentare rămâne ascuns în pagină', () => {
+test('noutățile din partea de sus: ultimele 3 se scriu în HTML exact ca în browser, iar textul de prezentare rămâne ascuns în pagină', () => {
   const html = prerender.fillIndex(template, { news: fakeNews(12) });
   const stage = heroStage(html);
-  assert.equal((stage.match(/class="hn-slide/g) || []).length, 10, 'din 12 se iau 10');
+  assert.equal((stage.match(/class="hn-slide/g) || []).length, 3, 'din 12 se iau 3');
   assert.equal(stage, HeroNews.slidesHtml(HeroNews.pick(fakeNews(12)), DG), 'același text ca cel scris de browser (prima afișare nu se schimbă)');
-  assert.deepEqual([...stage.matchAll(/<a href="#stire\/(n\d+)">/g)].map(m => m[1]), Array.from({ length: 10 }, (_, i) => `n${i + 1}`), 'în ordinea primită: cele mai noi primele');
+  assert.deepEqual([...stage.matchAll(/<a href="#stire\/(n\d+)">/g)].map(m => m[1]), Array.from({ length: 3 }, (_, i) => `n${i + 1}`), 'în ordinea primită: cele mai noi primele');
   assert.equal((stage.match(/is-active/g) || []).length, 1);
   assert.ok(stage.startsWith('<div class="hn-slide is-active">'), 'se vede prima');
   assert.doesNotMatch(heroOpen(html), /\bhidden\b|hn-single/, 'blocul se vede, cu butoane');
   assert.match(html, /<p class="lead" id="introLead" hidden>/, 'prezentarea este ascunsă, dar rămâne în pagină');
-  assert.equal(inner(html, 'hnTotal'), '10');
+  assert.equal(inner(html, 'hnTotal'), '3');
   assert.match(html, /<a class="hn-more" id="hnMore" href="#stire\/n1"/);
   assert.doesNotMatch(html, /<!--hero-news-->/);
   // data este un element <time>, iar eticheta și rezumatul apar doar dacă există

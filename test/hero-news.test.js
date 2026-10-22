@@ -1,5 +1,5 @@
 'use strict';
-// Derulatorul de noutăți din partea de sus a primei pagini (web/assets/js/hero-news.js): alegerea celor mai noi 10, textul
+// Derulatorul de noutăți din partea de sus a primei pagini (web/assets/js/hero-news.js): alegerea celor mai noi 3, textul
 // diapozitivelor, schimbarea la 10 secunde, butoanele, pauza, mouse-ul și tastatura, pagina ascunsă. Rulează fără browser,
 // cu un DOM foarte mic și timp simulat. (Comportamentul s-a verificat și într-un browser real, cu timp simulat.) Rulează cu: npm test
 const fs = require('fs');
@@ -111,12 +111,12 @@ function setup(t, count) {
   return ctx;
 }
 
-test('pick: primele 10 în ordinea primită, fără listă nu se alege nimic', () => {
+test('pick: primele 3 în ordinea primită, fără listă nu se alege nimic', () => {
   const H = fresh();
-  assert.equal(H.MAX, 10);
+  assert.equal(H.MAX, 3);
   assert.equal(H.SECONDS, 10);
   const list = news(15);
-  assert.deepEqual(H.pick(list).map(n => n.id), list.slice(0, 10).map(n => n.id));
+  assert.deepEqual(H.pick(list).map(n => n.id), list.slice(0, 3).map(n => n.id));
   assert.equal(H.pick(list.slice(0, 3)).length, 3);
   assert.notEqual(H.pick(list), list, 'o copie, lista originală nu se atinge');
   assert.equal(list.length, 15);
@@ -145,10 +145,10 @@ test('diapozitivul: titlul duce la noutate, data este <time>, eticheta și rezum
   assert.equal(H.slidesHtml([], DG), '');
 });
 
-test('din 12 noutăți se derulează 10, la 10 secunde, cu întoarcere la prima; schimbările automate nu sunt anunțate', t => {
+test('din 12 noutăți se derulează 3, la 10 secunde, cu întoarcere la prima; schimbările automate nu sunt anunțate', t => {
   const p = setup(t, 12);
-  assert.equal(p.stage.children.length, 10);
-  assert.equal(p.total.textContent, '10');
+  assert.equal(p.stage.children.length, 3);
+  assert.equal(p.total.textContent, '3');
   assert.equal(p.active(), 0);
   assert.equal(p.num.textContent, '1');
   assert.equal(p.more.getAttribute('href'), '#stire/n1');
@@ -162,26 +162,26 @@ test('din 12 noutăți se derulează 10, la 10 secunde, cu întoarcere la prima;
   assert.equal(p.active(), 1, 'la 10 secunde a doua');
   assert.equal(p.num.textContent, '2');
   assert.equal(p.more.getAttribute('href'), '#stire/n2');
-  for (let i = 2; i < 10; i++) {
+  for (let i = 2; i < 3; i++) {
     p.tick(10000);
     assert.equal(p.active(), i);
     assert.equal(p.num.textContent, String(i + 1));
   }
   p.tick(10000);
-  assert.equal(p.active(), 0, 'după a 10-a, din nou prima');
+  assert.equal(p.active(), 0, 'după a 3-a, din nou prima');
   assert.equal(p.live.textContent, '', 'cititoarele de ecran nu sunt întrerupte la fiecare 10 secunde');
   assert.equal(p.bar.classList.contains('run'), true, 'bara de progres pornește de la zero la fiecare schimbare');
 });
 
 test('butoanele „înapoi” și „înainte” trec în cerc, anunță schimbarea și repornesc numărătoarea', t => {
-  const p = setup(t, 5);
+  const p = setup(t, 3);
   p.click(p.next);
   assert.equal(p.active(), 1);
-  assert.equal(p.live.textContent, 'Noutatea 2 din 5: Noutatea 2');
+  assert.equal(p.live.textContent, 'Noutatea 2 din 3: Noutatea 2');
   p.click(p.prev);
   p.click(p.prev);
-  assert.equal(p.active(), 4, 'înapoi de la prima duce la ultima');
-  assert.equal(p.live.textContent, 'Noutatea 5 din 5: Noutatea 5');
+  assert.equal(p.active(), 2, 'înapoi de la prima duce la ultima');
+  assert.equal(p.live.textContent, 'Noutatea 3 din 3: Noutatea 3');
   p.click(p.next);
   assert.equal(p.active(), 0, 'înainte de la ultima duce la prima');
   // după o schimbare făcută de vizitator, următoarea vine abia după alte 10 secunde
@@ -317,28 +317,30 @@ test('nicio noutate: rămâne textul de prezentare, fără derulator și fără 
 });
 
 test('rescrierea paginii (după ce se află că cel care o vede este administrator) păstrează noutatea afișată și nu dublează ascultătorii', t => {
-  const p = setup(t, 6);
+  const p = setup(t, 3);
   p.click(p.next);
   p.click(p.next);
-  p.click(p.next);
-  assert.equal(p.active(), 3);
+  assert.equal(p.active(), 2);
   p.rerender();
-  assert.equal(p.active(), 3, 'rămâne la aceeași noutate');
-  assert.equal(p.num.textContent, '4');
+  assert.equal(p.active(), 2, 'rămâne la aceeași noutate');
+  assert.equal(p.num.textContent, '3');
   assert.equal(p.box.listeners.click.length, 1);
   assert.equal(p.box.listeners.pointerenter.length, 1);
   assert.equal(p.doc.listeners.pointermove.length, 1);
   assert.equal(p.doc.listeners.visibilitychange.length, 1);
   p.tick(9999);
-  assert.equal(p.active(), 3);
+  assert.equal(p.active(), 2);
   p.tick(1);
-  assert.equal(p.active(), 4, 'numărătoarea reîncepe o singură dată (un singur ceas)');
+  assert.equal(p.active(), 0, 'numărătoarea reîncepe o singură dată (un singur ceas); după ultima vine prima');
 
   // mai puține noutăți decât indicele curent: se revine în limite
-  p.rerender(news(3));
-  assert.equal(p.stage.children.length, 3);
+  p.click(p.next);
+  p.click(p.next);
   assert.equal(p.active(), 2);
-  assert.equal(p.total.textContent, '3');
+  p.rerender(news(2));
+  assert.equal(p.stage.children.length, 2);
+  assert.equal(p.active(), 1);
+  assert.equal(p.total.textContent, '2');
   // ultima noutate este ștearsă: rămâne textul de prezentare, iar ceasul se oprește
   p.rerender([]);
   assert.equal(p.box.hidden, true);

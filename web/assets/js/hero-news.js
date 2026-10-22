@@ -1,5 +1,5 @@
 /* Noutățile din partea de sus a primei pagini.
-   În locul textului de prezentare se derulează, pe rând, ultimele 10 noutăți (cele mai noi, în ordinea din rubrica „Noutăți”),
+   În locul textului de prezentare se derulează, pe rând, ultimele 3 noutăți (cele mai noi, în ordinea din rubrica „Noutăți”),
    câte 10 secunde fiecare. Derularea se oprește:
      - cu butonul de pauză (rămâne oprită până se apasă din nou);
      - cât timp cursorul mouse-ului este deasupra, sau cât timp cursorul tastaturii (focusul) este înăuntru;
@@ -14,7 +14,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  var MAX = 10; // câte noutăți se derulează
+  var MAX = 3; // câte noutăți se derulează
   var SECONDS = 10; // cât stă fiecare pe ecran
 
   // `h` = funcțiile de scriere din common.js: esc (text sigur), dateText (data unei noutăți), icon (pictograma).
@@ -30,11 +30,14 @@
     var date = h.dateText(n);
     var meta = (n.tag ? '<span class="hn-tag">' + h.esc(n.tag) + '</span>' : '') +
       (date ? '<time datetime="' + h.esc(n.date) + '">' + h.esc(date) + '</time>' : '');
-    return '<div class="hn-slide' + (i === 0 ? ' is-active' : '') + '">' +
-      (meta ? '<p class="hn-meta">' + meta + '</p>' : '') +
+    // fotografia noutății (dacă are una), alături de text; este decorativă, deoarece titlul de alături duce la aceeași noutate
+    var src = n.image && (n.image.thumb || n.image.path);
+    var pic = src ? '<a class="hn-pic" href="' + h.esc(href(n)) + '" tabindex="-1" aria-hidden="true"><img src="' + h.esc(src) + '" alt="" width="640" height="360"' + (i === 0 ? '' : ' loading="lazy"') + '></a>' : '';
+    var text = (meta ? '<p class="hn-meta">' + meta + '</p>' : '') +
       '<p class="hn-title"><a href="' + h.esc(href(n)) + '">' + h.esc(n.title) + '</a></p>' +
-      (n.summary ? '<p class="hn-sum">' + h.esc(n.summary) + '</p>' : '') +
-      '</div>';
+      (n.summary ? '<p class="hn-sum">' + h.esc(n.summary) + '</p>' : '');
+    return '<div class="hn-slide' + (i === 0 ? ' is-active' : '') + (src ? ' has-pic' : '') + '">' +
+      (src ? pic + '<div class="hn-text">' + text + '</div>' : text) + '</div>';
   }
 
   function slidesHtml(list, h) {
