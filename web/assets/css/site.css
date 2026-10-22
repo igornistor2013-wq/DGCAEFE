@@ -960,3 +960,21 @@ html[data-contrast="high"] .inv-no{background:#000;color:#fff}
   .foot a,.foot-name,.foot-h{color:#000}
   .foot-brand img{display:none}
 }
+
+/* Banda de sus nu depășește lățimea paginii pe ecrane foarte late; principiile de activitate, stilizate ca plăci. */
+@media screen and (min-width:90rem){
+  .intro{width:min(var(--wrap),100% - 2*var(--gutter));margin:1rem auto 0;border-radius:var(--rc)}
+}
+@media screen{
+  .about-princ{position:relative;background:#fff;color:var(--ink);border:1px solid var(--line-d);border-top:4px solid var(--accent);box-shadow:var(--shadow)}
+  .about-princ h3{color:var(--blue-dd);font-size:.8125rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-bottom:1rem}
+  .about-princ ul{grid-template-columns:repeat(auto-fit,minmax(min(100%,11rem),1fr));gap:.75rem}
+  .about-princ li{display:flex;flex-direction:column;align-items:flex-start;gap:.55rem;padding:.85rem .95rem;background:var(--tile,#f3f5f9);border:1px solid var(--line);border-radius:var(--r);font-weight:600;font-size:.9375rem;line-height:1.35;color:var(--blue-dd);transition:border-color .15s,transform .15s}
+  .about-princ li:hover{border-color:var(--blue);transform:translateY(-2px)}
+  .about-princ .ico{width:1.9rem;height:1.9rem;padding:.3rem;margin:0;border-radius:50%;background:var(--blue);color:#fff}
+  html[data-contrast="high"] .about-princ{background:#000;border:2px solid #fff;border-top-width:4px;color:#fff}
+  html[data-contrast="high"] .about-princ h3{color:#FFE24D}
+  html[data-contrast="high"] .about-princ li{background:#000;border-color:#fff;color:#fff}
+  html[data-contrast="high"] .about-princ .ico{background:#FFE24D;color:#000}
+}
+@media (prefers-reduced-motion:reduce){.about-princ li{transition:none}.about-princ li:hover{transform:none}}
