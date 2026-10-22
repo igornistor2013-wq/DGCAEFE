@@ -11,6 +11,7 @@ const { buildApi } = require('./lib/api');
 const { trustProxySetting } = require('./lib/proxy');
 const { buildPublic } = require('./lib/public');
 const prerender = require('./lib/prerender');
+const I18n = require('./web/assets/js/i18n.js');
 
 const NOT_FOUND = `<!doctype html><html lang="ro"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagina nu a fost găsită</title>
 <body style="font:18px/1.6 system-ui,sans-serif;max-width:36em;margin:15vh auto;padding:0 24px;color:#1b2535"><h1 style="font-size:1.6rem">Pagina nu a fost găsită</h1><p>Adresa nu există sau a fost mutată.</p><p><a href="/">Înapoi la prima pagină</a></p></body></html>`;
@@ -67,10 +68,15 @@ function createApp() {
     },
     express.static(path.join(cfg.WEB_DIR, 'admin'), { index: 'index.html' })
   );
-  app.get('/', (req, res) => {
-    const html = prerender.fillIndex(readWeb('index.html'), buildPublic(store.list), { siteUrl });
+  // Prima pagină în fiecare limbă: / (română), /ru și /en; ru.html, en.html și index.html sunt aceleași pagini (legăturile din comutatorul de limbă).
+  const homePage = lang => (req, res) => {
+    const html = prerender.fillIndex(readWeb('index.html'), buildPublic(store.list, lang), { siteUrl, lang });
     res.set('Cache-Control', 'no-cache').type('html').send(html);
-  });
+  };
+  for (const lang of I18n.LANGS) {
+    const m = I18n.META[lang];
+    app.get(lang === I18n.DEFAULT ? ['/', '/index.html'] : [m.path, `/${m.file}`], homePage(lang));
+  }
   app.get('/robots.txt', (req, res) => res.type('text/plain').send(prerender.robotsTxt(siteUrl)));
 
   app.use((req, res) => {

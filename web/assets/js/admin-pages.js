@@ -395,7 +395,7 @@
       const formHash = '#/' + cfg.key + '/' + (isNew ? 'new' : it.id);
       const res = await ADM.openForm({
         title: isNew ? cfg.add : cfg.editTitle(it),
-        fields: cfg.fields(),
+        fields: cfg.fields().concat(ADM.trFields(cfg.key)),
         values: it || (cfg.defaults ? cfg.defaults() : {}),
         saveLabel: isNew ? 'Adaugă' : 'Salvează modificările',
         onSave: data => (isNew ? ADM.api('POST', url, data) : ADM.api('PUT', url + '/' + it.id, data)),
@@ -680,7 +680,7 @@
           { name: 'album', label: 'Album', type: 'text', max: 80, w: 'half', list: albums },
           { name: 'date', label: 'Data', type: 'date', w: 'half' },
           { name: 'alt', label: 'Descrierea imaginii', type: 'text', max: 100, hint: 'O propoziție care spune ce se vede în fotografie (cel mult 100 de caractere, cum cere HG nr. 728/2023). Este citită de cititoarele de ecran.' }
-        ],
+        ].concat(ADM.trFields('gallery')),
         values: g,
         saveLabel: 'Salvează modificările',
         onSave: data => ADM.api('PUT', '/api/admin/gallery/' + g.id, data),

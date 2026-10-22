@@ -70,6 +70,10 @@ abbr[title]{text-decoration:none;cursor:help}
 .utility p{margin:0}
 .utility a{color:var(--ink);text-decoration:none;margin-right:1.25rem;white-space:nowrap}
 .utility a:hover{color:var(--blue);text-decoration:underline}
+.lang{display:flex;gap:.2rem;align-items:center;margin-inline:auto 0}
+.lang a{margin:0;padding:.3rem .55rem;border-radius:var(--r);font-weight:500;text-decoration:none}
+.lang a[aria-current="true"]{background:var(--blue);color:#fff;font-weight:600}
+.lang a[aria-current="true"]:hover{color:#fff;text-decoration:none}
 .a11y{display:flex;gap:.35rem;align-items:center}
 .a11y button{font-size:.8125rem;line-height:1;padding:.38rem .6rem;border:1px solid var(--line-d);background:#fff;color:var(--ink);border-radius:var(--r);cursor:pointer;min-width:2rem}
 .a11y button:hover{border-color:var(--blue);color:var(--blue)}
@@ -657,6 +661,7 @@ body.nf-page main{flex:1 0 auto}
 .nf-links a{display:inline-block;padding:.4rem .9rem;border:1px solid var(--blue);border-radius:999px;text-decoration:none;font-weight:500}
 .nf-links a:hover{background:var(--blue-l)}
 .nf-note{max-width:46rem}
+.nf-multi{max-width:46rem;color:var(--muted)}
 .nf-foot p{margin:0}
 
 /* ---------- Mesaje, buton „sus” ---------- */
@@ -859,7 +864,7 @@ html[data-contrast="high"] .amount,html[data-contrast="high"] .h1-b,html[data-co
 
 /* ---------- Tipărire ---------- */
 @media print{
-  .utility,.mainnav,.adminbar,.search-open,.search-box,.quick,.levels-box,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.contact-map,.maplink,.form,.skip,.flagstrip{display:none!important}
+  .utility,.lang,.mainnav,.adminbar,.search-open,.search-box,.quick,.levels-box,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.contact-map,.maplink,.form,.skip,.flagstrip{display:none!important}
   body{font-size:11pt;color:#000;background:#fff}
   .masthead{position:static;box-shadow:none;border-bottom:1px solid #000}
   .sec,.sec-alt{padding:1rem 0;background:#fff;border:0}

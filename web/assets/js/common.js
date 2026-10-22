@@ -2,6 +2,11 @@
 (function () {
   'use strict';
 
+  // Limba paginii (ro, ru, en): în browser, din <html lang>; în Node (construirea paginilor) se dă explicit funcțiilor.
+  var I18n = typeof module === 'object' && module.exports ? require('./i18n.js') : window.I18n;
+  var PAGE_LANG = 'ro';
+  if (typeof document !== 'undefined' && I18n && I18n.isLang(document.documentElement.lang)) PAGE_LANG = document.documentElement.lang;
+
   var MONTHS = ['ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie', 'iulie', 'august', 'septembrie', 'octombrie', 'noiembrie', 'decembrie'];
 
   function esc(s) {
@@ -24,23 +29,27 @@
     });
   }
 
-  function fmtDate(iso) {
-    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  function fmtDate(iso, lang) {
+    if (I18n) return I18n.fmtDate(lang || PAGE_LANG, iso);
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); // panoul de administrare nu încarcă i18n.js: doar română
     return m ? Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1] : '';
   }
-  function dateText(item) {
-    return (item && (item.dateLabel || fmtDate(item.date))) || '';
+  function dateText(item, lang) {
+    return (item && (item.dateLabel || fmtDate(item.date, lang))) || '';
   }
   function today() {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
-  function formatSize(bytes) {
+  function formatSize(bytes, lang) {
+    lang = lang || PAGE_LANG;
     if (!bytes && bytes !== 0) return '';
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return Math.round(bytes / 1024) + ' KB';
-    return (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
+    var u = lang === 'ru' ? ['Б', 'КБ', 'МБ'] : ['B', 'KB', 'MB'];
+    if (bytes < 1024) return bytes + ' ' + u[0];
+    if (bytes < 1048576) return Math.round(bytes / 1024) + ' ' + u[1];
+    var m = (bytes / 1048576).toFixed(1);
+    return (lang === 'en' ? m : m.replace('.', ',')) + ' ' + u[2];
   }
 
   /* ---------- text formatat (sigur) ----------
@@ -258,7 +267,7 @@
       ta.remove();
     }
     var done = function () {
-      toast(okMessage || 'Copiat în clipboard');
+      toast(okMessage || t('Copiat în clipboard'));
     };
     if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, function () { fallback(); done(); });
     else {
@@ -279,7 +288,14 @@
     };
   }
 
-  var api = { MONTHS: MONTHS, esc: esc, norm: norm, terms: terms, matches: matches, fmtDate: fmtDate, dateText: dateText, today: today, formatSize: formatSize, rich: rich, fileKind: fileKind, icon: icon, sprite: sprite, toast: toast, copyText: copyText, debounce: debounce };
+  // Text din interfață în limba paginii; cheia este textul românesc, iar %1, %2… se înlocuiesc cu argumentele date.
+  function t(key) {
+    var out = I18n ? I18n.t(PAGE_LANG, key) : key;
+    var a = arguments;
+    return a.length > 1 ? out.replace(/%(\d)/g, function (m, i) { return a[Number(i)] === undefined ? m : a[Number(i)]; }) : out;
+  }
+
+  var api = { t: t, lang: PAGE_LANG, MONTHS: MONTHS, esc: esc, norm: norm, terms: terms, matches: matches, fmtDate: fmtDate, dateText: dateText, today: today, formatSize: formatSize, rich: rich, fileKind: fileKind, icon: icon, sprite: sprite, toast: toast, copyText: copyText, debounce: debounce };
   // În Node (construirea paginii) se folosesc doar funcțiile care scriu text: aceleași reguli ca în browser, fără să atingă o pagină.
   if (typeof module === 'object' && module.exports) {
     module.exports = api;

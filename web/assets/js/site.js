@@ -3,6 +3,8 @@
   'use strict';
 
   var DG = window.DG;
+  var I18n = window.I18n;
+  var LANG = DG.lang; // limba paginii: ro, ru sau en (vezi i18n.js)
   var esc = DG.esc;
   var ico = DG.icon;
   var STATIC = document.documentElement.getAttribute('data-static') === 'true';
@@ -22,6 +24,8 @@
     return null;
   }
   function reduceMotion() { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+
+  var T = DG.t; // text din interfață în limba paginii (vezi common.js)
 
   var D = null; // datele publice
   var admin = { on: false, user: '', csrf: '' };
@@ -105,7 +109,7 @@
   function titleHtml(d) { return d.en ? '<span lang="en">' + esc(d.title) + '</span>' : esc(d.title); }
   function ftBadge(d) { var k = kindOf(d); return '<span class="ft ft-' + k.cls + '" aria-hidden="true">' + k.label + '</span>'; }
   function docMeta(d) {
-    return [d.kind, DG.dateText(d) || (d.section === 'rapoarte' && d.year ? String(d.year) : ''), d.en ? 'în limba engleză' : '', d.file && d.file.size ? DG.formatSize(d.file.size) : ''].filter(Boolean).join(', ');
+    return [d.kind, DG.dateText(d) || (d.section === 'rapoarte' && d.year ? String(d.year) : ''), d.en ? T('în limba engleză') : '', d.file && d.file.size ? DG.formatSize(d.file.size) : ''].filter(Boolean).join(', ');
   }
   function docYear(d) {
     if (d.year) return d.year;
@@ -120,7 +124,7 @@
   function editLink(coll, id) {
     return admin.on ? '<a class="edit-link" href="' + ADMIN + '#/' + coll + '/' + esc(id) + '">Editează</a>' : '';
   }
-  function lawName(l) { return (LAW_TYPE[l.type] || LAW_TYPE.Altele).name + ' nr. ' + l.nr + '/' + l.year; }
+  function lawName(l) { return T((LAW_TYPE[l.type] || LAW_TYPE.Altele).name) + ' ' + T('nr.') + ' ' + l.nr + '/' + l.year; }
   function progOf(id) { return byId(D.programs, id); }
   function telHref(p) {
     var d = String(p).replace(/[^\d+]/g, '');
@@ -141,8 +145,16 @@
   }
   function scrollToEl(el) { el.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' }); }
   // numere în scriere românească: 151.5 → „151,5”
-  function numRo(n) { return String(n).replace('.', ','); }
-  function plural(n, one, many) { return n === 1 ? one : many; }
+  function numRo(n) { return I18n.num(LANG, n); }
+  // Forma după număr. În rusă dicționarul are, la cheia „one”, cele trei forme despărțite prin „|” (unu | câțiva | mulți).
+  function plural(n, one, many) {
+    if (LANG === 'ro') return n === 1 ? one : many;
+    if (LANG === 'ru') {
+      var f = T(one).split('|');
+      return f.length === 3 ? I18n.plural('ru', n, f) : T(many);
+    }
+    return n === 1 ? T(one) : T(many);
+  }
 
   // Secțiuni care se deschid și se închid (funcții, drepturi, proiecte): butonul poartă starea în aria-expanded, iar elementul-gazdă
   // în data-open (pe el se sprijină și stilurile). Starea se păstrează în `accState`, ca să nu se piardă la o nouă desenare.
@@ -162,7 +174,7 @@
     if (seed) {
       try { return Promise.resolve(JSON.parse(seed.textContent)); } catch (e) { return Promise.reject(e); }
     }
-    return fetch('/api/public', { headers: { Accept: 'application/json' } }).then(function (r) {
+    return fetch('/api/public' + (LANG === 'ro' ? '' : '?lang=' + LANG), { headers: { Accept: 'application/json' } }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     });
@@ -171,7 +183,7 @@
   function showError() {
     var box = $('#loadError');
     box.hidden = false;
-    box.innerHTML = '<p class="notice"><strong>Conținutul nu a putut fi încărcat.</strong> Dacă ați deschis acest fișier direct din calculator, folosiți serverul (<code>npm start</code>) sau versiunea statică exportată din panoul de administrare. Dacă problema persistă, reîncărcați pagina peste câteva minute.</p>';
+    box.innerHTML = '<p class="notice"><strong>' + T('Conținutul nu a putut fi încărcat.') + '</strong> ' + T('Dacă ați deschis acest fișier direct din calculator, folosiți serverul (%1) sau versiunea statică exportată din panoul de administrare. Dacă problema persistă, reîncărcați pagina peste câteva minute.', '<code>npm start</code>') + '</p>';
   }
 
   /* ================= Prezentare ================= */
@@ -209,7 +221,10 @@
   function shortName(p) { return p.short || p.name.replace(/^Interreg\s+(NEXT\s+)?/i, '').replace(/\s+20\d\d.*$/, ''); }
   function levelOf(p) { return LEVELS[p.level] ? p.level : 'inter'; }
   // „1 program”, „5 programe”, „20 de programe”
-  function countRo(n, one, many) { return n === 1 ? '1 ' + one : n + (n > 19 && (n % 100 === 0 || n % 100 > 19) ? ' de ' : ' ') + many; }
+  function countRo(n, one, many) {
+    if (LANG !== 'ro') return n + ' ' + plural(n, one, many);
+    return n === 1 ? '1 ' + one : n + (n > 19 && (n % 100 === 0 || n % 100 > 19) ? ' de ' : ' ') + many;
+  }
 
   function levelCaption(lv) {
     var list = D.programs.filter(function (p) { return levelOf(p) === lv; });
@@ -228,7 +243,7 @@
     $('#levels').innerHTML = '<div class="lvg">' +
       '<span class="lv lv-inter" aria-hidden="true"></span><span class="lv lv-trans" aria-hidden="true"></span><span class="lv lv-cross" aria-hidden="true"></span>' +
       '<div class="lv-core"><p class="lv-core-name">Republica Moldova</p>' +
-      (n ? '<p class="lv-core-sub">Participă la ' + countRo(n, 'program', 'programe') + ' Interreg <span class="nb">2021–2027</span></p>' : '') + '</div>' +
+      (n ? '<p class="lv-core-sub">' + T('Participă la %1 Interreg %2', countRo(n, 'program', 'programe'), '<span class="nb">2021–2027</span>', n) + '</p>' : '') + '</div>' +
       levelCaption('cross') + levelCaption('trans') + levelCaption('inter') + '</div>';
   }
 
@@ -298,7 +313,7 @@
     var all = btns.length > 0 && btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
     var t = $('#fnToggle');
     t.hidden = !btns.length;
-    t.textContent = all ? 'Închide toate' : 'Deschide toate';
+    t.textContent = all ? T('Închide toate') : T('Deschide toate');
     t.setAttribute('aria-pressed', String(all));
   }
 
@@ -393,15 +408,15 @@
       if (law.sort === 'type') return a.type.localeCompare(b.type) || b.year - a.year;
       return b.year - a.year;
     });
-    $('#lawCount').textContent = items.length + ' din ' + D.legal.length + ' acte';
+    $('#lawCount').textContent = T('%1 din %2 acte', items.length, D.legal.length);
     $('#lawBody').innerHTML = items.length ? items.map(function (l) {
       var open = '';
       if (l.url) open += '<a class="btn btn-primary btn-sm" href="' + esc(l.url) + '" target="_blank" rel="noopener">' + (/legis\.md/.test(l.url) ? 'Deschide pe legis.md' : 'Deschide') + ' ' + ico('ext') + '</a>';
       if (l.file) open += '<a class="btn btn-line btn-sm" href="' + esc(l.file.path) + '" ' + (/\.pdf$/i.test(l.file.path) ? 'target="_blank" rel="noopener"' : 'download="' + esc(l.file.name || '') + '"') + '>' + ico('down') + ' Fișier</a>';
-      return '<tr class="law-row"><td class="law-no"><span class="type">' + (LAW_TYPE[l.type] || LAW_TYPE.Altele).one + '</span><strong>nr. ' + esc(l.nr) + '/' + l.year + '</strong></td>' +
+      return '<tr class="law-row"><td class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + T('nr.') + ' ' + esc(l.nr) + '/' + l.year + '</strong></td>' +
         '<td class="law-title">' + esc(l.title) + '</td><td class="law-topic">' + esc(l.topic || '') + '</td>' +
         '<td class="law-act"><button class="btn btn-line btn-sm" type="button" data-copy="' + esc(lawName(l) + ' „' + l.title + '”') + '">' + ico('copy') + ' Copiază</button> ' + open + editLink('legal', l.id) + '</td></tr>';
-    }).join('') : '<tr class="empty-row"><td colspan="4">Niciun act nu corespunde căutării' + (law.q ? ' „' + esc(law.q) + '”' : '') + '. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu. <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></td></tr>';
+    }).join('') : '<tr class="empty-row"><td colspan="4">' + T('Niciun act nu corespunde căutării%1. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu.', law.q ? ' „' + esc(law.q) + '”' : '') + ' <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></td></tr>';
   }
 
   /* ================= Proiecte investiționale ================= */
@@ -432,11 +447,11 @@
       if (!by[k]) { by[k] = { k: k, name: minName(k), n: 0 }; out.push(by[k]); }
       by[k].n++;
     });
-    return out.sort(function (a, b) { return (a.k === NO_MIN) - (b.k === NO_MIN) || b.n - a.n || a.name.localeCompare(b.name, 'ro'); });
+    return out.sort(function (a, b) { return (a.k === NO_MIN) - (b.k === NO_MIN) || b.n - a.n || a.name.localeCompare(b.name, LANG); });
   }
   function moneyParts(p) {
     if (p.amount === null || p.amount === undefined || p.amount === '') return null;
-    return { qual: p.amountQual || '', num: numRo(p.amount), unit: 'mil. ' + (p.currency || 'EUR') };
+    return { qual: T(p.amountQual || ''), num: numRo(p.amount), unit: T('mil.') + ' ' + (p.currency || 'EUR') };
   }
   function moneyText(p) {
     var m = moneyParts(p);
@@ -448,7 +463,7 @@
     var m = /^(.*\S)\s*\(([^()]{2,12})\)$/.exec(f);
     return m ? { short: m[2], full: m[1] } : { short: f, full: '' };
   }
-  function invCmpOrder(a, b) { return (a.order || 0) - (b.order || 0) || String(a.name).localeCompare(String(b.name), 'ro'); }
+  function invCmpOrder(a, b) { return (a.order || 0) - (b.order || 0) || String(a.name).localeCompare(String(b.name), LANG); }
 
   // Ministerele care promovează proiectele: câte proiecte are fiecare, iar un clic le filtrează în listă.
   function renderGpOverview() {
@@ -463,7 +478,7 @@
     };
     box.hidden = !total;
     box.innerHTML = !total ? '' :
-      '<p class="gp-cap" id="h-th">Cele <b>' + total + '</b> ' + plural(total, 'proiect investițional', 'proiecte investiționale') + ' în infrastructură sunt grupate după ministerele care le promovează. <span>Alegeți un minister pentru a filtra lista.</span></p>' +
+      '<p class="gp-cap" id="h-th">' + T('Cele %1 %2 în infrastructură sunt grupate după ministerele care le promovează.', '<b>' + total + '</b>', plural(total, 'proiect investițional', 'proiecte investiționale')) + ' <span>Alegeți un minister pentru a filtra lista.</span></p>' +
       '<ol class="mn-cards" aria-labelledby="h-th">' + card('all', total, 'Total', '', '') +
       groups.map(function (g) { return card(g.k, g.n, g.name, g.k !== NO_MIN && fullName(g.k) ? g.k : '', fullName(g.k)); }).join('') + '</ol>';
   }
@@ -472,8 +487,8 @@
   function syncInvFilterBtn() {
     var active = inv.min !== 'all' ? 1 : 0;
     var b = $('#invFToggle');
-    b.innerHTML = 'Filtre' + (active ? '<span class="n">' + active + '</span>' : '');
-    b.setAttribute('aria-label', active ? 'Filtre, ' + active + ' activ' : 'Filtre');
+    b.innerHTML = T('Filtre') + (active ? '<span class="n">' + active + '</span>' : '');
+    b.setAttribute('aria-label', active ? T('Filtre, %1 activ', active) : T('Filtre'));
   }
 
   // „Deschide toate detaliile” / „Închide toate detaliile”, după starea proiectelor afișate acum.
@@ -482,7 +497,7 @@
     var all = btns.length > 0 && btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
     var t = $('#invToggle');
     t.hidden = !btns.length;
-    t.textContent = all ? 'Închide toate detaliile' : 'Deschide toate detaliile';
+    t.textContent = all ? T('Închide toate detaliile') : T('Deschide toate detaliile');
     t.setAttribute('aria-pressed', String(all));
   }
 
@@ -513,7 +528,7 @@
     var mk = minKey(p);
     var money = moneyText(p);
     var facts = [];
-    if (mk !== NO_MIN) facts.push(['Ministerul responsabil', fullName(mk) ? esc(fullName(mk)) + ' (' + esc(mk) + ')' : esc(mk)]);
+    if (mk !== NO_MIN) facts.push(['Ministerul responsabil', fullName(mk) ? esc(T(fullName(mk))) + ' (' + esc(mk) + ')' : esc(mk)]);
     if (p.implementer) facts.push(['Instituția de implementare', esc(p.implementer)]);
     if (p.financier) facts.push(['Partenerul de finanțare', esc(p.financier)]);
     if (money) facts.push(['Valoarea indicativă', esc(money)]);
@@ -553,7 +568,7 @@
   function renderInvList() {
     var all = D.investments;
     var items = invSorted(all.filter(invMatches));
-    $('#invCount').textContent = items.length === all.length ? all.length + ' ' + plural(all.length, 'proiect', 'proiecte') : items.length + ' din ' + all.length + ' ' + plural(all.length, 'proiect', 'proiecte');
+    $('#invCount').textContent = items.length === all.length ? all.length + ' ' + plural(all.length, 'proiect', 'proiecte') : T('%1 din %2', items.length, all.length) + ' ' + plural(all.length, 'proiect', 'proiecte');
     $('#invHead').hidden = !items.length;
     $('#invList').innerHTML = items.length ? items.map(invItem).join('') :
       '<li class="empty">' + (all.length ? 'Niciun proiect nu corespunde filtrelor alese. <button class="btn btn-line btn-sm" type="button" id="invReset">Arată toate proiectele</button>' :
@@ -563,7 +578,7 @@
 
   // Cuvântul întreg (abrevierile se scriu cu majuscule): „AND” nu se caută în „CANDID”.
   function hasWord(text, w) {
-    var letter = /[0-9A-Za-zĂÂÎȘȚŞŢăâîșțşţ]/;
+    var letter = /[0-9A-Za-z\u0400-\u04FFĂÂÎȘȚŞŢăâîșțşţ]/;
     var i = text.indexOf(w);
     while (i >= 0) {
       if (!letter.test(i === 0 ? '' : text.charAt(i - 1)) && !letter.test(text.charAt(i + w.length))) return true;
@@ -575,11 +590,11 @@
     var text = D.investments.map(function (p) {
       return [p.name, p.implementer, p.financier, p.financing, p.period, p.location, p.beneficiaries, p.text].concat(p.results || []).join(' \n ');
     }).join(' \n ');
-    var list = ABBR.filter(function (a) { return hasWord(text, a[0]); });
+    var list = ABBR.map(function (a) { return [T(a[0]), T(a[1])]; }).filter(function (a) { return hasWord(text, a[0]); });
     Object.keys(MINISTRY).forEach(function (m) {
-      if (D.investments.some(function (p) { return minKey(p) === m; })) list.push([m, MINISTRY[m]]);
+      if (D.investments.some(function (p) { return minKey(p) === m; })) list.push([T(m), T(MINISTRY[m])]);
     });
-    return list.sort(function (a, b) { return a[0].localeCompare(b[0], 'ro'); });
+    return list.sort(function (a, b) { return a[0].localeCompare(b[0], LANG); });
   }
 
   function renderGpFoot() {
@@ -602,7 +617,7 @@
     var g = D.settings.growth || {};
     $('#growthIntro').textContent = g.intro || '';
     $('#growthIntro').hidden = !g.intro;
-    $('#growthAsOf').textContent = g.asOf ? 'Date actualizate la ' + DG.fmtDate(g.asOf) + '.' : '';
+    $('#growthAsOf').textContent = g.asOf ? T('Date actualizate la %1.', DG.fmtDate(g.asOf)) : '';
     $('#growthAsOf').hidden = !g.asOf;
     $('#invQ').value = inv.q;
     $('#invSort').value = inv.sort;
@@ -664,7 +679,7 @@
       panel.setAttribute('aria-labelledby', 'tab-' + rep.year);
       var items = reports.filter(function (d) { return docYear(d) === rep.year; });
       panel.innerHTML = '<div class="rp-year">' + rep.year + '</div><div>' + items.map(function (d, i) {
-        return '<div class="rp-item"><h4>' + titleHtml(d) + '</h4><p>' + esc([i === 0 && rep.year === years[0] ? 'Cel mai recent raport publicat' : '', docMeta(d)].filter(Boolean).join('. ') || 'Document publicat') + '</p>' +
+        return '<div class="rp-item"><h4>' + titleHtml(d) + '</h4><p>' + esc([i === 0 && rep.year === years[0] ? T('Cel mai recent raport publicat') : '', docMeta(d)].filter(Boolean).join('. ') || T('Document publicat')) + '</p>' +
           '<div class="rp-docs"><a class="btn btn-primary"' + docAttrs(d) + '>' + ico(d.file ? 'down' : 'ext') + ' Deschide documentul</a>' + editLink('documents', d.id) + '</div></div>';
       }).join('') + '</div>';
     }
@@ -728,7 +743,7 @@
       (p.strand ? '<span class="tag">' + esc(p.strand) + '</span>' : '') + (p.site ? '<a href="' + esc(p.site) + '" target="_blank" rel="noopener">Site-ul oficial ' + ico('ext') + '</a>' : '') + '</div></div></div>' +
       '<div class="prog-body"><p class="prog-desc">' + esc(p.desc || '') + '</p>' +
       ((p.facts && p.facts.length) ? '<div class="facts">' + p.facts.map(function (f) { return '<div class="fact"><b>' + esc(f.b) + '</b>' + esc(f.t) + '</div>'; }).join('') + '</div>' : '') +
-      '<div class="docs-head"><h4>Documente (' + all.length + ')</h4>' + chips + '</div>' +
+      '<div class="docs-head"><h4>' + T('Documente (%1)', all.length) + '</h4>' + chips + '</div>' +
       (docs.length ? '<ul class="docs">' + docs.map(function (d) { return docItem(d, false); }).join('') + '</ul>' : '<p class="empty">Nu există documente publicate pentru acest program.</p>') + '</div>';
   }
 
@@ -785,7 +800,7 @@
       var p = d.section === 'program' ? progOf(d.program) : null;
       return DG.matches([d.title, d.kind, d.description, SECTION_LABEL[d.section], p ? p.name : '', DG.dateText(d), docYear(d) || '', d.en ? 'engleza english' : ''].join(' '), docs.q);
     }).sort(cmpDocs);
-    $('#docCount').textContent = items.length + ' din ' + D.documents.length + ' documente';
+    $('#docCount').textContent = T('%1 din %2 documente', items.length, D.documents.length);
     $('#docList').innerHTML = items.length ? items.slice(0, docs.shown).map(function (d) { return docItem(d, true); }).join('') :
       '<li class="empty">Niciun document nu corespunde filtrelor alese. <button class="btn btn-line btn-sm" type="button" id="docReset">Arată toate documentele</button></li>';
     $('#docMore').hidden = items.length <= docs.shown;
@@ -826,9 +841,9 @@
     $('#timeline').innerHTML = list.length ? list.map(function (e) {
       var d = evDate(e).split('-').map(Number);
       var st = evStatus(e);
-      var range = e.end ? 'până la ' + DG.fmtDate(e.end) : !e.start ? 'data publicării' : e.time ? 'ora ' + e.time : '';
+      var range = e.end ? T('până la %1', DG.fmtDate(e.end)) : !e.start ? T('data publicării') : e.time ? T('ora %1', e.time) : '';
       var more = (e.details && e.details.length) || (e.links && e.links.length);
-      return '<li class="event" id="' + esc(e.id) + '"><div class="ev-date"><div class="d">' + String(d[2]).padStart(2, '0') + '</div><div class="m">' + DG.MONTHS[d[1] - 1] + ' ' + d[0] + '</div>' + (range ? '<div class="r">' + esc(range) + '</div>' : '') + '</div>' +
+      return '<li class="event" id="' + esc(e.id) + '"><div class="ev-date"><div class="d">' + String(d[2]).padStart(2, '0') + '</div><div class="m">' + I18n.MONTHS[LANG][d[1] - 1] + ' ' + d[0] + '</div>' + (range ? '<div class="r">' + esc(range) + '</div>' : '') + '</div>' +
         '<div><div class="ev-meta"><span class="status ' + st[0] + '">' + st[1] + '</span>' + (e.prog ? '<span class="tag">' + esc(e.prog) + '</span>' : '') + (e.place ? '<span>' + esc(e.place) + '</span>' : '') + '</div>' +
         '<h3>' + esc(e.title) + '</h3><p>' + esc(e.summary) + '</p>' +
         (more ? '<details class="ev-more"><summary>Detalii</summary>' +
@@ -868,7 +883,7 @@
     })), gal.album, 'data-album');
     var items = galleryItems();
     $('#galGrid').innerHTML = items.length ? items.slice(0, gal.shown).map(function (g, i) {
-      var label = g.title || 'Fotografie';
+      var label = g.title || T('Fotografie');
       return '<li class="g-item"><button class="g-btn" type="button" data-g="' + i + '"><span class="sr">Deschide fotografia: </span><span class="g-img"><img src="' + esc(g.file.thumb || g.file.path) + '" alt="" width="466" height="350" loading="lazy"></span>' +
         '<span class="g-cap"><strong>' + esc(label) + '</strong><span>' + esc([DG.fmtDate(g.date), g.album].filter(Boolean).join(' · ')) + '</span></span></button>' +
         (g.sample ? '<span class="g-sample">Imagine de exemplu</span>' : '') + editLink('gallery', g.id) + '</li>';
@@ -900,9 +915,9 @@
     var g = lb.items[lb.i];
     var img = $('#lbImg');
     img.src = g.file.path;
-    img.alt = g.alt || g.title || 'Fotografie din galerie';
+    img.alt = g.alt || g.title || T('Fotografie din galerie');
     $('#lbCount').textContent = (lb.i + 1) + ' / ' + lb.items.length;
-    $('#lbTitle').textContent = g.title || 'Fotografie';
+    $('#lbTitle').textContent = g.title || T('Fotografie');
     $('#lbTitle').hidden = !g.title;
     $('#lbMeta').textContent = [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · ');
     $('#lbOpen').href = g.file.path;
@@ -962,16 +977,16 @@
       function check(el, err, cond, text) {
         if (!cond) { setErr(el, err, text); ok = false; bad = bad || el; } else setErr(el, err, '');
       }
-      check(name, 'eName', name.value.trim().length >= 2, 'Introduceți numele și prenumele.');
-      check(email, 'eEmail', /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim()), 'Introduceți o adresă de e-mail validă, de forma nume@exemplu.md.');
-      check(msg, 'eMsg', msg.value.trim().length >= 10, 'Scrieți un mesaj de cel puțin 10 caractere.');
+      check(name, 'eName', name.value.trim().length >= 2, T('Introduceți numele și prenumele.'));
+      check(email, 'eEmail', /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim()), T('Introduceți o adresă de e-mail validă, de forma nume@exemplu.md.'));
+      check(msg, 'eMsg', msg.value.trim().length >= 10, T('Scrieți un mesaj de cel puțin 10 caractere.'));
       if (!ok) { bad.focus(); return; }
-      var subject = '[' + $('#fTopic').value + '] Mesaj de la ' + name.value.trim();
+      var subject = '[' + $('#fTopic').value + '] ' + T('Mesaj de la %1', name.value.trim());
       var body = msg.value.trim() + '\n\n' + name.value.trim() + '\n' + email.value.trim();
       window.location.href = 'mailto:' + contactTo + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
       var okEl = $('#formOk');
       okEl.hidden = false;
-      okEl.textContent = 'Mesajul a fost deschis în aplicația de e-mail, adresat către ' + contactTo + '. Trimiteți-l de acolo. Dacă nu s-a deschis nimic, scrieți direct la această adresă.';
+      okEl.textContent = T('Mesajul a fost deschis în aplicația de e-mail, adresat către %1. Trimiteți-l de acolo. Dacă nu s-a deschis nimic, scrieți direct la această adresă.', contactTo);
     });
   }
 
@@ -997,26 +1012,26 @@
       var p = d.section === 'program' ? progOf(d.program) : null;
       idx.push({ cat: SECTION_LABEL[d.section] || 'Documente', t: d.title, s: [p ? p.name : '', docMeta(d)].filter(Boolean).join(', '), k: (d.description || '') + ' ' + (d.kind || ''), u: docHref(d) });
     });
-    D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: (LEVELS[p.level] || LEVELS.inter).name + ', ' + (p.strand || '') + '. Deschide pagina programului', k: 'interreg program ' + (p.desc || '') + ' ' + (ALIAS[p.id] || ''), go: function () { goProgram(p.id); } }); });
+    D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: T((LEVELS[p.level] || LEVELS.inter).name) + ', ' + (p.strand || '') + '. ' + T('Deschide pagina programului'), k: 'interreg program ' + (p.desc || '') + ' ' + (ALIAS[p.id] || ''), go: function () { goProgram(p.id); } }); });
     D.investments.forEach(function (p) {
       var mk = minKey(p);
       idx.push({ cat: 'Investiții', t: p.name, s: [mk !== NO_MIN && mk, moneyText(p), finParts(p.financier).short].filter(Boolean).join(' · '), k: [fullName(mk), ministryShort(mk), p.financier, p.implementer, p.location, p.text, (p.results || []).join(' ')].join(' '), go: function () { goInvestment(p.id); } });
     });
     (D.settings.duties || []).forEach(function (d, i) {
-      if (d.text || (d.items && d.items.length)) idx.push({ cat: 'Despre direcție', t: d.title, s: 'Funcție de bază. Deschide atribuțiile', k: (d.text || '') + ' ' + (d.items || []).join(' '), go: function () { goFunction(i); } });
+      if (d.text || (d.items && d.items.length)) idx.push({ cat: 'Despre direcție', t: d.title, s: T('Funcție de bază. Deschide atribuțiile'), k: (d.text || '') + ' ' + (d.items || []).join(' '), go: function () { goFunction(i); } });
     });
     D.events.forEach(function (e) { idx.push({ cat: 'Evenimente', t: e.title, s: [DG.fmtDate(evDate(e)), e.place].filter(Boolean).join(', '), k: (e.prog || '') + ' ' + e.summary, go: function () { goEvent(e.id); } }); });
-    D.gallery.forEach(function (g) { idx.push({ cat: 'Galerie foto', t: g.title || 'Fotografie', s: [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · '), k: g.alt || '', go: function () { gal.album = 'all'; renderGallery(); var i = D.gallery.indexOf(g); gal.shown = Math.max(gal.shown, i + 1); renderGallery(); openLightbox(i); } }); });
-    idx.push({ cat: 'Platforme', t: 'Platforma pentru gestionarea asistenței externe (AMP)', s: 'amp.gov.md', k: 'aid management platform proiecte donatori', u: 'https://amp.gov.md/portal/' });
-    idx.push({ cat: 'Platforme', t: 'Platforma de Parteneriat pentru Moldova', s: 'gov.md', k: 'partnership platform', u: 'https://gov.md/ro/platforma-de-parteneriat-pentru-moldova' });
+    D.gallery.forEach(function (g) { idx.push({ cat: 'Galerie foto', t: g.title || T('Fotografie'), s: [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · '), k: g.alt || '', go: function () { gal.album = 'all'; renderGallery(); var i = D.gallery.indexOf(g); gal.shown = Math.max(gal.shown, i + 1); renderGallery(); openLightbox(i); } }); });
+    idx.push({ cat: 'Platforme', t: T('Platforma pentru gestionarea asistenței externe (AMP)'), s: 'amp.gov.md', k: 'aid management platform proiecte donatori', u: 'https://amp.gov.md/portal/' });
+    idx.push({ cat: 'Platforme', t: T('Platforma de Parteneriat pentru Moldova'), s: 'gov.md', k: 'partnership platform', u: 'https://gov.md/ro/platforma-de-parteneriat-pentru-moldova' });
     [['Servicii publice', 'servicii.gov.md', 'portalul serviciilor publice servicii electronice'], ['Consultări publice', 'particip.gov.md', 'participare proiecte de acte normative'],
       ['Achiziții publice (MTender)', 'mtender.gov.md', 'licitații tenders contracte'], ['Cariere în sectorul public', 'cariere.gov.md', 'posturi vacante concursuri angajare'],
       ['Date deschise', 'date.gov.md', 'open data seturi de date'], ['Statistică', 'statistica.gov.md', 'Biroul Național de Statistică'],
       ['Baza de date statistice (Statbank)', 'statbank.statistica.md', 'statistici indicatori statbank Biroul Național de Statistică']].forEach(function (x) {
-      idx.push({ cat: 'Portaluri oficiale', t: x[0], s: x[1], k: x[2], u: 'https://' + x[1] });
+      idx.push({ cat: 'Portaluri oficiale', t: T(x[0]), s: x[1], k: x[2], u: 'https://' + x[1] });
     });
-    idx.push({ cat: 'Contacte', t: 'Date de contact ale Cancelariei de Stat', s: 'Adresă, telefon, e-mail, harta sediului', k: 'contact adresa telefon e-mail program de lucru audiențe Piața Marii Adunări Naționale Chișinău', go: function () { location.hash = '#contacte'; } });
-    idx.push({ cat: 'Portaluri oficiale', t: 'Petiții, cereri și audiențe', s: 'gov.md', k: 'petiție cerere audiență plângere sesizare adresare', u: 'https://gov.md/ro/node/1030' });
+    idx.push({ cat: 'Contacte', t: T('Date de contact ale Cancelariei de Stat'), s: T('Adresă, telefon, e-mail, harta sediului'), k: 'contact adresa telefon e-mail program de lucru audiențe Piața Marii Adunări Naționale Chișinău', go: function () { location.hash = '#contacte'; } });
+    idx.push({ cat: 'Portaluri oficiale', t: T('Petiții, cereri și audiențe'), s: 'gov.md', k: 'petiție cerere audiență plângere sesizare adresare', u: 'https://gov.md/ro/node/1030' });
     INDEX = idx;
   }
 
@@ -1024,7 +1039,7 @@
     var out = [];
     var rep0 = docsOf('rapoarte')[0];
     if (rep0) out.push(INDEX.filter(function (x) { return x.t === rep0.title; })[0]);
-    out.push(INDEX.filter(function (x) { return x.cat === 'Cadrul legal' && /nr\. 377\//.test(x.t); })[0]);
+    out.push(INDEX.filter(function (x) { return x.cat === 'Cadrul legal' && / 377\//.test(x.t); })[0]);
     out.push(INDEX.filter(function (x) { return x.cat === 'Programe de cooperare'; })[0]);
     out.push(INDEX.filter(function (x) { return x.cat === 'Verificarea cheltuielilor'; })[0]);
     out.push(INDEX.filter(function (x) { return x.cat === 'Platforme'; })[0]);
@@ -1067,7 +1082,7 @@
     sd.sel = 0;
     var res = $('#sres');
     if (!sd.items.length) {
-      res.innerHTML = '<div class="sd-empty">Niciun rezultat pentru „' + esc(q) + '”. Încercați un număr de act (377), un program (URBACT, Dunărea) sau un an (2024).</div>';
+      res.innerHTML = '<div class="sd-empty">' + T('Niciun rezultat pentru „%1”. Încercați un număr de act (377), un program (URBACT, Dunărea) sau un an (2024).', esc(q)) + '</div>';
       $('#sq').removeAttribute('aria-activedescendant');
       return;
     }
@@ -1153,7 +1168,7 @@
     var bar = $('#adminbar');
     if (!admin.on) { bar.hidden = true; bar.innerHTML = ''; return; }
     bar.hidden = false;
-    bar.innerHTML = '<div class="wrap adminbar-in"><strong>Mod administrator</strong><span>Conectat ca ' + esc(admin.user) + '</span>' +
+    bar.innerHTML = '<div class="wrap adminbar-in"><strong>Mod administrator</strong><span>' + T('Conectat ca %1', esc(admin.user)) + '</span>' +
       '<a href="' + ADMIN + '">Panou de administrare</a><a href="' + ADMIN + '#/news/new">Adaugă știre</a><a href="' + ADMIN + '#/gallery">Adaugă fotografii</a><a href="' + ADMIN + '#/documents/new">Adaugă document</a>' +
       '<button class="sp" type="button" id="adminLogout">Ieșire</button></div>';
     $('#adminLogout').addEventListener('click', function () {
@@ -1289,7 +1304,7 @@
     newsDlg.addEventListener('click', function (e) {
       if (isBackdropClick(newsDlg, e) || e.target.closest('[data-close]')) { newsDlg.close(); return; }
       var c = e.target.closest('[data-copy-news]');
-      if (c) DG.copyText(location.href.split('#')[0] + '#stire/' + c.getAttribute('data-copy-news'), 'Adresa știrii a fost copiată');
+      if (c) DG.copyText(location.href.split('#')[0] + '#stire/' + c.getAttribute('data-copy-news'), T('Adresa știrii a fost copiată'));
     });
     // după închiderea unei știri, adresa revine la locul de unde s-a deschis: partea de sus (noutățile din prezentare) sau rubrica Noutăți
     var newsBack = '#noutati';
@@ -1337,7 +1352,7 @@
     $('#invSort').addEventListener('change', function (e) { inv.sort = e.target.value; renderInvList(); });
     $('#invList').addEventListener('click', function (e) {
       var c = e.target.closest('[data-copy-inv]');
-      if (c) DG.copyText(location.href.split('#')[0] + '#proiect/' + c.getAttribute('data-copy-inv'), 'Adresa proiectului a fost copiată');
+      if (c) DG.copyText(location.href.split('#')[0] + '#proiect/' + c.getAttribute('data-copy-inv'), T('Adresa proiectului a fost copiată'));
       if (e.target.id === 'invReset') {
         inv.min = 'all'; inv.q = ''; $('#invQ').value = '';
         refreshInv();
@@ -1358,7 +1373,7 @@
     $('#lawSort').addEventListener('change', function (e) { law.sort = e.target.value; renderLegal(); });
     $('#lawBody').addEventListener('click', function (e) {
       var c = e.target.closest('[data-copy]');
-      if (c) DG.copyText(c.getAttribute('data-copy'), 'Referința a fost copiată');
+      if (c) DG.copyText(c.getAttribute('data-copy'), T('Referința a fost copiată'));
       if (e.target.id === 'lawReset') {
         law.type = 'all'; law.q = ''; $('#lawQ').value = '';
         renderLegal();
@@ -1517,8 +1532,31 @@
     buildIndex();
   }
 
+  // Textele puse în pagină de JavaScript (sau schimbate de el) se traduc pe loc, cu dicționarul interfeței; fără traducere rămân în română.
+  function watchTranslations() {
+    if (LANG === 'ro' || !I18n.hasUi(LANG) || !window.MutationObserver) return;
+    new MutationObserver(function (list) {
+      list.forEach(function (m) {
+        if (m.type === 'characterData') I18n.translateDom(m.target, LANG);
+        else Array.prototype.forEach.call(m.addedNodes, function (n) { I18n.translateDom(n, LANG); });
+      });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+
+  // Comutatorul de limbă păstrează locul din pagină (#stire/…, #program/…): aceeași adresă, în altă limbă.
+  function syncLangLinks() {
+    $$('.lang a').forEach(function (a) {
+      var base = a.getAttribute('data-base');
+      if (base === null) { base = a.getAttribute('href').split('#')[0]; a.setAttribute('data-base', base); }
+      a.setAttribute('href', base + location.hash);
+    });
+  }
+
   function init(data) {
     D = data;
+    watchTranslations();
+    syncLangLinks();
+    window.addEventListener('hashchange', syncLangLinks);
     D.investments = D.investments || [];
     setupChrome();
     setupEvents();

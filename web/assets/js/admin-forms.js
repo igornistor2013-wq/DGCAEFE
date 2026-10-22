@@ -383,6 +383,29 @@
     paint();
   }
 
+  /* ---------- câmpurile de traducere (opționale) ---------- */
+  // Pentru o colecție („news”, „investments”…) sau pentru „settings”: titlurile și câmpurile traduse în rusă și în engleză, scrise în `tr.<limbă>.<câmp>`.
+  const TR_NAMES = { ru: 'rusă', en: 'engleză' };
+  ADM.trFields = function (key) {
+    const spec = window.AdminSchemas && window.AdminSchemas.TR && window.AdminSchemas.TR[key];
+    if (!spec) return [];
+    const out = [];
+    Object.keys(TR_NAMES).forEach(lang => {
+      out.push({
+        type: 'heading',
+        label: 'Traducere în ' + TR_NAMES[lang] + ' (opțional)',
+        hint: 'Câmpurile lăsate goale apar pe pagina în ' + TR_NAMES[lang] + ' în limba română sau, dacă textul face parte din dicționarul paginii, cu traducerea lui.'
+      });
+      Object.keys(spec).forEach(k => {
+        const d = spec[k];
+        const f = { name: 'tr.' + lang + '.' + k, label: d.label + ' (' + lang.toUpperCase() + ')' };
+        if (d.list) { f.type = 'lines'; f.rows = 4; } else if (d.max > 300) { f.type = 'textarea'; f.rows = d.max > 2000 ? 8 : 4; f.max = d.max; } else { f.type = 'text'; f.max = d.max; }
+        out.push(f);
+      });
+    });
+    return out;
+  };
+
   /* ---------- constructorul de formulare ---------- */
   ADM.buildForm = function (fields, values) {
     values = values || {};

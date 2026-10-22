@@ -123,7 +123,7 @@ test('adresa canonică și politica de securitate apar doar când sunt cerute', 
   // completarea doar adaugă etichete în antet: nu pierde nimic din șablon și nu lasă resturi de text care ar încheia antetul mai devreme
   const head = h => /<head>([\s\S]*?)<\/head>/.exec(h)[1];
   const tags = h => (head(h).match(/<(?:meta|link|title)\b/g) || []).length;
-  assert.equal(tags(html), tags(template) + 3 + 1, 'adresa canonică, DC.identifier, og:url și politica de securitate');
+  assert.equal(tags(html), tags(template) + 3 + 1 + 4, 'adresa canonică, DC.identifier, og:url, politica de securitate și cele trei versiuni de limbă (+ x-default)');
   assert.doesNotMatch(html, /\$[0-9&`']/, 'niciun semn de înlocuire rămas în text');
   // (singurul text din antet în afara etichetelor „title” este stilul din <noscript>, care ascunde butoanele derulatorului când JavaScript este oprit)
   const headText = head(html).replace(/<title>[\s\S]*?<\/title>/, '').replace(/<noscript><style>[^<]*<\/style><\/noscript>/, '').replace(/<[^>]*>/g, '');

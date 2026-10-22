@@ -44,6 +44,14 @@
   /* ---------- în browser: schimbarea la 10 secunde și butoanele ---------- */
   var S = null; // starea derulatorului (în pagină există unul singur)
 
+  // Text din interfață în limba paginii (h.t din common.js); fără el rămâne textul românesc, cu %1, %2… înlocuite.
+  function tr(key) {
+    var h = S && S.h;
+    var a = Array.prototype.slice.call(arguments, 1);
+    if (h && h.t) return h.t.apply(null, [key].concat(a));
+    return key.replace(/%(\d)/g, function (m, i) { return a[Number(i) - 1] === undefined ? m : a[Number(i) - 1]; });
+  }
+
   function keyboardFocus(el) {
     try { return el.matches(':focus-visible'); } catch (e) { return true; }
   }
@@ -61,7 +69,7 @@
       s.timer = setTimeout(function () { show(s.i + 1, false); }, SECONDS * 1000);
     }
     // Atributele se scriu doar dacă s-au schimbat: o pictogramă „use” rescrisă în timp ce se apasă pe buton nu mai primește clicul.
-    var label = s.user ? 'Pornește derularea automată' : 'Oprește derularea automată';
+    var label = s.user ? tr('Pornește derularea automată') : tr('Oprește derularea automată');
     if (s.play.getAttribute('aria-label') !== label) s.play.setAttribute('aria-label', label);
     var use = s.play.querySelector('use');
     var icon = s.user ? '#i-play' : '#i-pause';
@@ -79,7 +87,7 @@
     s.slides.forEach(function (el, k) { el.classList.toggle('is-active', k === i); });
     s.num.textContent = String(i + 1);
     s.more.setAttribute('href', s.hrefs[i]);
-    if (announce) s.live.textContent = 'Noutatea ' + (i + 1) + ' din ' + s.n + ': ' + s.titles[i];
+    if (announce) s.live.textContent = tr('Noutatea %1 din %2: %3', i + 1, s.n, s.titles[i]);
     sync();
   }
 
@@ -91,7 +99,7 @@
       else if (b.id === 'hnNext') show(S.i + 1, true);
       else if (b.id === 'hnPlay') {
         S.user = !S.user;
-        S.live.textContent = S.user ? 'Derularea automată a fost oprită.' : 'Derularea automată a fost pornită.';
+        S.live.textContent = S.user ? tr('Derularea automată a fost oprită.') : tr('Derularea automată a fost pornită.');
         sync();
       }
     });
@@ -121,6 +129,7 @@
     clearTimeout(s.timer);
     s.timer = 0;
     s.box = box;
+    s.h = h;
     s.n = list.length;
     box.hidden = !s.n;
     lead.hidden = s.n > 0;

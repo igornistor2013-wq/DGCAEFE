@@ -155,7 +155,7 @@
           { name: 'contact.mapLink', label: 'Harta: legătura „Deschide în Google Maps”', type: 'url', max: 1000, placeholder: 'https://…' },
           { type: 'heading', label: 'Subsol' },
           { name: 'footerNote', label: 'Nota din subsol', type: 'textarea', max: 400, rows: 2 }
-        ];
+        ].concat(ADM.trFields('settings'));
         form = ADM.buildForm(fields, s);
         if (ADM.guards.indexOf(guard) < 0) ADM.guards.push(guard);
         root.innerHTML =

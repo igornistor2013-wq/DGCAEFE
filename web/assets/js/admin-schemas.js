@@ -86,6 +86,27 @@
      env.bad(mesaj)       creează eroarea de validare (implicit: Error cu status 400)
      env.fileExists(cale) spune dacă fișierul încărcat există
      env.programs()       lista programelor (pentru documentele unui program) */
+  // Câmpurile care se pot traduce (RU / EN) în fiecare colecție; folosită de validare și de formularele din administrare.
+  const TR = {
+    news: { title: { label: 'Titlu', max: 200 }, tag: { label: 'Etichetă', max: 60 }, summary: { label: 'Rezumat', max: 500 }, body: { label: 'Textul știrii', max: 20000 }, imageAlt: { label: 'Descrierea imaginii', max: 100 }, linkLabel: { label: 'Textul legăturii', max: 80 } },
+    documents: { title: { label: 'Titlu', max: 300 }, kind: { label: 'Tipul documentului', max: 80 }, description: { label: 'Descriere', max: 600 } },
+    events: { title: { label: 'Titlu', max: 300 }, prog: { label: 'Programul', max: 80 }, time: { label: 'Ora', max: 30 }, place: { label: 'Locul', max: 200 }, summary: { label: 'Descriere', max: 800 }, details: { label: 'Detalii', list: { max: 20, item: 800 } } },
+    legal: { title: { label: 'Denumirea', max: 700 }, topic: { label: 'Domeniul', max: 100 } },
+    gallery: { title: { label: 'Titlu', max: 200 }, album: { label: 'Albumul', max: 80 }, alt: { label: 'Descrierea imaginii', max: 100 } },
+    programs: { name: { label: 'Denumirea', max: 200 }, short: { label: 'Denumirea scurtă', max: 40 }, strand: { label: 'Componenta', max: 40 }, desc: { label: 'Descrierea', max: 1500 } },
+    investments: {
+      name: { label: 'Denumirea proiectului', max: 300 }, implementer: { label: 'Instituția de implementare', max: 300 }, financier: { label: 'Partenerul de finanțare', max: 300 },
+      financing: { label: 'Structura finanțării', max: 1500 }, period: { label: 'Perioada de implementare', max: 200 }, location: { label: 'Localizarea', max: 500 },
+      text: { label: 'Obiectivul și descrierea proiectului', max: 5000 }, beneficiaries: { label: 'Beneficiarii', max: 800 }, results: { label: 'Rezultate preconizate', list: { max: 12, item: 500 } }
+    },
+    settings: {
+      orgName: { label: 'Denumirea direcției', max: 200 }, parentName: { label: 'Instituția-părinte', max: 200 }, heroTitle: { label: 'Titlul din prima pagină', max: 160 },
+      heroLead: { label: 'Text de prezentare', max: 800 }, aboutP1: { label: 'Despre direcție, primul paragraf', max: 1200 }, aboutP2: { label: 'Despre direcție, al doilea paragraf', max: 1200 },
+      'growth.intro': { label: 'Proiecte investiționale, introducere', max: 1200 }, 'growth.note': { label: 'Proiecte investiționale, notă explicativă', max: 1500 },
+      'contact.address': { label: 'Adresa', max: 300 }, footerNote: { label: 'Nota din subsol', max: 400 }
+    }
+  };
+
   function create(env) {
     const bad =
       env.bad ||
@@ -194,11 +215,43 @@
       return { t, u };
     }
 
+    /* --- traduceri opționale (RU / EN): ce nu este tradus se afișează în română --- */
+    const TR_LANGS = ['ru', 'en'];
+    // spec: { câmp: { label, max } | { label, list: { max, item } } }; câmpurile imbricate se scriu „grup.câmp” (ex.: growth.intro)
+    function trans(b, spec, ex) {
+      const src = b && b.tr && typeof b.tr === 'object' && !Array.isArray(b.tr) ? b.tr : {};
+      const out = {};
+      for (const lang of TR_LANGS) {
+        const s = src[lang] && typeof src[lang] === 'object' && !Array.isArray(src[lang]) ? src[lang] : null;
+        if (!s) continue;
+        const o = {};
+        for (const key of Object.keys(spec)) {
+          const def = spec[key];
+          const path = key.split('.');
+          let v = s;
+          for (const part of path) v = v && typeof v === 'object' ? v[part] : undefined;
+          const label = `${def.label} (${lang.toUpperCase()})`;
+          const val = def.list ? strList(v, label, def.list) : str(v, label, { max: def.max });
+          if (def.list ? !val.length : !val) continue;
+          let at = o;
+          path.slice(0, -1).forEach(part => { at = at[part] = at[part] || {}; });
+          at[path[path.length - 1]] = val;
+        }
+        if (Object.keys(o).length) out[lang] = o;
+      }
+      return Object.keys(out).length ? out : null;
+    }
+    // adaugă `tr` rezultatului; dacă traducerile au fost șterse, câmpul vechi este suprascris (store-ul îmbină cu `{...vechi, ...nou}`)
+    function withTr(out, tr, ex) {
+      if (tr) out.tr = tr;
+      else if (ex && ex.tr) out.tr = undefined;
+      return out;
+    }
     /* --- colecții --- */
     const news = {
       label: i => i.title,
-      clean(b) {
-        return {
+      clean(b, ex) {
+        return withTr({
           title: str(b.title, 'Titlu', { max: 200, req: true }),
           date: date(b.date, 'Data', { req: true }),
           dateLabel: str(b.dateLabel, 'Etichetă pentru dată', { max: 60 }),
@@ -211,13 +264,13 @@
           linkUrl: url(b.linkUrl, 'Legătură externă'),
           linkLabel: str(b.linkLabel, 'Textul legăturii', { max: 80 }),
           published: b.published === undefined ? true : bool(b.published)
-        };
+        }, trans(b, TR.news), ex);
       }
     };
 
     const documents = {
       label: i => i.title,
-      clean(b) {
+      clean(b, ex) {
         const section = oneOf(b.section, 'Secțiunea', SECTIONS, 'general');
         let program = str(b.program, 'Programul', { max: 40 });
         if (section === 'program') {
@@ -244,13 +297,13 @@
           if (out.date) out.year = Number(out.date.slice(0, 4));
           else throw bad('Pentru un raport anual indicați anul.');
         }
-        return out;
+        return withTr(out, trans(b, TR.documents), ex);
       }
     };
 
     const events = {
       label: i => i.title,
-      clean(b) {
+      clean(b, ex) {
         const out = {
           title: str(b.title, 'Titlu', { max: 300, req: true }),
           prog: str(b.prog, 'Programul', { max: 80 }),
@@ -265,13 +318,13 @@
         };
         if (!out.start && !out.pub) throw bad('Indicați data evenimentului sau data publicării.');
         if (out.start && out.end && out.end < out.start) throw bad('Data de sfârșit nu poate fi înaintea celei de început.');
-        return out;
+        return withTr(out, trans(b, TR.events), ex);
       }
     };
 
     const legal = {
       label: i => `${i.type} ${i.nr}/${i.year}`,
-      clean(b) {
+      clean(b, ex) {
         const out = {
           type: oneOf(b.type, 'Tipul actului', LEGAL_TYPES, 'HG'),
           nr: str(b.nr, 'Numărul', { max: 20, req: true }),
@@ -282,7 +335,7 @@
           file: file(b.file, 'Fișier', 'docs')
         };
         if (out.year === null) throw bad('Câmpul „Anul” este obligatoriu.');
-        return out;
+        return withTr(out, trans(b, TR.legal), ex);
       }
     };
 
@@ -291,21 +344,21 @@
       clean(b, ex) {
         const f = file(b.file, 'Fotografia', 'img');
         if (!f) throw bad('Alegeți o fotografie.');
-        return {
+        return withTr({
           title: str(b.title, 'Titlu', { max: 200 }),
           album: str(b.album, 'Albumul', { max: 80 }),
           date: date(b.date, 'Data'),
           alt: str(b.alt, 'Descrierea imaginii', { max: 100 }),
           sample: !!(ex && ex.sample && ex.file && ex.file.path === f.path),
           file: f
-        };
+        }, trans(b, TR.gallery), ex);
       }
     };
 
     const programs = {
       label: i => i.name,
       clean(b, ex) {
-        return {
+        return withTr({
           order: ex.order,
           level: oneOf(b.level, 'Nivelul', LEVELS, ex.level),
           strand: str(b.strand, 'Componenta', { max: 40 }),
@@ -318,7 +371,7 @@
             const t = str(f && f.t, 'Explicație', { max: 200 });
             return bb || t ? { b: bb, t } : null;
           })
-        };
+        }, trans(b, TR.programs), ex);
       }
     };
 
@@ -326,9 +379,9 @@
     // întârzierile nu se păstrează aici; câmpurile vechi pe care le mai trimite un client sunt ignorate.
     const investments = {
       label: i => i.name,
-      clean(b) {
+      clean(b, ex) {
         const amount = num(b.amount, 'Valoarea indicativă (milioane)', { min: 0, max: 1e6, dec: 2 });
-        return {
+        return withTr({
           order: int(b.order, 'Numărul de ordine', { min: 0, max: 9999 }) || 0,
           name: str(b.name, 'Denumirea proiectului', { max: 300, req: true }),
           ministry: str(b.ministry, 'Ministerul responsabil', { max: 100 }),
@@ -345,7 +398,7 @@
           beneficiaries: str(b.beneficiaries, 'Beneficiarii', { max: 800 }),
           links: objList(b.links, 'Legături utile', 6, l => pairLink(l, 'Text legătură', 'Adresa legăturii')),
           published: b.published === undefined ? true : bool(b.published)
-        };
+        }, trans(b, TR.investments), ex);
       }
     };
 
@@ -359,7 +412,7 @@
       }
       const mailTo = str(c.mailTo, 'E-mail pentru formularul de contact', { max: 120 });
       if (mailTo && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mailTo)) throw bad('Adresa de e-mail pentru formularul de contact este invalidă.');
-      return {
+      const settingsOut = {
         orgName: str(b.orgName, 'Denumirea direcției', { max: 200, req: true }),
         parentName: str(b.parentName, 'Instituția-părinte', { max: 200 }),
         heroTitle: str(b.heroTitle, 'Titlul din prima pagină', { max: 160 }),
@@ -405,10 +458,13 @@
         },
         footerNote: str(b.footerNote, 'Nota din subsol', { max: 400 })
       };
+      const tr = trans(b, TR.settings);
+      if (tr) settingsOut.tr = tr;
+      return settingsOut;
     }
 
     return { news, documents, events, legal, gallery, programs, investments, cleanSettings };
   }
 
-  return { create, sniff, slug, filesIn, SECTIONS, GROUPS, LEVELS, LEGAL_TYPES, CURRENCIES, AMOUNT_QUAL, IMG_EXT, DOC_EXT, UPLOAD_RE };
+  return { create, TR, sniff, slug, filesIn, SECTIONS, GROUPS, LEVELS, LEGAL_TYPES, CURRENCIES, AMOUNT_QUAL, IMG_EXT, DOC_EXT, UPLOAD_RE };
 });
