@@ -13,6 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const cfg = require('../lib/config');
 const staticSite = require('../lib/static-site');
+const { optimize } = require('../lib/optimize');
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -31,16 +32,22 @@ if (!dataDir) {
 const out = path.resolve(arg('out') || path.join(cfg.ROOT, 'dist'));
 const repo = arg('github-repo');
 const github = repo ? { repo, branch: arg('github-branch') || 'main', api: arg('github-api') } : null;
+(async () => {
 try {
   const list = staticSite.entries(staticSite.diskReader(dataDir, cfg.SEED_DIR), dataDir, { github, siteUrl: arg('site-url') || process.env.SITE_URL, commit: arg('commit') || process.env.GITHUB_SHA, seedDir: cfg.SEED_DIR });
   staticSite.writeTo(out, list, [cfg.ROOT, dataDir]);
-  const bytes = list.reduce((n, e) => n + (e.file ? fs.statSync(e.file).size : Buffer.byteLength(e.text)), 0);
+  const opt = process.argv.includes('--no-optimize') ? null : await optimize(out);
+  const bytes = require('./dir-size')(out);
   console.log(`Versiunea statică a fost creată în ${out}`);
   console.log(`  date din: ${dataDir}`);
   if (github) console.log(`  administrare pe GitHub: ${github.repo} (ramura ${github.branch}) la adresa admin/`);
   if (list.some(e => e.name === '404.html')) console.log('  pagina 404.html, adresa canonică și politica de securitate: da');
   console.log(`  ${list.length} fișiere, ${(bytes / 1048576).toFixed(1)} MB`);
+  if (opt && opt.tools.length) console.log(`  comprimat (${opt.tools.join(', ')}): ${opt.js} scripturi, ${opt.css} stiluri, ${opt.img} fotografii, ${(opt.saved / 1024).toFixed(0)} KB economisiți`);
+  else if (!opt) console.log('  fără comprimare (--no-optimize)');
+  else console.log('  comprimare sărită: pachetele esbuild și sharp nu sunt instalate');
 } catch (e) {
   console.error(`Eroare: ${e.message}`);
   process.exit(1);
 }
+})();

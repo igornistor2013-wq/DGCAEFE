@@ -322,15 +322,15 @@
   }
 
   ADM.processImage = async function (file, opts) {
-    const maxEdge = (opts && opts.maxEdge) || 2000;
+    const maxEdge = (opts && opts.maxEdge) || 1600;
     const thumbEdge = (opts && opts.thumb) || 0;
     if (/\.gif$/i.test(file.name)) return { main: file, thumb: null }; // GIF-urile animate rămân neschimbate
     const img = await decodeImage(file);
     try {
       if (img.w * img.h > 150e6) throw new Error('Imaginea are prea multe puncte (peste 150 de megapixeli).');
       const base = file.name.replace(/\.[^.]+$/, '') || 'fotografie';
-      const main = await toJpeg(img, maxEdge, 0.86, base + '.jpg');
-      const thumb = thumbEdge ? await toJpeg(img, thumbEdge, 0.8, base + '-t.jpg') : null;
+      const main = await toJpeg(img, maxEdge, 0.8, base + '.jpg');
+      const thumb = thumbEdge ? await toJpeg(img, thumbEdge, 0.74, base + '-t.jpg') : null;
       return { main, thumb };
     } finally {
       img.close();

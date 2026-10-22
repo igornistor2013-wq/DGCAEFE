@@ -592,7 +592,7 @@
         x.st = 'prep';
         x.p = 0;
         drawQueue();
-        const pr = await ADM.processImage(x.file, { maxEdge: 2000, thumb: 640 });
+        const pr = await ADM.processImage(x.file, { maxEdge: 1600, thumb: 640 });
         x.url = URL.createObjectURL(pr.thumb || pr.main);
         x.st = 'up';
         const total = pr.thumb ? 2 : 1;
@@ -675,7 +675,7 @@
       const res = await ADM.openForm({
         title: 'Editare fotografie',
         fields: [
-          { name: 'file', label: 'Fotografia', type: 'image', required: true, thumb: true, maxEdge: 2000, hint: 'Pentru a înlocui fotografia, alegeți alt fișier.' },
+          { name: 'file', label: 'Fotografia', type: 'image', required: true, thumb: true, maxEdge: 1600, hint: 'Pentru a înlocui fotografia, alegeți alt fișier.' },
           { name: 'title', label: 'Titlu', type: 'text', max: 200 },
           { name: 'album', label: 'Album', type: 'text', max: 80, w: 'half', list: albums },
           { name: 'date', label: 'Data', type: 'date', w: 'half' },

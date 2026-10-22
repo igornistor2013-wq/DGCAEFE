@@ -427,6 +427,7 @@ Administrarea direct pe GitHub se verifică pe un simulator al API-ului GitHub (
 ## 11. Limite cunoscute
 
 - Pe GitHub Pages (varianta A) fiecare salvare este o modificare în depozit și depinde de disponibilitatea GitHub; panoul respectă limitele de cereri ale GitHub. Varianta a fost verificată pe un simulator, nu pe github.com.
+- **Publicarea pe GitHub Pages poate întârzia.** Fiecare salvare din panou este un commit, iar fiecare commit pornește o publicare (1–2 minute). Publicările rulează pe rând; dacă salvați de mai multe ori la rând, cele intermediare sunt anulate (e normal) și rămâne ultima. Uneori GitHub ține o publicare la coadă mai mult timp; pagina se actualizează când se termină. Ca să vedeți dacă ultima modificare este deja publicată, comparați `commit` din `…/version.json` al paginii cu ultimul commit din depozit. Dacă o publicare stă blocată, în Actions o puteți anula și porni din nou cu „Run workflow” (ramura `main`); fiecare publicare se oprește singură după 10 minute.
 - Aplicația rulează într-un singur proces, cu date în fișiere JSON. Este potrivită pentru o pagină instituțională (sute sau mii de înregistrări), nu pentru mai multe instanțe care scriu în același folder de date.
 - Toți administratorii au aceleași drepturi; nu există roluri sau flux de aprobare.
 - Fișierele încărcate nu sunt scanate cu antivirus; se verifică doar tipul lor.
@@ -455,3 +456,7 @@ Administrarea direct pe GitHub se verifică pe un simulator al API-ului GitHub (
 - **Font:** [Onest](https://fonts.google.com/specimen/Onest) (fontul cerut de HG 728/2023, pct. 26), sub licența SIL Open Font License 1.1 (textul licenței este în `web/assets/fonts/LICENSE-onest.txt`). Fișierele (varianta variabilă, latin și latin extins, preluate din pachetul `@fontsource-variable/onest`) se servesc din proiect; pagina nu se conectează la Google Fonts. Fontul se schimbă din două variabile din `web/assets/css/site.css` și `admin.css` (`--head`, `--sans`).
 - **Dependențe:** Express, helmet, compression, multer, express-rate-limit, bcryptjs, archiver, fiecare cu licența proprie (MIT sau similară).
 - **Codul aplicației:** nu are o licență alocată (`UNLICENSED` în `package.json`). Dacă îl publicați într-un depozit public și doriți să permiteți reutilizarea, adăugați un fișier `LICENSE`.
+
+## Viteza paginii și comprimarea
+
+La fiecare publicare pe GitHub Pages, pasul de construire micșorează automat fotografiile (maxim 1600 px, miniaturile 640 px) și minifică scripturile și stilurile (`lib/optimize.js`, cu pachetele `sharp` și `esbuild`, instalate doar în GitHub Actions). Fișierele din `storage/` rămân neschimbate; comprimarea se face doar pe pagina publicată. Fotografiile noi încărcate din administrare sunt pregătite direct în browser, la 1600 px. Pentru o construire fără comprimare: `node scripts/build-static.js --no-optimize`.

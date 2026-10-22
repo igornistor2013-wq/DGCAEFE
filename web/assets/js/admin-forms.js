@@ -325,7 +325,7 @@
       try {
         let result;
         if (kind === 'image') {
-          const pr = await ADM.processImage(file, { maxEdge: f.maxEdge || 2000, thumb: f.thumb ? 640 : 0 });
+          const pr = await ADM.processImage(file, { maxEdge: f.maxEdge || 1600, thumb: f.thumb ? 640 : 0 });
           msg.textContent = 'Se încarcă…';
           const total = pr.thumb ? 2 : 1;
           const main = await ADM.upload('image', pr.main, p => setBar(p / total));

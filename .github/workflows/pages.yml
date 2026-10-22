@@ -25,6 +25,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10 # o publicare blocată nu mai ține la coadă toate celelalte
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -33,6 +34,9 @@ jobs:
       # Aflăm adresa pe care va fi publicată pagina (cu sau fără domeniu propriu); ea intră în pagina 404, în adresa canonică și în politica de securitate.
       - id: pages
         uses: actions/configure-pages@v5
+      # Pachete folosite doar la construire, pentru a comprima fotografiile (sharp) și scripturile/stilurile (esbuild). Dacă lipsesc, pagina se publică necomprimată.
+      - name: Instalează uneltele de comprimare
+        run: npm install --no-save --no-audit --no-fund sharp esbuild || echo "comprimarea este sărită"
       - name: Construiește pagina (cu panoul de administrare pentru acest depozit)
         run: >-
           node scripts/build-static.js --out dist
@@ -45,6 +49,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
