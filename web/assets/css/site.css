@@ -863,6 +863,43 @@ html[data-contrast="high"] .stats b,html[data-contrast="high"] .org-n,html[data-
 html[data-contrast="high"] .amount,html[data-contrast="high"] .h1-b,html[data-contrast="high"] .foot-h,html[data-contrast="high"] .quick-title{color:#FFE24D}
 
 /* ---------- Tipărire ---------- */
+/* ---------- Finisaje de stil ---------- */
+.sec-head h2::after{content:"";display:block;width:3.25rem;height:4px;margin-top:.7rem;border-radius:2px;background:linear-gradient(90deg,var(--blue) 0 50%,var(--accent) 50% 100%)}
+.sec-head-inv h2::after{margin-top:.55rem}
+.news-card,.inv,.faq,.ev{border-radius:10px}
+.news-card{border-color:var(--blue-m);border-bottom:4px solid var(--blue)}
+.news-card:hover{transform:translateY(-3px)}
+.btn{border-radius:6px;transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s,transform .15s}
+.btn:hover{box-shadow:0 4px 12px rgba(8,28,92,.18)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.doc:hover{background:var(--blue-l)}
+.doc{border-radius:6px;transition:background-color .15s}
+.sec-alt{background:linear-gradient(180deg,var(--paper),#EBEEF4)}
+.sec+.sec{border-top:1px solid var(--line)}
+.sec-alt+.sec,.sec+.sec-alt{border-top:0}
+/* ---------- Mai puțin albastru: albastrul rămâne pentru antet, subsol, butoane și legături; titlurile și cifrele sunt în culoarea textului ---------- */
+:root{--ink-h:#1E2638;--tile:#E7EAF1}
+.sec h2,.sec h3,.sec h4{color:var(--ink-h)}
+.prog-top h2,.prog-top h3,.prog-top h4{color:#fff}
+.fn-btn,.acc-btn,.inv-name,.org-total b{color:var(--ink-h)}
+.fn-no{border-color:var(--line-d);color:var(--ink-h)}
+.fn-btn:hover .fn-no,.fn-btn[aria-expanded="true"] .fn-no{border-color:var(--blue);color:var(--blue)}
+.fn-sub,.fn-items li::before{color:var(--ink-h)}
+.org-sq i{background:#8F9CB7}
+.org-n,.mn-num b,.fact b{color:var(--ink-h)}
+.inv-no{background:var(--tile);color:var(--ink-h)}
+.inv-btn[aria-expanded="true"] .inv-no,.inv-btn:hover .inv-no{background:var(--blue);color:#fff}
+.about-princ{background:var(--ink-h)}
+.about-princ h3,.panel-accent h3{color:#fff}
+html[data-contrast="high"]{--ink-h:#000;--tile:#fff}
+html[data-contrast="high"] .about-princ{background:#000}
+html[data-contrast="high"] .inv-no{background:#000;color:#fff}
+.news-card{border-bottom:4px solid var(--accent)}
+.sec-head h2::after{background:var(--accent)}
+.mn-card[aria-pressed="true"]{background:#FFFBE0;border-color:var(--ink-h);box-shadow:inset 0 0 0 1px var(--ink-h)}
+@media (prefers-reduced-motion:reduce){.news-card:hover,.btn:active{transform:none}}
+@media print{.sec-head h2::after{display:none}}
+
 @media print{
   .utility,.lang,.mainnav,.adminbar,.search-open,.search-box,.quick,.levels-box,.toolbar,.ev-filters,.chips,.more,.totop,.toasts,.edit-link,.a11y,.contact-map,.maplink,.form,.skip,.flagstrip{display:none!important}
   body{font-size:11pt;color:#000;background:#fff}
