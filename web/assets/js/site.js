@@ -699,7 +699,7 @@
     if (amp && (co.ampTitle || co.ampText || co.ampUrl || (co.ampChips || []).length)) {
       var url = safe(co.ampUrl);
       var chips = (co.ampChips || []).filter(Boolean);
-      var inner = '<img class="plat-logo" src="assets/img/amp-logo.svg" alt="" width="80" height="80"><span class="plat-body"><strong>' + esc(co.ampTitle || '') + (url ? ' ' + ico('ext') : '') + '</strong>' +
+      var inner = '<img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60"><span class="plat-body"><strong>' + esc(co.ampTitle || '') + (url ? ' ' + ico('ext') : '') + '</strong>' +
         (co.ampText ? '<span class="plat-desc">' + esc(co.ampText) + '</span>' : '') +
         (chips.length ? '<ul class="plat-chips" aria-label="Informațiile centralizate de platformă">' + chips.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' : '') + '</span>';
       amp.outerHTML = url ? '<a class="plat plat-amp" id="ampCard" href="' + esc(url) + '" target="_blank" rel="noopener">' + inner + '</a>' : '<div class="plat plat-amp" id="ampCard">' + inner + '</div>';

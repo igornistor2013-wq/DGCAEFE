@@ -168,6 +168,17 @@ test('pagina statică are trei versiuni, cu limba, canonicul și legăturile hre
   assert.match(textOf(files.get('ru.html')), /<title>Генеральная дирекция/);
 });
 
+test('fonturile: pagina în rusă cere din timp și literele chirilice ale fontului de bază; română și engleză, numai pe cele latine', () => {
+  const files = new Map(staticSite.entries(reader(), cfg.SEED_DIR, { siteUrl: 'https://exemplu.github.io/depozit/' }).map(e => [e.name, e]));
+  const pre = f => [...textOf(files.get(f)).matchAll(/<link rel="preload" href="([^"]+)" as="font" type="font\/woff2" crossorigin>/g)].map(m => m[1]);
+  assert.deepEqual(pre('index.html'), ['assets/fonts/onest-latin.woff2']);
+  assert.deepEqual(pre('en.html'), ['assets/fonts/onest-latin.woff2']);
+  assert.deepEqual(pre('ru.html'), ['assets/fonts/onest-latin.woff2', 'assets/fonts/onest-cyrillic.woff2']);
+  for (const n of ['onest-latin', 'onest-cyrillic', 'sourceserif4-700-latin', 'sourceserif4-700-cyrillic', 'robotocondensed-600-latin', 'robotocondensed-600-cyrillic']) {
+    assert.ok(files.has(`assets/fonts/${n}.woff2`), `lipsește ${n}.woff2 din pagina statică`);
+  }
+});
+
 test('serverul: /, /ru și /en (cu și fără .html) și /api/public?lang=', async () => {
   const server = createApp().listen(0, '127.0.0.1');
   await once(server, 'listening');
