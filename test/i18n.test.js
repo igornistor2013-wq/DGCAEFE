@@ -138,6 +138,17 @@ test('traducerile din administrare: validare, limite și ștergere', () => {
   assert.deepEqual(st.tr, { ru: { growth: { intro: 'Введение' }, contact: { address: 'Адрес' } } });
 });
 
+test('rubrica „Cooperare externă” se editează din administrare, cu traduceri', () => {
+  const sc = AdminSchemas.create({ programs: () => [] });
+  const st = sc.cleanSettings({ orgName: 'Org', coop: { title: ' Cooperare ', ampUrl: 'https://amp.gov.md/portal/', ampChips: 'A\nB\n', ampText: 'Text' }, tr: { ru: { coop: { ampTitle: 'Платформа', ampChips: ['А'] } } } });
+  assert.equal(st.coop.title, 'Cooperare');
+  assert.deepEqual(st.coop.ampChips, ['A', 'B']);
+  assert.equal(st.coop.ampUrl, 'https://amp.gov.md/portal/');
+  assert.deepEqual(st.tr.ru.coop, { ampTitle: 'Платформа', ampChips: ['А'] });
+  assert.throws(() => sc.cleanSettings({ orgName: 'Org', coop: { ampUrl: 'javascript:alert(1)' } }));
+  assert.throws(() => sc.cleanSettings({ orgName: 'Org', coop: { acordAmount: 'x'.repeat(61) } }));
+});
+
 test('pagina statică are trei versiuni, cu limba, canonicul și legăturile hreflang corecte', () => {
   const files = new Map(staticSite.entries(reader(), cfg.SEED_DIR, { siteUrl: 'https://exemplu.github.io/depozit/' }).map(e => [e.name, e]));
   for (const [file, lang] of [['index.html', 'ro'], ['ru.html', 'ru'], ['en.html', 'en']]) {

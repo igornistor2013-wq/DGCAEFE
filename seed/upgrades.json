@@ -204,5 +204,9 @@
         "url"
       ]
     }
+  },
+  {
+    "rev": 8,
+    "note": "Cooperare externă: textele secțiunii și cardul Platformei AMP pot fi editate din administrare (settings.coop)."
   }
 ]
