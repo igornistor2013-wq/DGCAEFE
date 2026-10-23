@@ -127,42 +127,34 @@ test('scripturile paginii nu declară de două ori aceeași funcție la nivelul 
 
 const stripTags = h => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
 
-test('fonturile: ONEST (textul), SOURCE SERIF 4 (titluri) și ROBOTO CONDENSED (etichete) — găzduite local, cu licențele alăturate', () => {
+test('fontul este ONEST, pentru tot textul paginii (fontul oficial al site-urilor instituțiilor publice), găzduit local, cu licența alăturată', () => {
   const FONTS = path.join(WEB, 'assets', 'fonts');
-  // pagina publică: trei familii, fiecare cu litere latine (română) și chirilice (rusă)
-  const families = [...css.matchAll(/@font-face\{font-family:"([^"]+)";src:url\("\.\.\/fonts\/([\w.-]+\.woff2)"\) format\("woff2"\);font-weight:([\d ]+);font-style:normal;font-display:swap;unicode-range:[^}]+\}/g)];
-  assert.equal(families.length, 6, 'șase fișiere: trei familii × (latin, chirilic)');
-  assert.deepEqual([...new Set(families.map(m => m[1]))].sort(), ['Onest', 'Roboto Condensed', 'Source Serif 4'], 'cel mult patru familii; aici trei');
-  for (const [, fam, file] of families) assert.ok(fs.existsSync(path.join(FONTS, file)), `${fam}: lipsește ${file}`);
-  assert.match(css, /@font-face\{font-family:"Onest";src:url\("\.\.\/fonts\/onest-latin\.woff2"\) format\("woff2"\);font-weight:400 800;/, 'Onest variabil, de la 400 la 800');
-  assert.match(css, /--sans:"Onest",Arial/, 'Onest este fontul de bază, Arial este rezerva');
-  assert.match(css, /--head:"Onest",Arial/, 'titlurile mici rămân tot în Onest');
-  assert.match(css, /--serif:"Source Serif 4",Georgia/, 'fontul cu serife are rezerva Georgia');
-  assert.match(css, /--label:"Roboto Condensed","Arial Narrow",Arial/, 'fontul îngust are rezerve');
-  // ONEST rămâne fontul textului: paragrafele și formularele nu trec niciodată la celelalte două
-  assert.match(css, /body\{margin:0;font-family:var\(--sans\)/, 'textul paginii este în Onest');
-  for (const sel of ['p', 'li', 'input', 'select', 'textarea', 'button']) {
-    assert.doesNotMatch(css, new RegExp(`(^|[},\\n])${sel}\\s*\\{[^}]*font-family:\\s*var\\(--(serif|label)\\)`), `${sel}: textul curent nu folosește fonturile pentru titluri/etichete`);
-  }
-  // admin.css: panoul de administrare folosește doar Onest (latin + chirilic)
   const adm = read('assets', 'css', 'admin.css');
-  assert.match(adm, /@font-face\{font-family:"Onest";src:url\("\.\.\/fonts\/onest-latin\.woff2"\) format\("woff2"\);font-weight:400 800;[^}]*font-display:swap/, 'admin.css: Onest latin');
-  assert.match(adm, /@font-face\{font-family:"Onest";src:url\("\.\.\/fonts\/onest-cyrillic\.woff2"\)/, 'admin.css: Onest chirilic');
-  assert.match(adm, /--sans:"Onest",Arial/, 'admin.css: Onest este fontul de bază');
   for (const [name, text] of [['site.css', css], ['admin.css', adm]]) {
-    assert.doesNotMatch(text, /Raleway|fonts\.googleapis|fonts\.gstatic/i, `${name}: nimic încărcat din afara serverului`);
+    // o singură familie, cu litere latine (română) și chirilice (rusă), variabilă de la 400 la 800
+    const faces = [...text.matchAll(/@font-face\{font-family:"([^"]+)";src:url\("\.\.\/fonts\/([\w.-]+\.woff2)"\) format\("woff2"\);font-weight:400 800;font-style:normal;font-display:swap;unicode-range:[^}]+\}/g)];
+    assert.deepEqual(faces.map(m => `${m[1]} ${m[2]}`), ['Onest onest-latin.woff2', 'Onest onest-cyrillic.woff2'], `${name}: Onest latin și chirilic`);
+    assert.equal((text.match(/@font-face/g) || []).length, 2, `${name}: nicio altă familie nu este încărcată`);
+    assert.match(text, /--sans:"Onest",Arial/, `${name}: Onest este fontul de bază, Arial este rezerva`);
+    assert.doesNotMatch(text, /Raleway|Roboto|Source Serif|fonts\.googleapis|fonts\.gstatic/i, `${name}: fără alte fonturi`);
     assert.doesNotMatch(text, /url\(["']?https?:/i, `${name}: fără adrese externe`);
   }
-  // fișierele și licențele (SIL Open Font License) alăturate
-  for (const f of ['onest-latin.woff2', 'onest-cyrillic.woff2', 'sourceserif4-700-latin.woff2', 'sourceserif4-700-cyrillic.woff2', 'robotocondensed-600-latin.woff2', 'robotocondensed-600-cyrillic.woff2']) {
-    assert.ok(fs.statSync(path.join(FONTS, f)).size > 5000 && fs.statSync(path.join(FONTS, f)).size < 40000, `${f}: dimensiune rezonabilă`);
-    assert.equal(fs.readFileSync(path.join(FONTS, f)).subarray(0, 4).toString('latin1'), 'wOF2', `${f}: fișier woff2`);
+  // titlurile, cifrele și etichetele se deosebesc prin greutate și mărime, nu prin alt font: cele trei variabile de rol sunt tot Onest
+  assert.match(css, /--head:"Onest",Arial/, 'titlurile mici');
+  assert.match(css, /--serif:var\(--sans\)/, 'titlurile secțiunilor și cifrele mari');
+  assert.match(css, /--label:var\(--sans\)/, 'etichetele mici');
+  const other = [...css.matchAll(/font-family:\s*([^;}]+)/g)].map(m => m[1].trim()).filter(v => !/^(?:"Onest"|var\(--(?:sans|head|serif|label)\)|inherit)$/.test(v));
+  assert.deepEqual(other, [], 'orice text din pagina publică folosește Onest');
+  assert.match(css, /body\{margin:0;font-family:var\(--sans\)/, 'textul paginii este în Onest');
+  // fișierele și licența (SIL Open Font License) alăturate; în dosar nu rămâne nimic nefolosit
+  for (const f of ['onest-latin.woff2', 'onest-cyrillic.woff2']) {
+    const b = fs.readFileSync(path.join(FONTS, f));
+    assert.equal(b.subarray(0, 4).toString('latin1'), 'wOF2', `${f}: fișier woff2`);
+    assert.ok(b.length > 5000 && b.length < 40000, `${f}: dimensiune rezonabilă`);
   }
-  assert.ok(!fs.existsSync(path.join(FONTS, 'onest-latin-ext.woff2')), 'fișierul vechi nu mai este folosit');
-  for (const f of ['LICENSE-onest.txt', 'LICENSE-sourceserif4.txt', 'LICENSE-robotocondensed.txt']) {
-    assert.match(fs.readFileSync(path.join(FONTS, f), 'utf8'), /SIL OPEN FONT LICENSE/i, f);
-  }
-  // doar fontul de bază se încarcă din timp (celelalte se descarcă numai dacă pagina are nevoie de ele)
+  assert.deepEqual(fs.readdirSync(FONTS).sort(), ['LICENSE-onest.txt', 'onest-cyrillic.woff2', 'onest-latin.woff2'], 'în dosarul fonturilor sunt numai fișierele folosite');
+  assert.match(fs.readFileSync(path.join(FONTS, 'LICENSE-onest.txt'), 'utf8'), /SIL OPEN FONT LICENSE/i);
+  // doar fișierul cu litere latine se cere din timp; cel chirilic se cere numai pe pagina în rusă (vezi i18n.test.js)
   assert.match(html, /<link rel="preload" href="assets\/fonts\/onest-latin\.woff2" as="font" type="font\/woff2" crossorigin>/);
   assert.equal((html.match(/rel="preload"[^>]*as="font"/g) || []).length, 1, 'o singură încărcare anticipată de font');
 });
