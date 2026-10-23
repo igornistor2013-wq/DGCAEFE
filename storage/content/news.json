@@ -1,5 +1,6 @@
 [
   {
+<<<<<<< HEAD
     "id": "0a44a8dd0333",
     "title": "Consolidarea capacităților instituționale în domeniul gestionării fondurilor europene",
     "date": "2026-07-14",
@@ -64,5 +65,53 @@
     "published": true,
     "createdAt": "2026-10-22T18:57:16.262Z",
     "updatedAt": "2026-10-22T19:06:56.669Z"
+=======
+    "id": "7e6320d90b4f",
+    "title": "Orașe în schimbare: noi oportunități",
+    "date": "2026-06-01",
+    "dateLabel": "iunie 2026",
+    "tag": "Buletin URBACT",
+    "summary": "Ediția din iunie 2026 a buletinului informativ URBACT este disponibilă pentru descărcare.",
+    "body": "Ediția din iunie 2026 a buletinului informativ URBACT poate fi descărcată în format PDF.\n\nBuletinele anterioare sunt disponibile în secțiunea Programe, la URBACT IV.",
+    "image": null,
+    "imageAlt": "",
+    "linkUrl": "https://gov.md/sites/default/files/users-media/media-15/Newsletter_iunie_2026.pdf",
+    "linkLabel": "Descarcă buletinul (PDF)",
+    "published": true,
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "7199b2dd21bb",
+    "title": "Noi oportunități în cadrul Apelului URBACT Rețele de Acțiune",
+    "date": "2026-04-01",
+    "dateLabel": "aprilie 2026",
+    "tag": "Buletin URBACT",
+    "summary": "Ediția din aprilie 2026 a buletinului informativ URBACT este disponibilă pentru descărcare.",
+    "body": "Ediția din aprilie 2026 a buletinului informativ URBACT poate fi descărcată în format PDF.\n\nBuletinele anterioare sunt disponibile în secțiunea Programe, la URBACT IV.",
+    "image": null,
+    "imageAlt": "",
+    "linkUrl": "https://gov.md/sites/default/files/users-media/media-15/Newsletter%20No%209.pdf",
+    "linkLabel": "Descarcă buletinul (PDF)",
+    "published": true,
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+  },
+  {
+    "id": "17c8cf7c65b4",
+    "title": "Primăvara aduce vești bune pentru orașele din Moldova",
+    "date": "2026-03-01",
+    "dateLabel": "martie 2026",
+    "tag": "Buletin URBACT",
+    "summary": "Ediția din martie 2026 a buletinului informativ URBACT este disponibilă pentru descărcare.",
+    "body": "Ediția din martie 2026 a buletinului informativ URBACT poate fi descărcată în format PDF.\n\nBuletinele anterioare sunt disponibile în secțiunea Programe, la URBACT IV.",
+    "image": null,
+    "imageAlt": "",
+    "linkUrl": "https://gov.md/sites/default/files/Filepdf/Newsletter%20No%208_0.pdf",
+    "linkLabel": "Descarcă buletinul (PDF)",
+    "published": true,
+    "createdAt": "2026-10-19T10:15:40.006Z",
+    "updatedAt": "2026-10-19T10:15:40.006Z"
+>>>>>>> 6c3b106035273592cb1325c34982c6c6011a7788
   }
 ]
