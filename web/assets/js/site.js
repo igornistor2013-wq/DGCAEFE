@@ -615,8 +615,6 @@
     $$('a[href="#plan-crestere"]', $('#navList')).concat($$('.foot a[href="#plan-crestere"]')).forEach(function (a) { if (a.parentNode.tagName === 'LI') a.parentNode.hidden = !show; });
     if (!show) return;
     var g = D.settings.growth || {};
-    $('#growthIntro').textContent = g.intro || '';
-    $('#growthIntro').hidden = !g.intro;
     $('#growthAsOf').textContent = g.asOf ? T('Date actualizate la %1.', DG.fmtDate(g.asOf)) : '';
     $('#growthAsOf').hidden = !g.asOf;
     $('#invQ').value = inv.q;
