@@ -147,7 +147,7 @@
     document.addEventListener('visibilitychange', function () { if (S && S.n) sync(); });
   }
 
-  // `box` = #heroNews (diapozitivele noutăților și butoanele), `lead` = textul de prezentare (se ascunde cât timp există noutăți),
+  // `box` = #heroNews (diapozitivele noutăților și butoanele), `lead` = textul de sub titlu (rămâne la vedere, în primul diapozitiv),
   // `news` = noutățile publice (cele mai noi primele), `h` = funcțiile din common.js, `main` = prezentarea (titlul, căutarea, accesul rapid),
   // `rootEl` = tot blocul de sus al paginii (mouse-ul și tastatura din el opresc derularea); fără ele, doar blocul noutăților.
   function render(box, lead, news, h, main, rootEl) {
@@ -162,7 +162,6 @@
     s.root = rootEl || box;
     s.n = list.length;
     box.hidden = !s.n;
-    lead.hidden = s.n > 0;
     if (!s.n) {
       if (s.main) s.main.removeAttribute('inert');
       return;

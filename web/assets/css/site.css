@@ -156,11 +156,13 @@ abbr[title]{text-decoration:none;cursor:help}
 .hn-progress i{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:0 50%}
 .hn-progress.run i{animation:hn-fill var(--hn-ms,10s) linear forwards}
 @keyframes hn-fill{to{transform:scaleX(1)}}
+.intro:has(.hero-news:not([hidden])){display:flex;flex-direction:column;justify-content:center;min-height:clamp(34rem,74vh,52rem)}
 .intro:has(.hero-news:not([hidden])) .intro-in{width:min(var(--wrap),100% - 2*max(var(--gutter),3.6rem));padding-bottom:clamp(3.5rem,6vw,4.5rem)}
 @media (min-width:48rem){.intro:has(.hero-news:not([hidden])) .intro-in{width:min(var(--wrap),100% - 2*max(var(--gutter),5.5rem))}}
 @media (max-width:47.99rem){
   .hn-arrow{width:2.5rem;height:2.5rem;margin-top:-1.25rem}
   .hn-in{padding-inline:2.4rem}
+  .hn-slide{align-items:flex-start;padding-top:2.25rem} /* pe telefon prezentarea este înaltă: textul noutății rămâne în primul ecran */
   .hn-slide::before{background:linear-gradient(180deg,rgba(4,18,70,.55),rgba(4,18,70,.88))}
   .hn-title{-webkit-line-clamp:4;line-clamp:4}
   .hn-sum{-webkit-line-clamp:3;line-clamp:3;font-size:1rem}

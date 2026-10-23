@@ -182,9 +182,9 @@ test('versiunea statică fără adresă: se poate deschide din calculator (făr�
   assert.ok(!files.has('404.html'));
   assert.doesNotMatch(index, /Content-Security-Policy|rel="canonical"/);
   assert.equal(textOf(files.get('robots.txt')), prerender.robotsTxt(''));
-  // titlul și prezentarea sunt în HTML și fără JavaScript; cât timp există noutăți, în locul prezentării se vad ele (prezentarea rămâne, ascunsă)
+  // titlul și prezentarea sunt în HTML și fără JavaScript; cât timp există noutăți, în locul prezentării se vad ele (prezentarea rămâne la vedere, ca prim diapozitiv)
   assert.match(index, /<h1 id="introTitle">Direcția Generală Coordonare Asistență Externă și <span class="h1-b">Fonduri Europene<\/span><\/h1>/);
-  assert.match(index, /<p class="lead" id="introLead" hidden>Asigurăm rolul Cancelariei de Stat/);
+  assert.match(index, /<p class="lead" id="introLead">Asigurăm rolul Cancelariei de Stat/);
   assert.match(index, /<div class="hero-news is-intro" id="heroNews" role="region" aria-roledescription="carusel" aria-label="Ultimele noutăți">/);
   assert.match(index, /<html data-static="true" lang="ro">/);
   // același lucru din fișierul de pornire: scriptul noutăților este în versiunea construită, cu amprentă
@@ -279,7 +279,7 @@ test('serverul: prima pagină cu titlul gata scris, robots.txt și pagina „404
     await store.setSettings({ ...store.getSettings(), heroTitle: 'Un titlu nou pentru direcție', heroLead: 'Prezentare nouă & scurtă' });
     const changed = await get('/');
     assert.match(changed.text, /<h1 id="introTitle">Un titlu nou <span class="h1-b">pentru direcție<\/span><\/h1>/);
-    assert.match(changed.text, /<p class="lead" id="introLead" hidden>Prezentare nouă &amp; scurtă<\/p>/);
+    assert.match(changed.text, /<p class="lead" id="introLead">Prezentare nouă &amp; scurtă<\/p>/);
     // o noutate nouă apare imediat în partea de sus, prima (cea mai nouă)
     await store.create('news', { title: 'Noutate de ultimă oră', date: '2099-01-01', summary: 'Rezumat <scurt>' });
     const withNews = await get('/');
@@ -340,7 +340,7 @@ test('noutățile din partea de sus: ultimele 5 se scriu în HTML exact ca în b
   assert.equal((stage.match(/is-active/g) || []).length, 0, 'la început se vede prezentarea, nu o noutate');
   assert.match(heroOpen(html), /class="hero-news is-intro"/);
   assert.doesNotMatch(heroOpen(html), /\bhidden\b/, 'blocul se vede, cu butoane');
-  assert.match(html, /<p class="lead" id="introLead" hidden>/, 'textul lung de prezentare este ascuns, dar rămâne în pagină');
+  assert.match(html, /<p class="lead" id="introLead">/, 'textul de sub titlu rămâne la vedere, în primul diapozitiv');
   assert.ok(html.indexOf('id="introMain"') < html.indexOf('id="heroNews"') && /<h1 id="introTitle">/.test(html), 'titlul, căutarea și accesul rapid rămân primul diapozitiv');
   const dots = heroDots(html);
   assert.equal(dots, HeroNews.dotsHtml(HeroNews.pick(fakeNews(12)), DG, 0));
@@ -361,7 +361,7 @@ test('noutățile din partea de sus: fotografia mare pe fundal, nicio noutate la
   assert.match(heroStage(one), /<img src="\/uploads\/img\/a\.jpg" class="hn-bg" alt="" width="1600" height="900" decoding="async">/, 'fotografia mare, nu miniatura; prima nu este amânată');
   assert.match(heroStage(one), /class="hn-slide has-pic"/);
   assert.equal((heroDots(one).match(/<button/g) || []).length, 2, 'prezentarea și noutatea');
-  assert.match(one, /<p class="lead" id="introLead" hidden>/);
+  assert.match(one, /<p class="lead" id="introLead">/);
 
   // fără noutăți (sau fără nicio listă) pagina rămâne neschimbată: se vede doar prezentarea
   for (const data of [{ news: [] }, { news: null }, { news: undefined }, {}, null]) assert.equal(prerender.fillIndex(template, data), template);

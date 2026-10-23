@@ -185,5 +185,15 @@
         ]
       }
     }
+  },
+  {
+    "rev": 6,
+    "note": "Textul de sub titlul din partea de sus (prezentarea direcției) are o formulare nouă și se vede în primul diapozitiv al caruselului.",
+    "settings": {
+      "heroLead": [
+        "Asigurăm rolul Cancelariei de Stat de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare a Uniunii Europene, precum și coordonarea proiectelor investiționale din Planul de creștere. Aici găsiți proiectele, actele normative, rapoartele, acordurile de finanțare și evenimentele pentru potențialii beneficiari.",
+        "Asigurăm rolul Cancelariei de Stat în calitate de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare la Uniunea Europenă, precum și coordonarea proiectelor investiționale din Planul de creștere."
+      ]
+    }
   }
 ]

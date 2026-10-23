@@ -176,7 +176,7 @@ test('prezentarea e prima; din 12 noutăți se derulează 5, la 10 secunde fieca
   assert.equal(p.box.classList.contains('is-intro'), true);
   assert.equal(p.dot(), 0);
   assert.equal(p.main.getAttribute('inert'), null, 'prezentarea se poate folosi (căutare, linkuri)');
-  assert.equal(p.lead.hidden, true, 'textul lung de prezentare lasă locul noutăților');
+  assert.equal(p.lead.hidden, false, 'textul de sub titlu rămâne la vedere, în primul diapozitiv');
   assert.equal(p.box.hidden, false);
   assert.equal(p.run(), 'true');
   assert.equal(p.box.style.props['--hn-ms'], '10000ms');
@@ -345,7 +345,7 @@ test('o singură noutate: prezentarea, apoi noutatea, apoi din nou prezentarea',
   assert.equal(one.pos(), 1);
   one.tick(10000);
   assert.equal(one.pos(), 0);
-  assert.equal(one.lead.hidden, true);
+  assert.equal(one.lead.hidden, false);
   assert.equal(one.box.hidden, false);
 });
 
@@ -397,7 +397,7 @@ test('rescrierea paginii (după ce se află că cel care o vede este administrat
   // și revin
   p.rerender(news(2));
   assert.equal(p.box.hidden, false);
-  assert.equal(p.lead.hidden, true);
+  assert.equal(p.lead.hidden, false);
   assert.equal(p.stage.children.length, 2);
 });
 

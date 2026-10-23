@@ -2,7 +2,7 @@
   "orgName": "Direcția Generală Coordonare Asistență Externă și Fonduri Europene",
   "parentName": "Cancelaria de Stat a Republicii Moldova",
   "heroTitle": "Direcția Generală Coordonare Asistență Externă și Fonduri Europene",
-  "heroLead": "Asigurăm rolul Cancelariei de Stat de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare a Uniunii Europene, precum și coordonarea proiectelor investiționale din Planul de creștere. Aici găsiți proiectele, actele normative, rapoartele, acordurile de finanțare și evenimentele pentru potențialii beneficiari.",
+  "heroLead": "Asigurăm rolul Cancelariei de Stat în calitate de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare la Uniunea Europeană, precum și coordonarea proiectelor investiționale din Planul de creștere. Aici găsiți proiectele, actele normative, rapoartele, acordurile de finanțare și evenimentele pentru potențialii beneficiari.",
   "quickLinks": [
     {
       "t": "Raportul privind asistența externă, 2025",
@@ -238,5 +238,5 @@
     "note": "Valorile sunt indicative și provin din fișele proiectelor și din prezentările ministerelor; ele se pot modifica pe parcursul pregătirii proiectelor. Sumele sunt exprimate în milioane, în moneda indicată pentru fiecare proiect.",
     "sources": []
   },
-  "seedRev": 5
+  "seedRev": 6
 }
