@@ -2,7 +2,7 @@
   "orgName": "Direcția Generală Coordonare Asistență Externă și Fonduri Europene",
   "parentName": "Cancelaria de Stat a Republicii Moldova",
   "heroTitle": "Direcția Generală Coordonare Asistență Externă și Fonduri Europene",
-  "heroLead": "Asigurăm rolul Cancelariei de Stat în calitate de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare la Uniunea Europenă, precum și coordonarea proiectelor investiționale din Planul de creștere.",
+  "heroLead": "Asigurăm rolul Cancelariei de Stat în calitate de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare la Uniunea Europeană, precum și coordonarea proiectelor investiționale din Planul de creștere. Aici găsiți proiectele, actele normative, rapoartele, acordurile de finanțare și evenimentele pentru potențialii beneficiari.",
   "quickLinks": [
     {
       "t": "Raportul privind asistența externă, 2025",
@@ -231,6 +231,23 @@
     "mapLink": "https://www.google.com/maps/search/?api=1&query=Casa+Guvernului+Chi%C8%99in%C4%83u"
   },
   "footerNote": "Conținut preluat de pe gov.md, disponibil sub licența CC BY-SA 4.0.",
-  "seedRev": 5,
-  "updatedAt": "2026-10-21T19:37:55.696Z"
+  "seedRev": 8,
+  "updatedAt": "2026-10-21T19:37:55.696Z",
+  "coop": {
+    "title": "Cooperare externă",
+    "acordTitle": "Acordul cu Guvernul României",
+    "acordAmount": "100 mil. EUR",
+    "acordIntro": "Program de asistență tehnică și financiară, în baza unui ajutor financiar nerambursabil acordat de România Republicii Moldova. Documentele sunt ordonate după etapele de implementare.",
+    "ampTitle": "Platforma de Management al Asistenței Externe (AMP)",
+    "ampText": "Platforma de Management al Asistenței Externe (AMP) este un instrument informațional destinat evidenței, monitorizării și gestionării proiectelor și programelor de asistență externă acordate Republicii Moldova de către partenerii de dezvoltare. Aceasta asigură centralizarea informațiilor privind proiectele de asistență externă, inclusiv datele referitoare la finanțatori, beneficiari și implementatori, valoarea finanțării, perioadele de implementare și debursările efectuate.",
+    "ampUrl": "https://amp.gov.md/portal/",
+    "ampChips": [
+      "Finanțatori",
+      "Beneficiari",
+      "Implementatori",
+      "Valoarea finanțării",
+      "Perioade de implementare",
+      "Debursări efectuate"
+    ]
+  }
 }
