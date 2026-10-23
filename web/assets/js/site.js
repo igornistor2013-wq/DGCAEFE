@@ -1021,7 +1021,6 @@
     D.events.forEach(function (e) { idx.push({ cat: 'Evenimente', t: e.title, s: [DG.fmtDate(evDate(e)), e.place].filter(Boolean).join(', '), k: (e.prog || '') + ' ' + e.summary, go: function () { goEvent(e.id); } }); });
     D.gallery.forEach(function (g) { idx.push({ cat: 'Galerie foto', t: g.title || T('Fotografie'), s: [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · '), k: g.alt || '', go: function () { gal.album = 'all'; renderGallery(); var i = D.gallery.indexOf(g); gal.shown = Math.max(gal.shown, i + 1); renderGallery(); openLightbox(i); } }); });
     idx.push({ cat: 'Platforme', t: T('Platforma pentru gestionarea asistenței externe (AMP)'), s: 'amp.gov.md', k: 'aid management platform proiecte donatori', u: 'https://amp.gov.md/portal/' });
-    idx.push({ cat: 'Platforme', t: T('Platforma de Parteneriat pentru Moldova'), s: 'gov.md', k: 'partnership platform', u: 'https://gov.md/ro/platforma-de-parteneriat-pentru-moldova' });
     [['Servicii publice', 'servicii.gov.md', 'portalul serviciilor publice servicii electronice'], ['Consultări publice', 'particip.gov.md', 'participare proiecte de acte normative'],
       ['Achiziții publice (MTender)', 'mtender.gov.md', 'licitații tenders contracte'], ['Cariere în sectorul public', 'cariere.gov.md', 'posturi vacante concursuri angajare'],
       ['Date deschise', 'date.gov.md', 'open data seturi de date'], ['Statistică', 'statistica.gov.md', 'Biroul Național de Statistică'],
