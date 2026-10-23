@@ -478,8 +478,7 @@
     };
     box.hidden = !total;
     box.innerHTML = !total ? '' :
-      '<p class="gp-cap" id="h-th">' + T('Cele %1 %2 în infrastructură sunt grupate după ministerele care le promovează.', '<b>' + total + '</b>', plural(total, 'proiect investițional', 'proiecte investiționale')) + ' <span>Alegeți un minister pentru a filtra lista.</span></p>' +
-      '<ol class="mn-cards" aria-labelledby="h-th">' + card('all', total, 'Total', '', '') +
+      '<ol class="mn-cards" aria-labelledby="h-plan">' + card('all', total, 'Total', '', '') +
       groups.map(function (g) { return card(g.k, g.n, g.name, g.k !== NO_MIN && fullName(g.k) ? g.k : '', fullName(g.k)); }).join('') + '</ol>';
   }
 
@@ -1220,27 +1219,6 @@
 
   /* ================= Accesibilitate, meniu, derulare ================= */
   function setupChrome() {
-    var fs = Number(pref('dg-fs'));
-    if (isNaN(fs) || fs < -1 || fs > 2) fs = 0;
-    function applyFs() { document.documentElement.setAttribute('data-fs', String(fs)); }
-    applyFs();
-    $$('.a11y [data-fs]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var v = Number(b.getAttribute('data-fs'));
-        fs = v === 0 ? 0 : Math.max(-1, Math.min(2, fs + v));
-        pref('dg-fs', String(fs));
-        applyFs();
-      });
-    });
-    var contrast = pref('dg-contrast') === '1';
-    var cb = $('#contrastBtn');
-    function applyContrast() {
-      if (contrast) document.documentElement.setAttribute('data-contrast', 'high'); else document.documentElement.removeAttribute('data-contrast');
-      cb.setAttribute('aria-pressed', String(contrast));
-    }
-    applyContrast();
-    cb.addEventListener('click', function () { contrast = !contrast; pref('dg-contrast', contrast ? '1' : '0'); applyContrast(); });
-
     var list = $('#navList');
     var toggle = $('#navToggle');
     toggle.addEventListener('click', function () {

@@ -66,7 +66,7 @@ abbr[title]{text-decoration:none;cursor:help}
 .flagstrip i:nth-child(2){background:#FFD200}
 .flagstrip i:nth-child(3){background:#CC092F}
 .utility{background:var(--paper);border-bottom:1px solid var(--line);color:var(--muted);font-size:.8125rem}
-.utility-in{display:flex;justify-content:space-between;align-items:center;gap:.4rem 1.5rem;flex-wrap:wrap;padding-block:.3rem}
+.utility-in{display:flex;justify-content:flex-end;align-items:center;gap:.4rem 1.5rem;flex-wrap:wrap;padding-block:.3rem}
 .utility p{margin:0}
 .utility a{color:var(--ink);text-decoration:none;margin-right:1.25rem;white-space:nowrap}
 .utility a:hover{color:var(--blue);text-decoration:underline}

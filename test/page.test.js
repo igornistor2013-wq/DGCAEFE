@@ -64,7 +64,7 @@ test('proiectele investiționale: grupate după minister, fără obiective econo
   assert.doesNotMatch(css, /--t-|\.tm-|\.inv-theme/);
   // cardurile ministerelor
   assert.match(site, /mn-card/);
-  assert.match(site, /grupate după ministerele care le promovează/);
+  assert.doesNotMatch(site, /grupate după ministerele care le promovează/, "propoziția de sub titlu a fost scoasă");
   assert.match(css, /\.mn-cards\{display:grid/);
 });
 
@@ -275,12 +275,7 @@ test('partea de sus: ultimele noutăți în locul textului de prezentare, cu but
   assert.match(css, /html\[data-contrast="high"\] \.hn-btn/);
 });
 
-test('mărirea textului și contrastul ridicat: butoane cu denumiri clare și starea ținută minte', () => {
-  const bar = /<div class="a11y"[\s\S]*?<\/div>/.exec(html)[0];
-  for (const n of ['-1', '0', '1']) assert.match(bar, new RegExp(`data-fs="${n}"[^>]*aria-label="[^"]+"|aria-label="[^"]+"[^>]*data-fs="${n}"`));
-  assert.match(bar, /id="contrastBtn" aria-pressed="false"/);
-  assert.match(css, /html\[data-fs=/);
-  assert.match(css, /html\[data-contrast="high"\]|\[data-contrast=high\]|\[data-contrast="1"\]|data-contrast/);
+test('fără ferestre de dialog ale browserului', () => {
   assert.doesNotMatch(site, /\balert\(|\bconfirm\(|\bprompt\(/, 'fără ferestre de dialog ale browserului');
 });
 
