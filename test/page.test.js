@@ -228,9 +228,11 @@ test('secțiunea „Informații despre acest site” și linia „Pagina a fost 
 test('rubrica „Noutăți” vine imediat înainte de „Galerie foto”: în pagină, în meniul principal, în subsol, la urmărirea derulării și în pagina „404”', () => {
   const order = ['despre', 'plan-crestere', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'noutati', 'galerie', 'contacte'];
   const main = [...html.matchAll(/<section class="(sec[^"]*)" id="([^"]+)"/g)];
-  assert.deepEqual(main.map(m => m[2]), order, 'ordinea secțiunilor în pagină');
-  // fundalurile se alternează (fără două secțiuni alăturate la fel), deci rubrica mutată nu strică ritmul paginii
-  main.forEach((m, i) => assert.ok(i === 0 || /\bsec-alt\b/.test(m[1]) !== /\bsec-alt\b/.test(main[i - 1][1]), `fundalul secțiunii #${m[2]} se alternează`));
+  // „Platforma AMP” este o bandă albastră de sine stătătoare, imediat după proiectele investiționale; nu e în meniu
+  assert.deepEqual(main.map(m => m[2]), ['despre', 'plan-crestere', 'amp', ...order.slice(2)], 'ordinea secțiunilor în pagină');
+  // fundalurile se alternează (fără două secțiuni alăturate la fel; banda albastră AMP se deosebește oricum), deci rubrica mutată nu strică ritmul paginii
+  const plain = main.filter(m => m[2] !== 'amp');
+  plain.forEach((m, i) => assert.ok(i === 0 || /\bsec-alt\b/.test(m[1]) !== /\bsec-alt\b/.test(plain[i - 1][1]), `fundalul secțiunii #${m[2]} se alternează`));
   const nav = /<ul id="navList">([\s\S]*?)<\/ul>/.exec(html)[1];
   assert.deepEqual([...nav.matchAll(/href="#([^"]+)"/g)].map(m => m[1]), order, 'meniul principal');
   const foot = /<h2 class="foot-h">Pe această pagină<\/h2>\s*<ul>([\s\S]*?)<\/ul>/.exec(html)[1];
