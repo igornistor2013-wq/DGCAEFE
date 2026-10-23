@@ -201,7 +201,7 @@
     $('#introTitle').innerHTML = heroTitleHtml(s.heroTitle || s.orgName);
     $('#introLead').textContent = s.heroLead || '';
     // în locul textului de prezentare se derulează ultimele 10 noutăți (fără noutăți rămâne textul de prezentare)
-    if (window.HeroNews) window.HeroNews.render($('#heroNews'), $('#introLead'), D.news, DG);
+    if (window.HeroNews) window.HeroNews.render($('#heroNews'), $('#introLead'), D.news, DG, $('#introMain'), $('#top'));
     document.title = s.orgName + ' | ' + s.parentName;
     var q = s.quickLinks || [];
     $('.quick').hidden = !q.length;

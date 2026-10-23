@@ -185,7 +185,7 @@ test('versiunea statică fără adresă: se poate deschide din calculator (făr�
   // titlul și prezentarea sunt în HTML și fără JavaScript; cât timp există noutăți, în locul prezentării se vad ele (prezentarea rămâne, ascunsă)
   assert.match(index, /<h1 id="introTitle">Direcția Generală Coordonare Asistență Externă și <span class="h1-b">Fonduri Europene<\/span><\/h1>/);
   assert.match(index, /<p class="lead" id="introLead" hidden>Asigurăm rolul Cancelariei de Stat/);
-  assert.match(index, /<section class="hero-news" id="heroNews" aria-label="Ultimele noutăți">/);
+  assert.match(index, /<div class="hero-news is-intro" id="heroNews" role="region" aria-roledescription="carusel" aria-label="Ultimele noutăți">/);
   assert.match(index, /<html data-static="true" lang="ro">/);
   // același lucru din fișierul de pornire: scriptul noutăților este în versiunea construită, cu amprentă
   assert.ok(files.has('assets/js/hero-news.js'));
@@ -283,8 +283,8 @@ test('serverul: prima pagină cu titlul gata scris, robots.txt și pagina „404
     // o noutate nouă apare imediat în partea de sus, prima (cea mai nouă)
     await store.create('news', { title: 'Noutate de ultimă oră', date: '2099-01-01', summary: 'Rezumat <scurt>' });
     const withNews = await get('/');
-    assert.match(withNews.text, /<div class="hn-slide is-active">[^]*?<a href="#stire\/[^"]+">Noutate de ultimă oră<\/a>[^]*?Rezumat &lt;scurt&gt;/);
-    assert.equal((withNews.text.match(/class="hn-slide/g) || []).length, 3, 'cea nouă și încă două dintre cele de pornire (se iau cele mai noi 3)');
+    assert.match(withNews.text, /<div class="hn-slide">[^]*?<a href="#stire\/[^"]+">Noutate de ultimă oră<\/a>[^]*?Rezumat &lt;scurt&gt;/);
+    assert.equal((withNews.text.match(/class="hn-slide/g) || []).length, 4, 'cea nouă și cele 3 de pornire (toate, sub limita de 5)');
 
     const robots = await get('/robots.txt');
     assert.equal(robots.status, 200);
@@ -327,37 +327,43 @@ test('serverul refuză să pornească cu o adresă a paginii greșită', () => {
 const HeroNews = require('../web/assets/js/hero-news.js');
 const DG = require('../web/assets/js/common.js');
 const fakeNews = n => Array.from({ length: n }, (_, i) => ({ id: `n${i + 1}`, title: `Noutatea ${i + 1}`, date: `2026-03-${String(28 - i).padStart(2, '0')}`, tag: i === 0 ? 'Apel' : '', summary: i === 1 ? '' : `Rezumat ${i + 1}` }));
-const heroStage = html => /<div class="hn-stage">([\s\S]*?)<\/div>\s*<div class="hn-bar">/.exec(html)[1];
-const heroOpen = html => /<section class="hero-news[^"]*"[^>]*>/.exec(html)[0];
+const heroStage = html => /<div class="hn-stage">([\s\S]*?)<\/div>\s*<button class="hn-arrow hn-prev"/.exec(html)[1];
+const heroOpen = html => /<div class="hero-news[^"]*" id="heroNews"[^>]*>/.exec(html)[0];
+const heroDots = html => /<div class="hn-dots" id="hnDots">([\s\S]*?)<\/div>/.exec(html)[1];
 
-test('noutățile din partea de sus: ultimele 3 se scriu în HTML exact ca în browser, iar textul de prezentare rămâne ascuns în pagină', () => {
+test('noutățile din partea de sus: ultimele 5 se scriu în HTML exact ca în browser, după prezentare, care rămâne la început', () => {
   const html = prerender.fillIndex(template, { news: fakeNews(12) });
   const stage = heroStage(html);
-  assert.equal((stage.match(/class="hn-slide/g) || []).length, 3, 'din 12 se iau 3');
+  assert.equal((stage.match(/class="hn-slide/g) || []).length, 5, 'din 12 se iau 5');
   assert.equal(stage, HeroNews.slidesHtml(HeroNews.pick(fakeNews(12)), DG), 'același text ca cel scris de browser (prima afișare nu se schimbă)');
-  assert.deepEqual([...stage.matchAll(/<a href="#stire\/(n\d+)">/g)].map(m => m[1]), Array.from({ length: 3 }, (_, i) => `n${i + 1}`), 'în ordinea primită: cele mai noi primele');
-  assert.equal((stage.match(/is-active/g) || []).length, 1);
-  assert.ok(stage.startsWith('<div class="hn-slide is-active">'), 'se vede prima');
-  assert.doesNotMatch(heroOpen(html), /\bhidden\b|hn-single/, 'blocul se vede, cu butoane');
-  assert.match(html, /<p class="lead" id="introLead" hidden>/, 'prezentarea este ascunsă, dar rămâne în pagină');
-  assert.equal(inner(html, 'hnTotal'), '3');
-  assert.match(html, /<a class="hn-more" id="hnMore" href="#stire\/n1"/);
-  assert.doesNotMatch(html, /<!--hero-news-->/);
-  // data este un element <time>, iar eticheta și rezumatul apar doar dacă există
+  assert.deepEqual([...stage.matchAll(/<p class="hn-title"><a href="#stire\/(n\d+)">/g)].map(m => m[1]), Array.from({ length: 5 }, (_, i) => `n${i + 1}`), 'în ordinea primită: cele mai noi primele');
+  assert.equal((stage.match(/is-active/g) || []).length, 0, 'la început se vede prezentarea, nu o noutate');
+  assert.match(heroOpen(html), /class="hero-news is-intro"/);
+  assert.doesNotMatch(heroOpen(html), /\bhidden\b/, 'blocul se vede, cu butoane');
+  assert.match(html, /<p class="lead" id="introLead" hidden>/, 'textul lung de prezentare este ascuns, dar rămâne în pagină');
+  assert.ok(html.indexOf('id="introMain"') < html.indexOf('id="heroNews"') && /<h1 id="introTitle">/.test(html), 'titlul, căutarea și accesul rapid rămân primul diapozitiv');
+  const dots = heroDots(html);
+  assert.equal(dots, HeroNews.dotsHtml(HeroNews.pick(fakeNews(12)), DG, 0));
+  assert.equal((dots.match(/<button/g) || []).length, 6, 'prezentarea și 5 noutăți');
+  assert.match(dots, /^<button type="button" class="hn-dot is-active" data-i="0" aria-label="Prezentarea direcției" aria-current="true">/);
+  assert.doesNotMatch(html, /<!--hero-news-->|<!--hero-dots-->/);
+  // data este un element <time>, iar eticheta, rezumatul și butonul apar când trebuie
   assert.match(stage, /<time datetime="2026-03-28">28 martie 2026<\/time>/);
   const second = stage.split('<div class="hn-slide').slice(1)[1];
   assert.doesNotMatch(second, /hn-sum/, 'fără rezumat nu se scrie paragraf gol');
   assert.doesNotMatch(second, /hn-tag/);
   assert.match(stage, /<span class="hn-tag">Apel<\/span>/);
+  assert.match(stage, /<a class="btn hn-go" href="#stire\/n1" tabindex="-1" aria-hidden="true">Citește mai departe /);
 });
 
-test('noutățile din partea de sus: o singură noutate fără butoane, nicio noutate lasă textul de prezentare, textele nu pot deveni cod', () => {
-  const one = prerender.fillIndex(template, { news: fakeNews(1) });
-  assert.match(heroOpen(one), /class="hero-news hn-single"/);
-  assert.equal(inner(one, 'hnTotal'), '1');
+test('noutățile din partea de sus: fotografia mare pe fundal, nicio noutate lasă doar prezentarea, textele nu pot deveni cod', () => {
+  const one = prerender.fillIndex(template, { news: [{ id: 'f1', title: 'Cu poză', date: '2026-03-04', image: { path: '/uploads/img/a.jpg', thumb: '/uploads/img/a-t.jpg' } }] });
+  assert.match(heroStage(one), /<img src="\/uploads\/img\/a\.jpg" class="hn-bg" alt="" width="1600" height="900" decoding="async">/, 'fotografia mare, nu miniatura; prima nu este amânată');
+  assert.match(heroStage(one), /class="hn-slide has-pic"/);
+  assert.equal((heroDots(one).match(/<button/g) || []).length, 2, 'prezentarea și noutatea');
   assert.match(one, /<p class="lead" id="introLead" hidden>/);
 
-  // fără noutăți (sau fără nicio listă) pagina rămâne neschimbată: se vede textul de prezentare
+  // fără noutăți (sau fără nicio listă) pagina rămâne neschimbată: se vede doar prezentarea
   for (const data of [{ news: [] }, { news: null }, { news: undefined }, {}, null]) assert.equal(prerender.fillIndex(template, data), template);
   const none = prerender.fillIndex(template, { settings: { heroLead: 'Prezentare simplă' }, news: [] });
   assert.match(none, /<p class="lead" id="introLead">Prezentare simplă<\/p>/);
@@ -380,7 +386,7 @@ test('noutățile nepublicate (ciorne) nu ajung în pagina publică, nici în pa
   const files = new Map(staticSite.entries(staticSite.diskReader(dir, cfg.SEED_DIR), dir, {}).map(e => [e.name, e]));
   const index = textOf(files.get('index.html'));
   assert.doesNotMatch(index, /Ciornă nepublicată|Nu trebuie să se vadă|ciorna0000000001/, 'ciorna nu apare nicăieri în pagina publică');
-  assert.match(heroStage(index), /^<div class="hn-slide is-active"><p class="hn-meta">[^]*?<a href="#stire\/publicata00000001">Noutate publicată acum<\/a>/, 'cea mai nouă noutate publicată este prima');
+  assert.match(heroStage(index), /^<div class="hn-slide"><div class="wrap hn-in"><div class="hn-text"><p class="hn-meta">[^]*?<a href="#stire\/publicata00000001">Noutate publicată acum<\/a>/, 'cea mai nouă noutate publicată este prima');
 });
 
 test('linkurile „Acces rapid” se scriu în HTML exact ca în site.js, iar fără linkuri nu rămâne titlul singur', () => {

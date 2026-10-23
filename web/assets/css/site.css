@@ -116,49 +116,54 @@ abbr[title]{text-decoration:none;cursor:help}
 .h1-b{color:var(--accent)}
 .lead{font-size:1.125rem;line-height:1.6;color:rgba(255,255,255,.93);max-width:64rem;margin-bottom:1.75rem;text-wrap:pretty}
 
-/* Noutățile din partea de sus, în locul textului de prezentare: ultimele 3, câte una, schimbate la 10 secunde (web/assets/js/hero-news.js).
-   Diapozitivele stau unul peste altul în aceeași celulă a unei grile, deci înălțimea este cea a celui mai înalt și, la schimbare, pagina nu „sare”. */
-.hero-news{position:relative;overflow:hidden;max-width:64rem;margin:0 0 1.75rem;padding:1.2rem clamp(1rem,3vw,1.75rem) 0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.3);border-radius:var(--rc)}
-.hn-stage{display:grid}
-.hn-slide{grid-area:1/1;align-self:center;min-width:0;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s}
-.hn-slide.is-active{opacity:1;visibility:visible;transition:opacity .45s ease,visibility 0s}
-.hn-slide.has-pic{display:grid;grid-template-columns:minmax(0,19rem) minmax(0,1fr);gap:0 clamp(1rem,2.5vw,1.75rem);align-items:center;text-align:left}
-.hn-pic{display:block;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.12);aspect-ratio:16/9;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-.hn-pic img{width:100%;height:100%;object-fit:cover}
-.hn-slide.has-pic .hn-title{margin-inline:0}
-.hn-slide.has-pic .hn-meta{justify-content:flex-start}
-.hn-slide.has-pic .hn-text{min-width:0}
-@media (max-width:47.99rem){
-  .hn-slide.has-pic{grid-template-columns:minmax(0,1fr);gap:.9rem}
-  .hn-pic{max-width:22rem}
-}
-.hn-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .75rem;margin:0 0 .6rem;font-size:.9375rem;line-height:1.4;color:rgba(255,255,255,.88)}
-.hn-tag{display:inline-block;padding:.08rem .6rem;border-radius:3px;background:var(--accent);color:#14171F;font-size:.875rem;font-weight:700;line-height:1.5}
-.hn-title{width:fit-content;max-width:100%;margin:0 0 .6rem;font-family:var(--head);font-weight:700;font-size:clamp(1.25rem,2.3vw,1.65rem);line-height:1.28;text-wrap:balance;overflow-wrap:break-word;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+/* Caruselul de sus (web/assets/js/hero-news.js): prezentarea este primul diapozitiv; peste ea, pe rând, ultimele 5 noutăți, pe fotografie mare.
+   Noutățile stau într-un strat care acoperă prezentarea (înălțimea blocului o dă prezentarea, deci la schimbare pagina nu „sare”). */
+.hero-news{position:absolute;inset:0;z-index:2;pointer-events:none}
+.hn-stage{position:absolute;inset:0}
+.hn-slide{position:absolute;inset:0;display:flex;align-items:center;isolation:isolate;overflow:hidden;opacity:0;visibility:hidden;background:linear-gradient(135deg,var(--blue),#0A2A8A);transition:opacity .7s ease,visibility 0s .7s}
+.hn-slide.is-active{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .7s ease,visibility 0s}
+.hn-bg{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover}
+.hn-slide::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(4,18,70,.9) 0,rgba(4,18,70,.62) 48%,rgba(4,18,70,.2) 100%)}
+.hn-in{width:min(var(--wrap),100% - 2*var(--gutter));padding-inline:clamp(0rem,5vw,4.5rem)}
+.hn-text{max-width:48rem;text-align:left}
+.hn-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .75rem;margin:0 0 .8rem;font-size:1rem;line-height:1.4;color:rgba(255,255,255,.92)}
+.hn-tag{display:inline-block;padding:.1rem .7rem;border-radius:999px;background:var(--accent);color:#14171F;font-size:.9375rem;font-weight:700;line-height:1.5}
+.hn-title{margin:0 0 .8rem;font-family:var(--head);font-weight:800;font-size:clamp(1.6rem,3.4vw,3.1rem);line-height:1.15;letter-spacing:-.01em;text-wrap:balance;overflow-wrap:break-word;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
 .hn-title a{color:#fff;text-decoration:none}
-/* Titlul este tăiat după câteva rânduri (overflow), iar conturul unei legături din interior ar fi tăiat și el: conturul de focalizare se desenează în jurul întregului titlu. */
 @supports selector(:has(*)){
   .hn-title a:focus-visible{outline:0}
   .hn-title:has(a:focus-visible){outline:3px solid var(--focus-dark);outline-offset:4px;border-radius:2px}
 }
-.hn-title a:hover{text-decoration:underline;text-underline-offset:.18em}
-.hn-sum{margin:0;font-size:1.0625rem;line-height:1.55;color:rgba(255,255,255,.94);text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
-.hn-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;padding:.8rem 0 1rem}
-.hn-more{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--head);font-weight:700;font-size:1rem;color:var(--accent);text-decoration:none}
-.hn-more:hover{color:#fff;text-decoration:underline;text-underline-offset:.18em}
-.hn-ctl{display:flex;align-items:center;gap:.4rem}
-.hn-btn{display:grid;place-items:center;width:2.5rem;height:2.5rem;padding:0;border:1px solid rgba(255,255,255,.6);border-radius:50%;background:transparent;color:#fff;cursor:pointer;transition:background-color .15s,border-color .15s}
-.hn-btn:hover{background:rgba(255,255,255,.2);border-color:#fff}
-.hn-btn .ico{width:1.05rem;height:1.05rem;pointer-events:none}
-.hn-count{margin:0 0 0 .4rem;min-width:3.3rem;font-size:.9375rem;line-height:1;color:rgba(255,255,255,.92);font-variant-numeric:tabular-nums;text-align:center}
-.hn-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.2)}
+.hn-title a:hover{text-decoration:underline;text-underline-offset:.2em}
+.hn-sum{margin:0;max-width:40rem;font-size:1.125rem;line-height:1.55;color:rgba(255,255,255,.95);text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+.hn-go{margin-top:1.5rem;background:var(--accent);border-color:var(--accent);color:#14171F}
+.hn-go:hover{background:#fff;border-color:#fff;color:#14171F}
+.hn-go .ico{width:1.1rem;height:1.1rem}
+.hn-arrow{position:absolute;top:50%;z-index:3;display:grid;place-items:center;width:3.25rem;height:3.25rem;margin-top:-1.625rem;padding:0;border:2px solid rgba(255,255,255,.85);border-radius:50%;background:rgba(8,28,92,.4);color:#fff;cursor:pointer;pointer-events:auto;transition:background-color .15s,border-color .15s}
+.hn-arrow:hover{background:var(--accent);border-color:var(--accent);color:#14171F}
+.hn-prev{left:clamp(.5rem,1.5vw,1.5rem)}
+.hn-next{right:clamp(.5rem,1.5vw,1.5rem)}
+.hn-arrow .ico{width:1.4rem;height:1.4rem;pointer-events:none}
+.hn-bar{position:absolute;left:0;right:0;bottom:1.1rem;z-index:3;display:flex;align-items:center;justify-content:center;gap:1rem;pointer-events:none}
+.hn-dots{display:flex;gap:.7rem;pointer-events:auto}
+.hn-dot{width:.95rem;height:.95rem;padding:0;border:2px solid #fff;border-radius:50%;background:rgba(8,28,92,.35);cursor:pointer;transition:background-color .15s,transform .15s}
+.hn-dot:hover{transform:scale(1.2)}
+.hn-dot.is-active{background:var(--accent);border-color:var(--accent)}
+.hn-btn{display:grid;place-items:center;width:2.1rem;height:2.1rem;padding:0;border:2px solid rgba(255,255,255,.85);border-radius:50%;background:rgba(8,28,92,.4);color:#fff;cursor:pointer;pointer-events:auto}
+.hn-btn:hover{background:rgba(255,255,255,.25)}
+.hn-btn .ico{width:.95rem;height:.95rem;pointer-events:none}
+.hn-progress{position:absolute;left:0;right:0;bottom:0;z-index:3;height:4px;background:rgba(255,255,255,.2)}
 .hn-progress i{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:0 50%}
 .hn-progress.run i{animation:hn-fill var(--hn-ms,10s) linear forwards}
 @keyframes hn-fill{to{transform:scaleX(1)}}
-.hn-single .hn-ctl,.hn-single .hn-progress{display:none}
-@media (min-width:48rem){
-  .hn-title,.hn-sum{-webkit-line-clamp:2;line-clamp:2}
-  .hn-title{margin-inline:auto}
+.intro:has(.hero-news:not([hidden])) .intro-in{width:min(var(--wrap),100% - 2*max(var(--gutter),3.6rem));padding-bottom:clamp(3.5rem,6vw,4.5rem)}
+@media (min-width:48rem){.intro:has(.hero-news:not([hidden])) .intro-in{width:min(var(--wrap),100% - 2*max(var(--gutter),5.5rem))}}
+@media (max-width:47.99rem){
+  .hn-arrow{width:2.5rem;height:2.5rem;margin-top:-1.25rem}
+  .hn-in{padding-inline:2.4rem}
+  .hn-slide::before{background:linear-gradient(180deg,rgba(4,18,70,.55),rgba(4,18,70,.88))}
+  .hn-title{-webkit-line-clamp:4;line-clamp:4}
+  .hn-sum{-webkit-line-clamp:3;line-clamp:3;font-size:1rem}
 }
 .search-box{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:6px;padding:.4rem .4rem .4rem 1.1rem;box-shadow:0 10px 28px rgba(0,8,50,.28)}
 .search-box:focus-within{box-shadow:0 0 0 3px var(--focus-dark),0 10px 28px rgba(0,8,50,.28)}
@@ -176,10 +181,8 @@ abbr[title]{text-decoration:none;cursor:help}
     mask-image:linear-gradient(90deg,#000 0,transparent 32%,transparent 68%,#000 100%)}
   .intro-text{text-align:center}
   .crumbs ol{justify-content:center}
-  .intro h1,.lead,.hero-news{margin-inline:auto}
+  .intro h1,.lead{margin-inline:auto}
   .lead{text-wrap:balance}
-  .hero-news{text-align:center}
-  .hn-meta{justify-content:center}
   .quick,.quick ul{justify-content:center}
 }
 
@@ -993,3 +996,4 @@ html[data-contrast="high"] .inv-no{background:#000;color:#fff}
   .table-wrap,.doc-list,.panel,.levels-box,.inv{border-radius:var(--rc)}
   body{line-height:1.7}
 }
+@media print{.hero-news{display:none!important}}

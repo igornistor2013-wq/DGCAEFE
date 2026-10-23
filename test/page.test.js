@@ -243,20 +243,19 @@ test('rubrica „Noutăți” vine imediat înainte de „Galerie foto”: în p
   assert.deepEqual(nf, order, 'pagina „404”');
 });
 
-test('partea de sus: ultimele noutăți în locul textului de prezentare, cu butoane de control și anunț pentru cititoarele de ecran', () => {
-  const hero = /<section class="hero-news"[\s\S]*?<\/section>/.exec(html);
+test('partea de sus: carusel cu prezentarea pe primul loc și ultimele noutăți după ea, cu săgeți, puncte și anunț pentru cititoarele de ecran', () => {
+  const hero = /<div class="hero-news[^"]*" id="heroNews"[\s\S]*?<p class="sr" id="hnLive"[^>]*><\/p>\s*<\/div>/.exec(html);
   assert.ok(hero, 'blocul cu noutăți există');
   const h = hero[0];
-  assert.ok(html.indexOf('id="introLead"') < html.indexOf('id="heroNews"'), 'sub titlu, în locul textului de prezentare');
-  assert.match(h, /^<section class="hero-news" id="heroNews" aria-label="Ultimele noutăți" hidden>/, 'ascuns până sunt noutăți');
+  assert.ok(html.indexOf('id="introMain"') < html.indexOf('id="heroNews"'), 'noutățile sunt un strat peste prezentare, care rămâne primul diapozitiv');
+  assert.match(h, /^<div class="hero-news is-intro" id="heroNews" role="region" aria-roledescription="carusel" aria-label="Ultimele noutăți" hidden>/, 'ascuns până sunt noutăți; la început se vede prezentarea');
   assert.match(h, /<!--hero-news-->/, 'locul diapozitivelor, completat la construirea paginii și în browser');
+  assert.match(h, /<!--hero-dots-->/, 'locul punctelor');
   // butoanele au denumiri; pictogramele sunt ascunse cititoarelor de ecran
-  for (const id of ['hnPrev', 'hnPlay', 'hnNext']) assert.match(h, new RegExp(`<button class="hn-btn" id="${id}" type="button" aria-label="[^"]{8,}"><svg class="ico" aria-hidden="true"`), id);
+  for (const [id, cls] of [['hnPrev', 'hn-arrow hn-prev'], ['hnNext', 'hn-arrow hn-next'], ['hnPlay', 'hn-btn']]) assert.match(h, new RegExp(`<button class="${cls}" id="${id}" type="button" aria-label="[^"]{8,}"><svg class="ico" aria-hidden="true"`), id);
   assert.match(h, /id="hnLive" aria-live="polite" aria-atomic="true"/);
-  assert.match(h, /id="hnNum"/);
-  assert.match(h, /id="hnTotal"/);
   // fără JavaScript butoanele n-ar face nimic, deci nu se arată
-  assert.match(html, /<noscript><style>\.hn-ctl,\.hn-progress\{display:none\}<\/style><\/noscript>/);
+  assert.match(html, /<noscript><style>\.hn-arrow,\.hn-bar,\.hn-progress\{display:none\}<\/style><\/noscript>/);
   // fiecare element căutat de script există în pagină
   const js = read('assets', 'js', 'hero-news.js');
   for (const m of js.matchAll(/querySelector\('#([A-Za-z]+)'\)/g)) assert.ok(h.includes(`id="${m[1]}"`), `#${m[1]} din hero-news.js există în pagină`);
@@ -264,7 +263,7 @@ test('partea de sus: ultimele noutăți în locul textului de prezentare, cu but
   // scriptul se încarcă înaintea celui principal, iar acesta îl cheamă cu noutățile publice (deja ordonate: cele mai noi primele)
   assert.ok(html.indexOf('assets/js/hero-news.js') > html.indexOf('assets/js/common.js') && html.indexOf('assets/js/hero-news.js') < html.indexOf('assets/js/site.js'));
   assert.match(html, /<script src="assets\/js\/hero-news\.js" defer><\/script>/);
-  assert.match(site, /window\.HeroNews\.render\(\$\('#heroNews'\), \$\('#introLead'\), D\.news, DG\)/);
+  assert.match(site, /window\.HeroNews\.render\(\$\('#heroNews'\), \$\('#introLead'\), D\.news, DG, \$\('#introMain'\), \$\('#top'\)\)/);
   // o știre deschisă din partea de sus: la închidere adresa revine sus (#top), nu la rubrica Noutăți
   assert.match(site, /newsBack = a\.closest\('#heroNews'\) \? '#top' : '#noutati'/);
   assert.match(site, /location\.search \+ newsBack\)/);
