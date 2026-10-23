@@ -12,7 +12,7 @@
   --focus:#0B5BC0; --focus-dark:#FFE24D;
   --head:"Onest",Arial,Helvetica,sans-serif;
   --sans:"Onest",Arial,Helvetica,sans-serif;
-  --r:4px; --rc:8px; --wrap:1296px; --gutter:clamp(1rem,4vw,2rem);
+  --r:4px; --rc:8px; --wrap:2200px; --gutter:clamp(1rem,3.5vw,3.5rem);
   --hdr:5.2rem; --sec-pt:clamp(3rem,6.5vw,5rem);
   --shadow:0 2px 14px rgba(8,28,92,.09); --shadow-h:0 12px 32px rgba(8,28,92,.18);
 }
@@ -961,10 +961,7 @@ html[data-contrast="high"] .inv-no{background:#000;color:#fff}
   .foot-brand img{display:none}
 }
 
-/* Banda de sus nu depășește lățimea paginii pe ecrane foarte late; principiile de activitate, stilizate ca plăci. */
-@media screen and (min-width:90rem){
-  .intro{width:min(var(--wrap),100% - 2*var(--gutter));margin:1rem auto 0;border-radius:var(--rc)}
-}
+/* Lățimea paginii urmează ecranul (până la 2200 px), banda de sus ocupă toată lățimea; principiile de activitate, stilizate ca plăci. */
 @media screen{
   .about-princ{position:relative;background:#fff;color:var(--ink);border:1px solid var(--line-d);border-top:4px solid var(--accent);box-shadow:var(--shadow)}
   .about-princ h3{color:var(--blue-dd);font-size:.8125rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-bottom:1rem}

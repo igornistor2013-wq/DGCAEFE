@@ -90,6 +90,7 @@ function readZip(buf) {
 
 test.before(async () => {
   server = createApp().listen(0, '127.0.0.1');
+  server.keepAliveTimeout = 120000; // testele lungi (bcrypt, procese copil) nu mai închid conexiunea refolosită de client
   await once(server, 'listening');
   base = `http://127.0.0.1:${server.address().port}`;
 });
