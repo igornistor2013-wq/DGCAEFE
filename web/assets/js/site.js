@@ -683,27 +683,12 @@
       }).join('') + '</div>';
     }
 
-    // textele secțiunii se editează din administrare (settings.coop); ce lipsește rămâne cum este în șablon
-    var co = D.settings.coop || {};
-    var safe = function (u) { return /^https?:\/\//i.test(u || '') ? u : ''; };
-    if (co.title) $('#h-coop').textContent = co.title;
     var acord = docsOf('acord-ro').sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
-    $('#acordBox').innerHTML = '<h3>' + (co.acordTitle ? esc(co.acordTitle) : 'Acordul cu Guvernul României') + '</h3>' +
-      (co.acordAmount === '' ? '' : '<p class="amount">' + esc(co.acordAmount || '100 mil. EUR') + '</p>') +
-      '<p class="panel-intro">' + (co.acordIntro ? esc(co.acordIntro) : 'Program de asistență tehnică și financiară, în baza unui ajutor financiar nerambursabil acordat de România Republicii Moldova. Documentele sunt ordonate după etapele de implementare.') + '</p>' +
+    $('#acordBox').innerHTML = '<h3>Acordul cu Guvernul României</h3><p class="amount">100 mil. EUR</p>' +
+      '<p class="panel-intro">Program de asistență tehnică și financiară, în baza unui ajutor financiar nerambursabil acordat de România Republicii Moldova. Documentele sunt ordonate după etapele de implementare.</p>' +
       (acord.length ? '<ol class="steps">' + acord.map(function (d) {
         return '<li><a' + docAttrs(d) + '><span>' + titleHtml(d) + '</span>' + ico(d.file ? 'down' : 'ext') + '</a></li>';
       }).join('') + '</ol>' : '<p class="empty">Nu există documente publicate.</p>');
-
-    var amp = $('#ampCard');
-    if (amp && (co.ampTitle || co.ampText || co.ampUrl || (co.ampChips || []).length)) {
-      var url = safe(co.ampUrl);
-      var chips = (co.ampChips || []).filter(Boolean);
-      var inner = '<img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60"><span class="plat-body"><strong>' + esc(co.ampTitle || '') + (url ? ' ' + ico('ext') : '') + '</strong>' +
-        (co.ampText ? '<span class="plat-desc">' + esc(co.ampText) + '</span>' : '') +
-        (chips.length ? '<ul class="plat-chips" aria-label="Informațiile centralizate de platformă">' + chips.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' : '') + '</span>';
-      amp.outerHTML = url ? '<a class="plat plat-amp" id="ampCard" href="' + esc(url) + '" target="_blank" rel="noopener">' + inner + '</a>' : '<div class="plat plat-amp" id="ampCard">' + inner + '</div>';
-    } else if (amp) amp.hidden = true;
   }
 
   /* ================= Programe ================= */

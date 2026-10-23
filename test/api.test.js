@@ -448,7 +448,7 @@ test('exportul static: pagina completă, fără ciorne, fără administrare, cu 
   const files = readZip(r.data);
   const names = Object.keys(files);
 
-  for (const need of ['index.html', '.nojekyll', 'README.txt', 'assets/css/site.css', 'assets/js/site.js', 'assets/js/common.js', 'assets/img/gov-logo.svg', 'assets/fonts/onest-latin.woff2', 'assets/fonts/onest-cyrillic.woff2', 'assets/fonts/LICENSE-onest.txt', 'assets/img/amp-logo.png']) {
+  for (const need of ['index.html', '.nojekyll', 'README.txt', 'assets/css/site.css', 'assets/js/site.js', 'assets/js/common.js', 'assets/img/gov-logo.svg', 'assets/fonts/onest-latin.woff2']) {
     assert.ok(names.includes(need), `lipsește ${need}`);
   }
   assert.ok(!names.some(n => /admin/.test(n)), 'panoul de administrare nu intră în versiunea statică');

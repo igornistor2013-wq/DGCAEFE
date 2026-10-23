@@ -238,22 +238,5 @@
     "note": "Valorile sunt indicative și provin din fișele proiectelor și din prezentările ministerelor; ele se pot modifica pe parcursul pregătirii proiectelor. Sumele sunt exprimate în milioane, în moneda indicată pentru fiecare proiect.",
     "sources": []
   },
-  "seedRev": 8,
-  "coop": {
-    "title": "Cooperare externă",
-    "acordTitle": "Acordul cu Guvernul României",
-    "acordAmount": "100 mil. EUR",
-    "acordIntro": "Program de asistență tehnică și financiară, în baza unui ajutor financiar nerambursabil acordat de România Republicii Moldova. Documentele sunt ordonate după etapele de implementare.",
-    "ampTitle": "Platforma de Management al Asistenței Externe (AMP)",
-    "ampText": "Platforma de Management al Asistenței Externe (AMP) este un instrument informațional destinat evidenței, monitorizării și gestionării proiectelor și programelor de asistență externă acordate Republicii Moldova de către partenerii de dezvoltare. Aceasta asigură centralizarea informațiilor privind proiectele de asistență externă, inclusiv datele referitoare la finanțatori, beneficiari și implementatori, valoarea finanțării, perioadele de implementare și debursările efectuate.",
-    "ampUrl": "https://amp.gov.md/portal/",
-    "ampChips": [
-      "Finanțatori",
-      "Beneficiari",
-      "Implementatori",
-      "Valoarea finanțării",
-      "Perioade de implementare",
-      "Debursări efectuate"
-    ]
-  }
+  "seedRev": 7
 }

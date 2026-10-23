@@ -127,45 +127,15 @@ test('scripturile paginii nu declară de două ori aceeași funcție la nivelul 
 
 const stripTags = h => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
 
-test('fontul este ONEST, pentru tot textul paginii (fontul oficial al site-urilor instituțiilor publice), găzduit local, cu licența alăturată', () => {
-  const FONTS = path.join(WEB, 'assets', 'fonts');
-  const adm = read('assets', 'css', 'admin.css');
-  for (const [name, text] of [['site.css', css], ['admin.css', adm]]) {
-    // o singură familie, cu litere latine (română) și chirilice (rusă), variabilă de la 400 la 800
-    const faces = [...text.matchAll(/@font-face\{font-family:"([^"]+)";src:url\("\.\.\/fonts\/([\w.-]+\.woff2)"\) format\("woff2"\);font-weight:400 800;font-style:normal;font-display:swap;unicode-range:[^}]+\}/g)];
-    assert.deepEqual(faces.map(m => `${m[1]} ${m[2]}`), ['Onest onest-latin.woff2', 'Onest onest-cyrillic.woff2'], `${name}: Onest latin și chirilic`);
-    assert.equal((text.match(/@font-face/g) || []).length, 2, `${name}: nicio altă familie nu este încărcată`);
+test('fontul este ONEST (HG 728/2023, pct. 26), încărcat de pe aceeași adresă, cu licența alăturată', () => {
+  for (const [name, text] of [['site.css', css], ['admin.css', read('assets', 'css', 'admin.css')]]) {
+    assert.match(text, /@font-face\{font-family:"Onest";src:url\("\.\.\/fonts\/onest-latin\.woff2"\) format\("woff2"\);font-weight:100 900;[^}]*font-display:swap/, `${name}: Onest variabil, cu afișare imediată a textului`);
     assert.match(text, /--sans:"Onest",Arial/, `${name}: Onest este fontul de bază, Arial este rezerva`);
-    assert.doesNotMatch(text, /Raleway|Roboto|Source Serif|fonts\.googleapis|fonts\.gstatic/i, `${name}: fără alte fonturi`);
-    assert.doesNotMatch(text, /url\(["']?https?:/i, `${name}: fără adrese externe`);
+    assert.doesNotMatch(text, /Raleway|Roboto|fonts\.googleapis|fonts\.gstatic/i, `${name}: fără alte fonturi`);
   }
-  // titlurile, cifrele și etichetele se deosebesc prin greutate și mărime, nu prin alt font: cele trei variabile de rol sunt tot Onest
-  assert.match(css, /--head:"Onest",Arial/, 'titlurile mici');
-  assert.match(css, /--serif:var\(--sans\)/, 'titlurile secțiunilor și cifrele mari');
-  assert.match(css, /--label:var\(--sans\)/, 'etichetele mici');
-  const other = [...css.matchAll(/font-family:\s*([^;}]+)/g)].map(m => m[1].trim()).filter(v => !/^(?:"Onest"|var\(--(?:sans|head|serif|label)\)|inherit)$/.test(v));
-  assert.deepEqual(other, [], 'orice text din pagina publică folosește Onest');
-  assert.match(css, /body\{margin:0;font-family:var\(--sans\)/, 'textul paginii este în Onest');
-  // fișierele și licența (SIL Open Font License) alăturate; în dosar nu rămâne nimic nefolosit
-  for (const f of ['onest-latin.woff2', 'onest-cyrillic.woff2']) {
-    const b = fs.readFileSync(path.join(FONTS, f));
-    assert.equal(b.subarray(0, 4).toString('latin1'), 'wOF2', `${f}: fișier woff2`);
-    assert.ok(b.length > 5000 && b.length < 40000, `${f}: dimensiune rezonabilă`);
-  }
-  assert.deepEqual(fs.readdirSync(FONTS).sort(), ['LICENSE-onest.txt', 'onest-cyrillic.woff2', 'onest-latin.woff2'], 'în dosarul fonturilor sunt numai fișierele folosite');
-  assert.match(fs.readFileSync(path.join(FONTS, 'LICENSE-onest.txt'), 'utf8'), /SIL OPEN FONT LICENSE/i);
-  // doar fișierul cu litere latine se cere din timp; cel chirilic se cere numai pe pagina în rusă (vezi i18n.test.js)
+  for (const f of ['onest-latin.woff2', 'onest-latin-ext.woff2', 'LICENSE-onest.txt']) assert.ok(fs.existsSync(path.join(WEB, 'assets', 'fonts', f)), f);
+  assert.match(fs.readFileSync(path.join(WEB, 'assets', 'fonts', 'LICENSE-onest.txt'), 'utf8'), /SIL OPEN FONT LICENSE/i);
   assert.match(html, /<link rel="preload" href="assets\/fonts\/onest-latin\.woff2" as="font" type="font\/woff2" crossorigin>/);
-  assert.equal((html.match(/rel="preload"[^>]*as="font"/g) || []).length, 1, 'o singură încărcare anticipată de font');
-});
-
-test('cardul „Platforma AMP”: sigla (PNG) există, iar dimensiunile din pagină și din site.js sunt cele reale ale fișierului', () => {
-  const buf = fs.readFileSync(path.join(WEB, 'assets', 'img', 'amp-logo.png'));
-  assert.equal(buf.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', 'fișier PNG');
-  const tag = `<img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="${buf.readUInt32BE(16)}" height="${buf.readUInt32BE(20)}">`;
-  assert.ok(html.includes(tag), 'în pagină');
-  assert.ok(read('assets', 'js', 'site.js').includes(tag), 'în site.js, la redarea din setări');
-  assert.ok(!fs.existsSync(path.join(WEB, 'assets', 'img', 'amp-logo.svg')), 'sigla provizorie a fost înlocuită');
 });
 
 test('datele de identificare ale paginii: limbă, titlu, descriere, autor, cuvinte-cheie, tip, format, drepturi (HG 728/2023, pct. 38–40)', () => {
@@ -258,9 +228,8 @@ test('secțiunea „Informații despre acest site” și linia „Pagina a fost 
 test('rubrica „Noutăți” vine imediat înainte de „Galerie foto”: în pagină, în meniul principal, în subsol, la urmărirea derulării și în pagina „404”', () => {
   const order = ['despre', 'plan-crestere', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'noutati', 'galerie', 'contacte'];
   const main = [...html.matchAll(/<section class="(sec[^"]*)" id="([^"]+)"/g)];
-  // „Platforma AMP” este o bandă albastră de sine stătătoare, imediat după proiectele investiționale; nu e în meniu
   assert.deepEqual(main.map(m => m[2]), order, 'ordinea secțiunilor în pagină');
-  // fundalurile se alternează (fără două secțiuni alăturate la fel), deci rubrica adăugată nu strică ritmul paginii
+  // fundalurile se alternează (fără două secțiuni alăturate la fel), deci rubrica mutată nu strică ritmul paginii
   main.forEach((m, i) => assert.ok(i === 0 || /\bsec-alt\b/.test(m[1]) !== /\bsec-alt\b/.test(main[i - 1][1]), `fundalul secțiunii #${m[2]} se alternează`));
   const nav = /<ul id="navList">([\s\S]*?)<\/ul>/.exec(html)[1];
   assert.deepEqual([...nav.matchAll(/href="#([^"]+)"/g)].map(m => m[1]), order, 'meniul principal');
