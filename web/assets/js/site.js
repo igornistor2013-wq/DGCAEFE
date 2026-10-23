@@ -409,14 +409,16 @@
       return b.year - a.year;
     });
     $('#lawCount').textContent = T('%1 din %2 acte', items.length, D.legal.length);
+    // Două coloane: actul normativ (numărul este link către legis.md, sau către fișierul actului dacă nu are link) și denumirea.
     $('#lawBody').innerHTML = items.length ? items.map(function (l) {
-      var open = '';
-      if (l.url) open += '<a class="btn btn-primary btn-sm" href="' + esc(l.url) + '" target="_blank" rel="noopener">' + (/legis\.md/.test(l.url) ? 'Deschide pe legis.md' : 'Deschide') + ' ' + ico('ext') + '</a>';
-      if (l.file) open += '<a class="btn btn-line btn-sm" href="' + esc(l.file.path) + '" ' + (/\.pdf$/i.test(l.file.path) ? 'target="_blank" rel="noopener"' : 'download="' + esc(l.file.name || '') + '"') + '>' + ico('down') + ' Fișier</a>';
-      return '<tr class="law-row"><td class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + T('nr.') + ' ' + esc(l.nr) + '/' + l.year + '</strong></td>' +
-        '<td class="law-title">' + esc(l.title) + '</td><td class="law-topic">' + esc(l.topic || '') + '</td>' +
-        '<td class="law-act"><button class="btn btn-line btn-sm" type="button" data-copy="' + esc(lawName(l) + ' „' + l.title + '”') + '">' + ico('copy') + ' Copiază</button> ' + open + editLink('legal', l.id) + '</td></tr>';
-    }).join('') : '<tr class="empty-row"><td colspan="4">' + T('Niciun act nu corespunde căutării%1. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu.', law.q ? ' „' + esc(law.q) + '”' : '') + ' <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></td></tr>';
+      var href = l.url || (l.file && l.file.path) || '';
+      var label = T('nr.') + ' ' + esc(l.nr) + '/' + l.year;
+      var no = href
+        ? '<a href="' + esc(href) + '" target="_blank" rel="noopener" title="' + esc(T(/legis\.md/.test(href) ? 'Deschide pe legis.md' : 'Deschide')) + '">' + label + ' ' + ico('ext') + '</a>'
+        : label;
+      return '<tr class="law-row"><td class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + no + '</strong></td>' +
+        '<td class="law-title">' + esc(l.title) + editLink('legal', l.id) + '</td></tr>';
+    }).join('') : '<tr class="empty-row"><td colspan="2">' + T('Niciun act nu corespunde căutării%1. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu.', law.q ? ' „' + esc(law.q) + '”' : '') + ' <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></td></tr>';
   }
 
   /* ================= Proiecte investiționale ================= */

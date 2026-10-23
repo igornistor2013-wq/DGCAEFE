@@ -82,7 +82,7 @@ abbr[title]{text-decoration:none;cursor:help}
 .masthead-in{display:flex;align-items:center;gap:1rem;min-height:var(--hdr);padding-block:.25rem}
 .brand{display:flex;align-items:center;gap:.9rem;text-decoration:none;color:var(--ink);min-width:0;flex:0 1 auto}
 .brand-logo{width:2.9rem;height:auto;flex:none}
-.brand-text{display:flex;flex-direction:column;gap:.15rem;min-width:0;max-width:21rem}
+.brand-text{display:flex;flex-direction:column;gap:.15rem;min-width:0;max-width:16rem}
 .brand-parent{font-size:.8125rem;color:var(--muted);font-weight:500;line-height:1.25}
 .brand-name{font-family:var(--head);font-weight:700;font-size:.9375rem;line-height:1.2;color:var(--blue-dd)}
 .brand:hover .brand-name{color:var(--blue)}
@@ -466,6 +466,11 @@ button.fn-btn:hover,.acc-btn:hover{background:var(--blue-l)}
 .law-no{white-space:nowrap}
 .law-no .type{display:block;font-size:.875rem;font-weight:500;color:var(--blue);margin-bottom:.15rem}
 .law-no strong{font-family:var(--head);font-size:1.1rem;font-weight:700;color:var(--blue-dd)}
+.law-no a{display:inline-flex;align-items:center;gap:.4rem;color:var(--blue);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.2em}
+.law-no a:hover{color:var(--blue-dd);text-decoration-thickness:2px}
+.law-no a .ico{width:.95rem;height:.95rem}
+.law-title{font-size:1.0625rem}
+.law-title .edit-link{margin-left:.6rem}
 .law-topic{color:var(--muted);font-size:.95rem}
 .law-act{white-space:nowrap}
 .law-act .btn+.btn,.law-act .btn+.edit-link,.law-act .edit-link{margin-left:.35rem}

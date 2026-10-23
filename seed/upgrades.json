@@ -195,5 +195,14 @@
         "Asigurăm rolul Cancelariei de Stat în calitate de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare la Uniunea Europenă, precum și coordonarea proiectelor investiționale din Planul de creștere."
       ]
     }
+  },
+  {
+    "rev": 7,
+    "note": "Cadrul legal: numărul actului este link către legis.md; actele fără link primesc linkul corespunzător din conținutul de pornire.",
+    "fillEmpty": {
+      "legal": [
+        "url"
+      ]
+    }
   }
 ]

@@ -14,7 +14,8 @@
          "migrate": { "investments": {                                      // înregistrările salvate în forma veche se aduc la forma nouă:
            "drop": [ "<câmp care nu mai există>", … ],                      //   câmpurile acestea se șterg (o înregistrare care nu le mai are nu se atinge)
            "replace": [ "<câmp>", … ],                                      //   aceste câmpuri se iau din înregistrarea din seed cu același id
-           "fill": [ "<câmp nou>", … ] } } } ]                              //   aceste câmpuri se completează din seed dacă lipsesc
+           "fill": [ "<câmp nou>", … ] } },                                 //   aceste câmpuri se completează din seed dacă lipsesc
+         "fillEmpty": { "legal": [ "url" ] } } ]                            // câmpurile acestea, dacă sunt goale la înregistrarea salvată, se iau din seed
    Un text modificat de om nu se atinge niciodată. Cheile de texte care lipsesc cu totul se completează din seed. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -113,6 +114,19 @@
                 for (const k of list('fill')) if (rec[k] === undefined && from[k] !== undefined) rec[k] = clone(from[k]);
               }
               changed.add(name);
+            }
+          }
+        }
+        // 5. câmpurile goale ale înregistrărilor salvate se completează din seed (de exemplu linkul unui act, adăugat ulterior în conținutul de pornire)
+        const empty = v => v === undefined || v === null || v === '';
+        for (const u of todo) {
+          for (const [name, fields] of Object.entries(u.fillEmpty || {})) {
+            if (!COLLECTIONS.includes(name) || !Array.isArray(fields) || !Array.isArray(content[name])) continue;
+            const seeds = Array.isArray(seed[name]) ? seed[name] : [];
+            for (const rec of content[name]) {
+              const from = isObj(rec) && seeds.find(x => x && x.id === rec.id);
+              if (!from) continue;
+              for (const k of fields) if (empty(rec[k]) && !empty(from[k])) { rec[k] = clone(from[k]); changed.add(name); }
             }
           }
         }
