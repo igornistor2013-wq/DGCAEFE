@@ -138,6 +138,17 @@ test('traducerile din administrare: validare, limite și ștergere', () => {
   assert.deepEqual(st.tr, { ru: { growth: { intro: 'Введение' }, contact: { address: 'Адрес' } } });
 });
 
+test('rubrica „Cooperare externă” se editează din administrare, cu traduceri', () => {
+  const sc = AdminSchemas.create({ programs: () => [] });
+  const st = sc.cleanSettings({ orgName: 'Org', coop: { title: ' Cooperare ', ampUrl: 'https://amp.gov.md/portal/', ampChips: 'A\nB\n', ampText: 'Text' }, tr: { ru: { coop: { ampTitle: 'Платформа', ampChips: ['А'] } } } });
+  assert.equal(st.coop.title, 'Cooperare');
+  assert.deepEqual(st.coop.ampChips, ['A', 'B']);
+  assert.equal(st.coop.ampUrl, 'https://amp.gov.md/portal/');
+  assert.deepEqual(st.tr.ru.coop, { ampTitle: 'Платформа', ampChips: ['А'] });
+  assert.throws(() => sc.cleanSettings({ orgName: 'Org', coop: { ampUrl: 'javascript:alert(1)' } }));
+  assert.throws(() => sc.cleanSettings({ orgName: 'Org', coop: { acordAmount: 'x'.repeat(61) } }));
+});
+
 test('pagina statică are trei versiuni, cu limba, canonicul și legăturile hreflang corecte', () => {
   const files = new Map(staticSite.entries(reader(), cfg.SEED_DIR, { siteUrl: 'https://exemplu.github.io/depozit/' }).map(e => [e.name, e]));
   for (const [file, lang] of [['index.html', 'ro'], ['ru.html', 'ru'], ['en.html', 'en']]) {
@@ -155,6 +166,16 @@ test('pagina statică are trei versiuni, cu limba, canonicul și legăturile hre
   assert.match(textOf(files.get('ru.html')), /og:locale" content="ru_RU"/);
   assert.match(textOf(files.get('en.html')), /<title>General Directorate/);
   assert.match(textOf(files.get('ru.html')), /<title>Генеральная дирекция/);
+});
+
+test('fontul Onest: pagina în rusă cere din timp și literele chirilice; română și engleză, numai pe cele latine', () => {
+  const files = new Map(staticSite.entries(reader(), cfg.SEED_DIR, { siteUrl: 'https://exemplu.github.io/depozit/' }).map(e => [e.name, e]));
+  const pre = f => [...textOf(files.get(f)).matchAll(/<link rel="preload" href="([^"]+)" as="font" type="font\/woff2" crossorigin>/g)].map(m => m[1]);
+  assert.deepEqual(pre('index.html'), ['assets/fonts/onest-latin.woff2']);
+  assert.deepEqual(pre('en.html'), ['assets/fonts/onest-latin.woff2']);
+  assert.deepEqual(pre('ru.html'), ['assets/fonts/onest-latin.woff2', 'assets/fonts/onest-cyrillic.woff2']);
+  for (const n of ['onest-latin', 'onest-cyrillic']) assert.ok(files.has(`assets/fonts/${n}.woff2`), `lipsește ${n}.woff2 din pagina statică`);
+  assert.ok(![...files.keys()].some(n => /sourceserif|robotocondensed/i.test(n)), 'niciun alt font în pagina statică');
 });
 
 test('serverul: /, /ru și /en (cu și fără .html) și /api/public?lang=', async () => {

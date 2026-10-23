@@ -26,7 +26,6 @@
 <meta name="DC.rights" content="Conținut preluat de pe gov.md, disponibil sub licența CC BY-SA 4.0.">
 <link rel="icon" href="assets/img/gov-logo.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/onest-latin-ext.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/site.css">
 <noscript><style>.hn-arrow,.hn-bar,.hn-progress{display:none}</style></noscript>
 </head>
@@ -121,8 +120,10 @@
       <header class="sec-head">
         <div><h2 id="h-despre">Despre direcție</h2></div>
       </header>
-      <div class="about-text" id="aboutText"></div>
-      <div class="about-princ" id="aboutPrinc" role="group" aria-labelledby="h-princ"></div>
+      <div class="about-top">
+        <div class="about-text" id="aboutText"></div>
+        <div class="about-princ" id="aboutPrinc" role="group" aria-labelledby="h-princ"></div>
+      </div>
       <ul class="stats" id="aboutStats" aria-label="Direcția în cifre"></ul>
 
       <div class="about-block" id="functii">
@@ -235,9 +236,13 @@
         <div class="panel panel-accent" id="acordBox"></div>
       </div>
       <div class="platforms">
-        <a class="plat" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">
-          <strong>Platforma pentru gestionarea asistenței externe (AMP) <svg class="ico" aria-hidden="true"><use href="#i-ext"/></svg></strong>
-          <span>Proiectele și finanțările partenerilor de dezvoltare, într-un singur portal.</span>
+        <a class="plat plat-amp" id="ampCard" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">
+          <img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60">
+          <span class="plat-body">
+            <strong>Platforma de Management al Asistenței Externe (AMP) <svg class="ico" aria-hidden="true"><use href="#i-ext"/></svg></strong>
+            <span class="plat-desc">Platforma de Management al Asistenței Externe (AMP) este un instrument informațional destinat evidenței, monitorizării și gestionării proiectelor și programelor de asistență externă acordate Republicii Moldova de către partenerii de dezvoltare. Aceasta asigură centralizarea informațiilor privind proiectele de asistență externă, inclusiv datele referitoare la finanțatori, beneficiari și implementatori, valoarea finanțării, perioadele de implementare și debursările efectuate.</span>
+            <ul class="plat-chips" aria-label="Informațiile centralizate de platformă"><li>Finanțatori</li><li>Beneficiari</li><li>Implementatori</li><li>Valoarea finanțării</li><li>Perioade de implementare</li><li>Debursări efectuate</li></ul>
+          </span>
         </a>
       </div>
     </div>

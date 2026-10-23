@@ -103,6 +103,10 @@
       orgName: { label: 'Denumirea direcției', max: 200 }, parentName: { label: 'Instituția-părinte', max: 200 }, heroTitle: { label: 'Titlul din prima pagină', max: 160 },
       heroLead: { label: 'Text de prezentare', max: 800 }, aboutP1: { label: 'Despre direcție, primul paragraf', max: 1200 }, aboutP2: { label: 'Despre direcție, al doilea paragraf', max: 1200 },
       'growth.intro': { label: 'Proiecte investiționale, introducere', max: 1200 }, 'growth.note': { label: 'Proiecte investiționale, notă explicativă', max: 1500 },
+      'coop.title': { label: 'Cooperare externă, titlul secțiunii', max: 120 }, 'coop.acordTitle': { label: 'Acordul cu România, titlul cardului', max: 160 },
+      'coop.acordAmount': { label: 'Acordul cu România, suma', max: 60 }, 'coop.acordIntro': { label: 'Acordul cu România, descrierea', max: 800 },
+      'coop.ampTitle': { label: 'Platforma AMP, titlul cardului', max: 200 }, 'coop.ampText': { label: 'Platforma AMP, descrierea', max: 1200 },
+      'coop.ampChips': { label: 'Platforma AMP, etichetele', list: { max: 10, item: 60 } },
       'contact.address': { label: 'Adresa', max: 300 }, footerNote: { label: 'Nota din subsol', max: 400 }
     }
   };
@@ -406,6 +410,7 @@
       b = b && typeof b === 'object' ? b : {};
       const c = b.contact && typeof b.contact === 'object' ? b.contact : {};
       const g = b.growth && typeof b.growth === 'object' ? b.growth : {};
+      const co = b.coop && typeof b.coop === 'object' ? b.coop : {};
       const mapEmbed = str(c.mapEmbed, 'Harta (adresa de încorporare)', { max: 1500 });
       if (mapEmbed && !/^https:\/\/www\.google\.com\/maps\/embed\?[^\s"'<>]+$/.test(mapEmbed)) {
         throw bad('Adresa hărții trebuie să înceapă cu https://www.google.com/maps/embed?');
@@ -440,6 +445,16 @@
           intro: str(g.intro, 'Proiecte investiționale, introducere', { max: 1200 }),
           note: str(g.note, 'Proiecte investiționale, notă explicativă', { max: 1500 }),
           sources: objList(g.sources, 'Proiecte investiționale, surse de date', 6, l => pairLink(l, 'Text', 'Adresa'))
+        },
+        coop: {
+          title: str(co.title, 'Cooperare externă, titlul secțiunii', { max: 120 }),
+          acordTitle: str(co.acordTitle, 'Acordul cu România, titlul cardului', { max: 160 }),
+          acordAmount: str(co.acordAmount, 'Acordul cu România, suma', { max: 60 }),
+          acordIntro: str(co.acordIntro, 'Acordul cu România, descrierea', { max: 800 }),
+          ampTitle: str(co.ampTitle, 'Platforma AMP, titlul cardului', { max: 200 }),
+          ampText: str(co.ampText, 'Platforma AMP, descrierea', { max: 1200 }),
+          ampUrl: url(co.ampUrl, 'Platforma AMP, adresa'),
+          ampChips: strList(co.ampChips, 'Platforma AMP, etichetele', { max: 10, item: 60 })
         },
         contact: {
           address: str(c.address, 'Adresa', { max: 300 }),
