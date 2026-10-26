@@ -305,6 +305,68 @@ test('partea de sus: carusel cu prezentarea pe primul loc și ultimele noutăți
   assert.match(css, /html\[data-contrast="high"\] \.hn-btn/);
 });
 
+test('caruselul se potrivește ecranului: banda crește cu fereastra, textul din ea crește odată cu ea, tableta și telefonul rămân neschimbate', () => {
+  // blocul de la sfârșitul stilurilor: numai pentru ecrane de cel puțin 64 rem (computer), fără altă interogare înăuntru
+  const at = css.indexOf('/* ---------- Caruselul de sus se potrivește ecranului');
+  assert.ok(at > 0, 'blocul există');
+  const tail = css.slice(at).replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.ok(tail.trim().startsWith('@media screen and (min-width:64rem){'), 'numai pe computer');
+  assert.equal(tail.split('{').length, tail.split('}').length, 'acolade echilibrate');
+  assert.equal((tail.match(/@media/g) || []).length, 1, 'o singură interogare: telefonul și tableta nu sunt atinse');
+  assert.match(css, /\.intro:has\(\.hero-news:not\(\[hidden\]\)\)\{display:flex;flex-direction:column;justify-content:center;min-height:clamp\(28rem,50vh,40rem\)\}/, 'regula veche rămâne pentru tabletă și telefon');
+  const vars = {};
+  const first = /\.intro:has\(\.hero-news:not\(\[hidden\]\)\)\{([^}]*)\}/.exec(tail)[1];
+  for (const m of first.matchAll(/(--hn-[a-z]+):([^;]+);/g)) vars[m[1]] = m[2].trim();
+  assert.deepEqual(Object.keys(vars), ['--hn-b', '--hn-t', '--hn-h', '--hn-a']);
+  assert.match(first, /min-height:var\(--hn-h\)/);
+  assert.match(vars['--hn-h'], /clamp\(28rem,50vh,40rem\)/, 'banda nu devine mai joasă decât era înainte');
+
+  // formulele din stiluri, calculate pentru o fereastră (mărimea literei rădăcină urmează regula html din stiluri)
+  assert.match(css, /@media \(min-width:64rem\)\{html\{font-size:clamp\(\.75rem,\.45vw \+ \.22rem,1rem\)\}/, 'regula literei rădăcină, pe care o folosește calculul de mai jos');
+  const ev = (w, h) => {
+    const root = Math.min(16, Math.max(12, 0.0045 * w + 3.52)); // clamp(.75rem, .45vw + .22rem, 1rem), cu rem = 16 px
+    const val = {};
+    const calc = expr => {
+      const s = expr
+        .replace(/var\((--hn-[a-z]+)\)/g, (m, n) => `(${val[n]})`)
+        .replace(/(\d*\.?\d+)vw/g, (m, n) => `(${n}*${w}/100)`)
+        .replace(/(\d*\.?\d+)vh/g, (m, n) => `(${n}*${h}/100)`)
+        .replace(/(\d*\.?\d+)rem/g, (m, n) => `(${n}*${root})`)
+        .replace(/\bmin\(/g, 'Math.min(').replace(/\bmax\(/g, 'Math.max(').replace(/\bcalc\(/g, '(');
+      return new Function('clamp', `return ${s}`)((lo, v, hi) => Math.max(lo, Math.min(v, hi)));
+    };
+    for (const n of ['--hn-b', '--hn-t', '--hn-h', '--hn-a']) val[n] = calc(vars[n]);
+    return { root, ...val };
+  };
+  // ca înainte, dar fără plafonul fix: pe laptop banda e cea de până acum, peste el crește odată cu fereastra
+  const old = (w, h) => Math.max(28 * ev(w, h).root, Math.min(h * 0.5, 40 * ev(w, h).root));
+  const sizes = [[1366, 643], [1440, 760], [1536, 730], [1680, 900], [1905, 943], [1920, 1080], [2304, 1200], [2560, 1300], [3440, 1300], [3840, 2000], [1080, 1800], [1280, 1000], [1024, 700]];
+  for (const [w, h] of sizes) {
+    const e = ev(w, h);
+    assert.ok(e['--hn-h'] >= old(w, h) - 0.5, `${w}×${h}: banda nu e mai joasă decât înainte (${Math.round(e['--hn-h'])} față de ${Math.round(old(w, h))})`);
+    assert.ok(e['--hn-b'] <= 70 * e.root + 0.5, `${w}×${h}: înălțimea dorită are plafon (70 rem)`);
+  }
+  const pct = (w, h) => ev(w, h)['--hn-h'] / h;
+  assert.ok(ev(1905, 943)['--hn-h'] >= 600, 'pe 1905×943 banda are cel puțin 600 px (înainte 471)');
+  assert.ok(ev(2560, 1300)['--hn-h'] >= 800, 'pe 2560×1300 banda are cel puțin 800 px (înainte 602)');
+  assert.ok(ev(1366, 643)['--hn-h'] < 440, 'pe laptop banda rămâne cum era');
+  for (const [w, h] of [[1536, 730], [1905, 943], [1920, 945], [2304, 1200], [2560, 1300]]) {
+    assert.ok(pct(w, h) <= 0.67, `${w}×${h}: sub bandă se vede începutul paginii (${Math.round(pct(w, h) * 100)} % din înălțime)`);
+    assert.ok(w / ev(w, h)['--hn-h'] <= 3.4, `${w}×${h}: banda nu mai e o fâșie lată (${(w / ev(w, h)['--hn-h']).toFixed(2)} : 1)`);
+  }
+  // textul crește odată cu banda: titlul de la 3,1 rem (laptop) în sus, iar coloana lui crește în aceeași măsură, deci aceleași rânduri
+  assert.ok(Math.abs(ev(1366, 643)['--hn-t'] - 3.1 * 12) < 0.01, 'titlul rămâne 3,1 rem pe laptop');
+  assert.ok(ev(1905, 943)['--hn-t'] > 3.1 * ev(1905, 943).root * 1.15, 'titlul crește pe ecran mare');
+  assert.match(tail, /\.hn-text\{max-width:calc\(var\(--hn-t,3\.1rem\)\*15\.5\)\}/);
+  assert.match(tail, /\.hn-title\{font-size:clamp\(1\.6rem,3\.4vw,var\(--hn-t,3\.1rem\)\)\}/);
+  assert.match(tail, /\.hn-sum\{max-width:calc\(var\(--hn-t,3\.1rem\)\*12\.9\);font-size:max\(1\.125rem,calc\(var\(--hn-t,3\.1rem\)\*\.364\)\)\}/);
+  assert.match(tail, /\.hn-arrow\{width:var\(--hn-a,3\.25rem\);height:var\(--hn-a,3\.25rem\);margin-top:calc\(var\(--hn-a,3\.25rem\)\/-2\)\}/);
+  // fără :has() (browsere vechi) variabilele nu există: fiecare folosire în afara regulii care le scrie are valoarea de rezervă a mărimii de până acum
+  const rest = tail.slice(tail.indexOf('}') + 1);
+  assert.ok((rest.match(/var\(--hn-/g) || []).length >= 12, 'regulile de text folosesc variabilele');
+  for (const m of rest.matchAll(/var\((--hn-[a-z]+)([,)])/g)) assert.equal(m[2], ',', `${m[1]} are valoare de rezervă`);
+});
+
 test('fără ferestre de dialog ale browserului', () => {
   assert.doesNotMatch(site, /\balert\(|\bconfirm\(|\bprompt\(/, 'fără ferestre de dialog ale browserului');
 });

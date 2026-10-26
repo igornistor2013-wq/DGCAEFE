@@ -1273,3 +1273,40 @@ html[data-contrast="high"] .inv-no{background:#000;color:#fff}
   .law-no .type{margin-bottom:0}
   .law-title{margin-top:.2rem}
 }
+
+/* ---------- Caruselul de sus se potrivește ecranului ----------
+   Banda avea un plafon fix (40 rem ≈ 480 px): pe un monitor mare rămânea o fâșie joasă și lată (4 : 1). Acum înălțimea urmărește
+   fereastra: 32 % din lățime, dar cel mult 66 % din înălțime (ca sub bandă să se vadă începutul paginii), între 28 și 70 rem. Pe laptop
+   ieșirea este cea de până acum; peste el banda crește, iar textul din ea crește odată cu ea. Lățimea coloanei de text crește în aceeași
+   măsură cu litera, deci titlul se rupe în același număr de rânduri la orice ecran. Tableta și telefonul nu se schimbă (acolo înălțimea o
+   dă conținutul prezentării).
+     --hn-b  înălțimea dorită a benzii (din fereastră)      --hn-t  mărimea titlului noutății (3,1 rem până la laptop, peste el crește)
+     --hn-h  înălțimea minimă a benzii: nu mai joasă decât era înainte (50 % din fereastră, cel mult 40 rem), nici decât textul și butoanele
+     --hn-a  diametrul săgeților */
+@media screen and (min-width:64rem){
+  .intro:has(.hero-news:not([hidden])){
+    --hn-b:clamp(28rem,min(32vw,66vh),70rem);
+    --hn-t:max(3.1rem,calc(var(--hn-b)*.074));
+    --hn-h:max(var(--hn-b),clamp(28rem,50vh,40rem),calc(var(--hn-t)*7.3 + 6.5rem));
+    --hn-a:max(3.25rem,calc(var(--hn-h)*.072));
+    min-height:var(--hn-h)
+  }
+  /* noutățile */
+  .hn-text{max-width:calc(var(--hn-t,3.1rem)*15.5)}
+  .hn-meta{font-size:max(1rem,calc(var(--hn-t,3.1rem)*.3))}
+  .hn-tag{font-size:max(var(--fs-sm),calc(var(--hn-t,3.1rem)*.28))}
+  .hn-title{font-size:clamp(1.6rem,3.4vw,var(--hn-t,3.1rem))}
+  .hn-sum{max-width:calc(var(--hn-t,3.1rem)*12.9);font-size:max(1.125rem,calc(var(--hn-t,3.1rem)*.364))}
+  .hn-go{font-size:max(1rem,calc(var(--hn-t,3.1rem)*.29));padding:.68em 1.25em;margin-top:max(1.5rem,calc(var(--hn-t,3.1rem)*.45))}
+  .hn-go .ico{width:1.1em;height:1.1em}
+  .hn-arrow{width:var(--hn-a,3.25rem);height:var(--hn-a,3.25rem);margin-top:calc(var(--hn-a,3.25rem)/-2)}
+  .hn-arrow .ico{width:calc(var(--hn-a,3.25rem)*.43);height:calc(var(--hn-a,3.25rem)*.43)}
+  /* prezentarea (primul diapozitiv) */
+  .intro h1{font-size:clamp(1.85rem,3.8vw,max(3.05rem,calc(var(--hn-t,3.1rem)*.984)))}
+  .intro .lead{font-size:max(1.125rem,calc(var(--hn-t,3.1rem)*.364));max-width:calc(var(--hn-t,3.1rem)*20.6)}
+  .intro .search-box{font-size:max(1rem,calc(var(--hn-t,3.1rem)*.3))}
+  .intro .search-box input{font-size:1em;padding:.55em 0}
+  .intro .search-box .btn{font-size:1em;padding:.68em 1.25em}
+  .intro .quick{margin-top:max(1.4rem,calc(var(--hn-t,3.1rem)*.4))}
+  .intro .quick-title,.intro .quick a{font-size:max(var(--fs-xs),calc(var(--hn-t,3.1rem)*.29))}
+}
