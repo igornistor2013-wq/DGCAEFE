@@ -346,8 +346,10 @@ button.fn-btn:hover .fn-t,.acc-btn:hover .acc-t{color:var(--blue)}
 .law-list{background:#fff;border:1px solid var(--line);border-radius:var(--rc);overflow:hidden}
 .law-row{display:flex;align-items:center;gap:1rem;border-top:1px solid var(--line2)}
 .law-row:first-child{border-top:0}
-.law-a{flex:1;min-width:0;display:grid;grid-template-columns:9.5rem minmax(0,1fr) auto;gap:1.25rem;align-items:center;padding:1.1rem 1.4rem;color:var(--ink);text-decoration:none}
+.law-a{flex:1;min-width:0;display:grid;grid-template-columns:3rem 10.5rem minmax(0,1fr) auto;gap:1.25rem;align-items:center;padding:1.1rem 1.4rem;color:var(--ink);text-decoration:none}
 a.law-a:hover{background:#f9fafc;color:var(--ink);text-decoration:none}
+.law-ico{display:grid;place-items:center;width:3rem;height:3rem;border-radius:.625rem;background:var(--tint);color:var(--blue)}
+.law-ico .ico{width:1.5rem;height:1.5rem;stroke-width:1.75}
 .law-no{display:flex;flex-direction:column;gap:.125rem}
 .law-no .type{font-size:.75rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.05em}
 .law-no strong{font-weight:600;font-variant-numeric:tabular-nums}
@@ -562,9 +564,13 @@ dialog.lightbox::backdrop{background:#000}
 .contact{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,26rem),1fr));gap:3rem;align-items:start}
 .contact-main{display:flex;flex-direction:column;gap:1.5rem;min-width:0}
 .contact-main .sec-head{margin-bottom:0}
-.cinfo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12.5rem),1fr));gap:1.5rem;font-size:.9375rem;line-height:1.55}
-.ci{display:flex;flex-direction:column;gap:.375rem;min-width:0}
-.ci-t{margin:0;font-size:.8125rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.cinfo{display:flex;flex-direction:column;padding:.5rem 1.5rem;background:#fff;border:1px solid var(--line);border-radius:var(--rc);font-size:.9375rem;line-height:1.55}
+.cinfo:empty{display:none}
+.ci{display:grid;grid-template-columns:2.75rem minmax(0,1fr);gap:1rem;align-items:center;min-width:0;padding:1rem 0;border-top:1px solid var(--line2)}
+.ci:first-child{border-top:0}
+.ci-ico{display:grid;place-items:center;width:2.75rem;height:2.75rem;border-radius:.625rem;background:var(--tint);color:var(--blue)}
+.ci-ico .ico{width:1.375rem;height:1.375rem;stroke-width:1.75}
+.ci-t{margin:0 0 .125rem;font-size:.75rem;color:var(--muted);font-weight:500}
 .ci-body{display:flex;flex-direction:column;gap:.375rem}
 .ci-body p{margin:0}
 .ci-body a{color:var(--ink);font-weight:600;text-decoration:none}
@@ -580,12 +586,12 @@ dialog.lightbox::backdrop{background:#000}
 .map-gate-t{font-weight:600;font-size:1rem;color:var(--ink);margin:0 0 .35rem}
 .map-gate p{margin:0 0 .75rem;font-size:.875rem;max-width:62ch;color:var(--body)}
 .map-gate .map-gate-btns{display:flex;flex-wrap:wrap;gap:.6rem;margin:0}
-.form{background:var(--paper);border:1px solid var(--line);border-radius:var(--rc);padding:clamp(1.25rem,1rem + 1vw,1.75rem)}
+.form{background:#fff;border:1px solid var(--line);border-radius:1rem;padding:clamp(1.25rem,1rem + 1vw,1.75rem)}
 .sec:not(.sec-alt) .form{background:var(--paper)}
 .form h3{font-size:1.25rem;margin-bottom:.375rem}
 .frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13.75rem),1fr));gap:0 1rem}
 .fgroup{margin-bottom:1rem}
-.fgroup label{display:block;font-size:.875rem;font-weight:500;margin-bottom:.4rem}
+.fgroup .lbl,.fgroup label{display:block;font-size:.875rem;font-weight:500;margin-bottom:.4rem}
 .fgroup textarea{min-height:9rem;resize:vertical}
 .fgroup [aria-invalid="true"]{border-color:var(--red);outline:2px solid rgba(179,38,30,.25)}
 .err{color:var(--red);font-size:.875rem;margin-top:.25rem}
@@ -744,3 +750,14 @@ body.nf-page main{flex:1 0 auto}
   .foot a,.foot-name,.foot-h,.foot-bottom{color:#000}
   .foot-brand img{display:none}
 }
+
+/* ---------- Stil comun al câmpurilor și al pastilelor (din propunerea „Pagina DGCAEFE”) ---------- */
+.input,.select,.fgroup input,.fgroup select,.fgroup textarea{min-height:3rem;border-radius:.625rem;border-color:#c9d0de}
+.fgroup .lbl{display:block;font-size:.875rem;font-weight:500;margin-bottom:.4rem}
+.pill-set{display:flex;flex-wrap:wrap;gap:.5rem}
+.pill{min-height:2.5rem;padding:0 1rem;border:1px solid #c9d0de;border-radius:999px;background:#fff;color:var(--ink);font-size:.875rem;font-weight:500;cursor:pointer;transition:border-color .15s,color .15s}
+.pill:hover{border-color:var(--blue);color:var(--blue)}
+.pill[aria-checked="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.g-zoom{position:absolute;right:.625rem;bottom:.625rem;z-index:1;display:grid;place-items:center;width:2.25rem;height:2.25rem;border-radius:.625rem;background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(16,26,51,.2)}
+.g-zoom .ico{width:1.25rem;height:1.25rem;stroke-width:1.75}
+@media (max-width:47.99rem){.law-ico{display:none}.law-a{grid-template-columns:minmax(0,1fr)}}

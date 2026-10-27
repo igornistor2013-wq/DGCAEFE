@@ -404,3 +404,14 @@ test('administrare: fereastra de editare nu se poate derula singură (altfel, du
   const forms = fs.readFileSync(path.join(WEB, 'assets', 'js', 'admin-forms.js'), 'utf8');
   assert.match(forms, /addEventListener\('scroll', \(\) => \{ if \(d\.scrollTop/);
 });
+
+test('contacte, cadrul legal, galerie: pictograme în casete, subiectul ca pastile cu un singur răspuns, buton de mărire pe fotografii', () => {
+  assert.match(html, /role="radiogroup"[^>]*id="fTopicBox"|id="fTopicBox"[^>]*role="radiogroup"/);
+  assert.match(html, /<input type="hidden" id="fTopic" name="topic" value="Asistență externă">/);
+  assert.equal((html.match(/data-topic="/g) || []).length, 6, 'aceleași 6 subiecte ca înainte');
+  assert.match(site, /\$\('#fTopic'\)\.value/, 'subiectul ajunge în mesaj');
+  assert.match(site, /class="ci-ico"/);
+  assert.match(site, /class="law-ico"/);
+  assert.match(site, /class="g-zoom"/);
+  assert.match(css, /\.pill\[aria-checked="true"\]\{background:var\(--blue\)/);
+});

@@ -392,7 +392,7 @@
     // Un rând pe act: tipul și numărul, denumirea și legătura către legis.md (sau către fișierul actului, dacă nu are link).
     $('#lawBody').innerHTML = items.length ? items.map(function (l) {
       var href = l.url || (l.file && l.file.path) || '';
-      var inner = '<span class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + T('nr.') + ' ' + esc(l.nr) + '/' + l.year + '</strong></span>' +
+      var inner = '<span class="law-ico" aria-hidden="true">' + ico('gavel') + '</span><span class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + T('nr.') + ' ' + esc(l.nr) + '/' + l.year + '</strong></span>' +
         '<span class="law-title"><span>' + esc(l.title) + '</span>' + (l.topic ? '<span class="law-topic">' + esc(l.topic) + '</span>' : '') + '</span>' +
         (href ? '<span class="law-open">' + T(/legis\.md/.test(href) ? 'legis.md' : 'Deschide') + ' ' + ico('ext') + '</span>' : '');
       return '<li class="law-row">' + (href ? '<a class="law-a" href="' + esc(href) + '" target="_blank" rel="noopener" title="' + esc(T(/legis\.md/.test(href) ? 'Deschide pe legis.md' : 'Deschide')) + '">' + inner + '</a>' : '<div class="law-a">' + inner + '</div>') + editLink('legal', l.id) + '</li>';
@@ -856,7 +856,7 @@
     $('#galGrid').innerHTML = items.length ? items.slice(0, gal.shown).map(function (g, i) {
       var label = g.title || T('Fotografie');
       return '<li class="g-item"><button class="g-btn" type="button" data-g="' + i + '"><span class="sr">Deschide fotografia: </span><span class="g-img"><img src="' + esc(g.file.thumb || g.file.path) + '" alt="" width="466" height="350" loading="lazy"></span>' +
-        '<span class="g-cap"><strong>' + esc(label) + '</strong><span>' + esc([DG.fmtDate(g.date), g.album].filter(Boolean).join(' · ')) + '</span></span></button>' +
+        '<span class="g-zoom" aria-hidden="true">' + ico('zoom') + '</span><span class="g-cap"><strong>' + esc(label) + '</strong><span>' + esc([DG.fmtDate(g.date), g.album].filter(Boolean).join(' · ')) + '</span></span></button>' +
         (g.sample ? '<span class="g-sample">Imagine de exemplu</span>' : '') + editLink('gallery', g.id) + '</li>';
     }).join('') : '<li class="empty">Nu există fotografii publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/gallery">Încărcați fotografii</a>.' : '') + '</li>';
     $('#galMore').hidden = items.length <= gal.shown;
@@ -917,14 +917,14 @@
     var emails = c.emails || [];
     contactTo = c.mailTo || (emails[0] && emails[0].addr) || '';
     // Fiecare bloc: eticheta (Adresa, Telefon …) și datele de contact.
-    function item(title, body) {
-      return '<div class="ci"><p class="ci-t">' + title + '</p><div class="ci-body">' + body + '</div></div>';
+    function item(title, body, icon) {
+      return '<div class="ci"><span class="ci-ico" aria-hidden="true">' + ico(icon) + '</span><div><p class="ci-t">' + title + '</p><div class="ci-body">' + body + '</div></div></div>';
     }
     $('#contactInfo').innerHTML =
-      (c.address ? item('Adresa', '<p>' + esc(c.address) + '</p>' + (c.mapLink ? '<p><a class="maplink" href="' + esc(c.mapLink) + '" target="_blank" rel="noopener">Deschide în Google Maps ' + ico('ext') + '</a></p>' : '')) : '') +
-      ((c.phones && c.phones.length) ? item('Telefon', '<p class="phones">' + c.phones.map(function (p) { return '<a href="' + esc(telHref(p)) + '">' + esc(p) + '</a>'; }).join('') + '</p>') : '') +
-      (emails.length ? item('E-mail', emails.map(function (m) { return '<p><a href="mailto:' + esc(m.addr) + '">' + esc(m.addr) + '</a>' + (m.note ? ' (' + esc(m.note) + ')' : '') + '</p>'; }).join('')) : '') +
-      (c.hotlinePhone ? item('Linia anticorupție', '<p><a href="' + esc(telHref(c.hotlinePhone)) + '">' + esc(c.hotlinePhone) + '</a>' + (c.hotlineHours ? ', ' + esc(c.hotlineHours) : '') + '</p>') : '');
+      (c.address ? item('Adresa', '<p>' + esc(c.address) + '</p>' + (c.mapLink ? '<p><a class="maplink" href="' + esc(c.mapLink) + '" target="_blank" rel="noopener">Deschide în Google Maps ' + ico('ext') + '</a></p>' : ''), 'pin') : '') +
+      ((c.phones && c.phones.length) ? item('Telefon', '<p class="phones">' + c.phones.map(function (p) { return '<a href="' + esc(telHref(p)) + '">' + esc(p) + '</a>'; }).join('') + '</p>', 'phone') : '') +
+      (emails.length ? item('E-mail', emails.map(function (m) { return '<p><a href="mailto:' + esc(m.addr) + '">' + esc(m.addr) + '</a>' + (m.note ? ' (' + esc(m.note) + ')' : '') + '</p>'; }).join(''), 'mail') : '') +
+      (c.hotlinePhone ? item('Linia anticorupție', '<p><a href="' + esc(telHref(c.hotlinePhone)) + '">' + esc(c.hotlinePhone) + '</a>' + (c.hotlineHours ? ', ' + esc(c.hotlineHours) : '') + '</p>', 'phone') : '');
     var map = $('#contactMap');
     map.hidden = !c.mapEmbed;
     map.innerHTML = c.mapEmbed ? (mapOn ? mapFrame(c.mapEmbed) : mapGate(c)) : '';
@@ -934,6 +934,23 @@
 
   function setupForm() {
     var form = $('#contactForm');
+    // „Subiect”: pastile cu o singură alegere; valoarea se păstrează în câmpul ascuns #fTopic
+    $('#fTopicBox').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-topic]');
+      if (!b) return;
+      $('#fTopic').value = b.getAttribute('data-topic');
+      $$('#fTopicBox [data-topic]').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); x.tabIndex = x === b ? 0 : -1; });
+    });
+    $('#fTopicBox').addEventListener('keydown', function (e) {
+      if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].indexOf(e.key) < 0) return;
+      var all = $$('#fTopicBox [data-topic]');
+      var i = all.indexOf(document.activeElement);
+      if (i < 0) return;
+      e.preventDefault();
+      var n = all[(i + (e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1) + all.length) % all.length];
+      n.focus();
+      n.click();
+    });
     function setErr(input, id, msg) {
       input.setAttribute('aria-invalid', String(!!msg));
       $('#' + id).textContent = msg || '';

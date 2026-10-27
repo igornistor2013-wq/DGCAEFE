@@ -150,6 +150,7 @@
 
   /* ---------- pictograme ---------- */
   var PATHS = {
+    zoom: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/>',
     checklist: '<path d="m3 7 2 2 4-4"/><path d="m3 17 2 2 4-4"/><path d="M13 7h8"/><path d="M13 17h8"/>',
     tree: '<rect width="6" height="6" x="3" y="3" rx="1"/><rect width="6" height="6" x="15" y="9" rx="1"/><rect width="6" height="6" x="15" y="17" rx="1"/><path d="M6 9v11h9"/><path d="M6 12h9"/>',
     gavel: '<path d="m14 13-8.4 8.4a2 2 0 0 1-2.8-2.8L11 10.5"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/>',

@@ -355,15 +355,9 @@
             </div>
           </div>
           <div class="fgroup">
-            <label for="fTopic">Subiect</label>
-            <select id="fTopic" name="topic">
-              <option>Asistență externă</option>
-              <option>Planul de creștere</option>
-              <option>Programe Interreg</option>
-              <option>URBACT</option>
-              <option>Verificarea cheltuielilor (auditori)</option>
-              <option>Altele</option>
-            </select>
+            <span class="lbl" id="lTopic">Subiect</span>
+            <div class="pill-set" id="fTopicBox" role="radiogroup" aria-labelledby="lTopic"><button class="pill" type="button" role="radio" aria-checked="true" tabindex="0" data-topic="Asistență externă">Asistență externă</button><button class="pill" type="button" role="radio" aria-checked="false" tabindex="-1" data-topic="Planul de creștere">Planul de creștere</button><button class="pill" type="button" role="radio" aria-checked="false" tabindex="-1" data-topic="Programe Interreg">Programe Interreg</button><button class="pill" type="button" role="radio" aria-checked="false" tabindex="-1" data-topic="URBACT">URBACT</button><button class="pill" type="button" role="radio" aria-checked="false" tabindex="-1" data-topic="Verificarea cheltuielilor (auditori)">Verificarea cheltuielilor (auditori)</button><button class="pill" type="button" role="radio" aria-checked="false" tabindex="-1" data-topic="Altele">Altele</button></div>
+            <input type="hidden" id="fTopic" name="topic" value="Asistență externă">
           </div>
           <div class="fgroup">
             <label for="fMsg">Mesaj</label>
