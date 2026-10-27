@@ -198,6 +198,7 @@
     var s = D.settings;
     $('#brandName').textContent = s.orgName;
     $('#brandParent').textContent = s.parentName;
+    $('#topParent').textContent = s.parentName;
     $('#introTitle').innerHTML = heroTitleHtml(s.heroTitle || s.orgName);
     $('#introLead').textContent = s.heroLead || '';
     // în locul textului de prezentare se derulează ultimele 10 noutăți (fără noutăți rămâne textul de prezentare)
@@ -211,11 +212,6 @@
     }).join('');
   }
 
-  /* ================= Diagrama nivelurilor de cooperare ================= */
-  // Trei cadre încuibate în jurul Republicii Moldova: cu cât cadrul este mai larg, cu atât aria cooperării este mai mare.
-  // Cadrele sunt straturi decorative (aria-hidden) așezate în aceeași grilă cu textele; pe ecrane late grila are patru coloane
-  // (Republica Moldova, apoi cele trei niveluri, de la stânga la dreapta), pe ecrane înguste are un singur rând pe nivel.
-  // Fiecare nivel își poartă propriul titlu și butoanele programelor, în aceeași ordine ca în secțiunea „Programe”.
   var ALIAS = { drp: 'Dunărea Dunăre Danube', bsb: 'Marea Neagră Black Sea' }; // forme pe care le caută oamenii și care nu apar în nume
 
   function shortName(p) { return p.short || p.name.replace(/^Interreg\s+(NEXT\s+)?/i, '').replace(/\s+20\d\d.*$/, ''); }
@@ -224,36 +220,6 @@
   function countRo(n, one, many) {
     if (LANG !== 'ro') return n + ' ' + plural(n, one, many);
     return n === 1 ? '1 ' + one : n + (n > 19 && (n % 100 === 0 || n % 100 > 19) ? ' de ' : ' ') + many;
-  }
-
-  function levelCaption(lv) {
-    var list = D.programs.filter(function (p) { return levelOf(p) === lv; });
-    var strands = [];
-    list.forEach(function (p) { if (p.strand && strands.indexOf(p.strand) < 0) strands.push(p.strand); });
-    return '<div class="lv-cap lv-cap-' + lv + '"><div class="lv-head"><h3 class="lv-name" id="lvh-' + lv + '">' + LEVELS[lv].name + '</h3>' +
-      (strands.length ? '<span class="lv-strand">' + esc(strands.join(', ')) + '</span>' : '') + '</div>' +
-      '<p class="lv-scope">' + LEVELS[lv].desc + '</p>' +
-      (list.length ? '<ul class="lv-progs" aria-labelledby="lvh-' + lv + '">' + list.map(function (p) {
-        return '<li><a class="lv-chip" href="#program/' + esc(p.id) + '" data-prog="' + esc(p.id) + '" title="' + esc(p.name) + '">' + esc(shortName(p)) + '<span class="sr">, vezi documentele</span></a></li>';
-      }).join('') + '</ul>' : '') + '</div>';
-  }
-
-  function renderLevels() {
-    var n = D.programs.length;
-    $('#levels').innerHTML = '<div class="lvg">' +
-      '<span class="lv lv-inter" aria-hidden="true"></span><span class="lv lv-trans" aria-hidden="true"></span><span class="lv lv-cross" aria-hidden="true"></span>' +
-      '<div class="lv-core"><p class="lv-core-name">Republica Moldova</p>' +
-      (n ? '<p class="lv-core-sub">' + T('Participă la %1 Interreg %2', countRo(n, 'program', 'programe'), '<span class="nb">2021–2027</span>', n) + '</p>' : '') + '</div>' +
-      levelCaption('cross') + levelCaption('trans') + levelCaption('inter') + '</div>';
-  }
-
-  // Butonul unui program deschide secțiunea „Programe”; adresa #program/… rămâne bună de copiat sau de deschis într-o filă nouă.
-  function onLevelClick(e) {
-    var a = e.target.closest('[data-prog]');
-    if (!a || e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    var id = a.getAttribute('data-prog');
-    if (location.hash === '#program/' + id) goProgram(id); else location.hash = '#program/' + id;
   }
 
   /* ================= Noutăți ================= */
@@ -328,16 +294,7 @@
 
     var pr = s.principles || [];
     $('#aboutPrinc').hidden = !pr.length;
-    $('#aboutPrinc').innerHTML = pr.length ? '<h3 id="h-princ">Principii de activitate</h3><ul>' + pr.map(function (x) { return '<li>' + ico('check-circle') + '<span>' + esc(x) + '</span></li>'; }).join('') + '</ul>' : '';
-
-    // câteva cifre, calculate din datele paginii, ca să nu rămână în urmă când acestea se schimbă
-    var stats = [];
-    if (duties.length) stats.push(['#functii', duties.length, plural(duties.length, 'funcție de bază', 'funcții de bază')]);
-    if (total) stats.push(['#structura', total, plural(total, 'unitate în structură', 'unități în structură')]);
-    if (D.programs.length) stats.push(['#programe', D.programs.length, plural(D.programs.length, 'program de cooperare', 'programe de cooperare')]);
-    if (D.investments.length) stats.push(['#plan-crestere', D.investments.length, plural(D.investments.length, 'proiect din Planul de creștere', 'proiecte din Planul de creștere')]);
-    $('#aboutStats').hidden = !stats.length;
-    $('#aboutStats').innerHTML = stats.map(function (x) { return '<li><a href="' + x[0] + '"><b>' + x[1] + '</b><span>' + x[2] + '</span></a></li>'; }).join('');
+    $('#aboutPrinc').innerHTML = pr.length ? '<h3 id="h-princ">Principii de activitate</h3><ul class="pills">' + pr.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '';
 
     // funcțiile de bază: fiecare se deschide și arată textul funcției și atribuțiile (a, b, c …) prin care se realizează
     $('#functii').hidden = !duties.length;
@@ -346,7 +303,7 @@
       var key = 'fn:' + i;
       var open = !!accState[key];
       var has = !!(d.text || items.length);
-      var head = '<span class="fn-no" aria-hidden="true">' + (i + 1) + '</span><span class="fn-t">' + esc(d.title) + '</span>' +
+      var head = '<span class="fn-no" aria-hidden="true">' + (i < 9 ? '0' : '') + (i + 1) + '</span><span class="fn-t">' + esc(d.title) + '</span>' +
         '<span class="fn-n">' + (items.length ? countRo(items.length, 'atribuție', 'atribuții') : '') + '</span>';
       return '<li class="fn" data-open="' + open + '"><h4 class="fn-h">' + (has ?
           '<button class="fn-btn" type="button" id="fn-b-' + i + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="fn-p-' + i + '">' + head + '<span class="fn-chev">' + ico('chev-d') + '</span></button>' :
@@ -357,14 +314,12 @@
     }).join('');
     syncFnToggle();
 
-    // structura: câte un pătrat pentru fiecare unitate din statul de personal
+    // structura: unitățile din statul de personal și numărul de posturi
     $('#structura').hidden = !staff.length;
+    $('#orgTotal').textContent = total ? countRo(total, 'unitate', 'unități') : '';
     $('#orgChart').innerHTML = staff.length ? '<ul class="org">' + staff.map(function (r) {
-      var n = parseInt(r.count, 10);
-      var sq = '';
-      if (n > 0 && n <= 40) for (var k = 0; k < n; k++) sq += '<i></i>';
-      return '<li class="org-row"><span class="org-t">' + esc(r.title) + '</span><span class="org-sq" aria-hidden="true">' + sq + '</span><span class="org-n">' + esc(r.count) + '</span></li>';
-    }).join('') + '</ul>' + (total ? '<p class="org-total">Efectivul direcției: <b>' + countRo(total, 'unitate', 'unități') + '</b></p>' : '') : '';
+      return '<li class="org-row"><span class="org-t">' + esc(r.title) + '</span><span class="org-n">' + esc(r.count) + '</span></li>';
+    }).join('') + '</ul>' : '';
 
     var roles = [['Drepturile direcției', s.rights], ['Responsabilitățile direcției', s.responsibilities]].filter(function (r) { return r[1] && r[1].length; });
     $('#drepturi-responsabilitati').hidden = !roles.length;
@@ -409,16 +364,14 @@
       return b.year - a.year;
     });
     $('#lawCount').textContent = T('%1 din %2 acte', items.length, D.legal.length);
-    // Două coloane: actul normativ (numărul este link către legis.md, sau către fișierul actului dacă nu are link) și denumirea.
+    // Un rând pe act: tipul și numărul, denumirea și legătura către legis.md (sau către fișierul actului, dacă nu are link).
     $('#lawBody').innerHTML = items.length ? items.map(function (l) {
       var href = l.url || (l.file && l.file.path) || '';
-      var label = T('nr.') + ' ' + esc(l.nr) + '/' + l.year;
-      var no = href
-        ? '<a href="' + esc(href) + '" target="_blank" rel="noopener" title="' + esc(T(/legis\.md/.test(href) ? 'Deschide pe legis.md' : 'Deschide')) + '">' + label + ' ' + ico('ext') + '</a>'
-        : label;
-      return '<tr class="law-row"><td class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + no + '</strong></td>' +
-        '<td class="law-title">' + esc(l.title) + editLink('legal', l.id) + '</td></tr>';
-    }).join('') : '<tr class="empty-row"><td colspan="2">' + T('Niciun act nu corespunde căutării%1. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu.', law.q ? ' „' + esc(law.q) + '”' : '') + ' <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></td></tr>';
+      var inner = '<span class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + T('nr.') + ' ' + esc(l.nr) + '/' + l.year + '</strong></span>' +
+        '<span class="law-title"><span>' + esc(l.title) + '</span>' + (l.topic ? '<span class="law-topic">' + esc(l.topic) + '</span>' : '') + '</span>' +
+        (href ? '<span class="law-open">' + T(/legis\.md/.test(href) ? 'legis.md' : 'Deschide') + ' ' + ico('ext') + '</span>' : '');
+      return '<li class="law-row">' + (href ? '<a class="law-a" href="' + esc(href) + '" target="_blank" rel="noopener" title="' + esc(T(/legis\.md/.test(href) ? 'Deschide pe legis.md' : 'Deschide')) + '">' + inner + '</a>' : '<div class="law-a">' + inner + '</div>') + editLink('legal', l.id) + '</li>';
+    }).join('') : '<li class="empty-row">' + T('Niciun act nu corespunde căutării%1. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu.', law.q ? ' „' + esc(law.q) + '”' : '') + ' <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></li>';
   }
 
   /* ================= Proiecte investiționale ================= */
@@ -473,23 +426,11 @@
     var box = $('#gpOverview');
     var groups = ministries();
     if (inv.min !== 'all' && !groups.some(function (g) { return g.k === inv.min; })) inv.min = 'all';
-    var card = function (key, n, name, abbr, full) {
-      return '<li><button class="mn-card' + (key === 'all' ? ' mn-all' : '') + '" type="button" data-min="' + esc(key) + '"' + (full ? ' title="' + esc(full) + '"' : '') + ' aria-pressed="' + (inv.min === key) + '">' +
-        '<span class="mn-num"><b>' + n + '</b><small>' + plural(n, 'proiect', 'proiecte') + '</small></span>' +
-        '<span class="mn-name">' + esc(name) + '</span>' + (abbr ? '<span class="mn-abbr">' + esc(abbr) + '</span>' : '') + '</button></li>';
+    var pill = function (key, n, name, full) {
+      return '<button class="chip" type="button" data-min="' + esc(key) + '"' + (full ? ' title="' + esc(full) + '"' : '') + ' aria-pressed="' + (inv.min === key) + '">' + esc(name) + '<span class="n">' + n + '</span></button>';
     };
     box.hidden = !total;
-    box.innerHTML = !total ? '' :
-      '<ol class="mn-cards" aria-labelledby="h-plan">' + card('all', total, 'Total', '', '') +
-      groups.map(function (g) { return card(g.k, g.n, g.name, g.k !== NO_MIN && fullName(g.k) ? g.k : '', fullName(g.k)); }).join('') + '</ol>';
-  }
-
-  // Pe ecrane înguste filtrul se strânge sub butonul „Filtre”, care arată dacă este activ.
-  function syncInvFilterBtn() {
-    var active = inv.min !== 'all' ? 1 : 0;
-    var b = $('#invFToggle');
-    b.innerHTML = T('Filtre') + (active ? '<span class="n">' + active + '</span>' : '');
-    b.setAttribute('aria-label', active ? T('Filtre, %1 activ', active) : T('Filtre'));
+    box.innerHTML = !total ? '' : pill('all', total, T('Toate'), '') + groups.map(function (g) { return pill(g.k, g.n, g.name, fullName(g.k)); }).join('');
   }
 
   // „Deschide toate detaliile” / „Închide toate detaliile”, după starea proiectelor afișate acum.
@@ -571,6 +512,11 @@
     var items = invSorted(all.filter(invMatches));
     $('#invCount').textContent = items.length === all.length ? all.length + ' ' + plural(all.length, 'proiect', 'proiecte') : T('%1 din %2', items.length, all.length) + ' ' + plural(all.length, 'proiect', 'proiecte');
     $('#invHead').hidden = !items.length;
+    // cifrele de sinteză urmăresc lista afișată; suma cuprinde proiectele cu valoare în euro
+    var sum = 0;
+    items.forEach(function (p) { if ((p.currency || 'EUR') === 'EUR' && typeof p.amount === 'number') sum += p.amount; });
+    $('#invStatN').textContent = String(items.length);
+    $('#invStatSum').innerHTML = esc(numRo(Math.round(sum * 10) / 10)) + ' <small>' + esc(T('mil.')) + ' EUR</small>';
     $('#invList').innerHTML = items.length ? items.map(invItem).join('') :
       '<li class="empty">' + (all.length ? 'Niciun proiect nu corespunde filtrelor alese. <button class="btn btn-line btn-sm" type="button" id="invReset">Arată toate proiectele</button>' :
         'Nu există proiecte publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/investments/new">Adăugați primul proiect</a>.' : '')) + '</li>';
@@ -618,25 +564,19 @@
     var g = D.settings.growth || {};
     $('#growthAsOf').textContent = g.asOf ? T('Date actualizate la %1.', DG.fmtDate(g.asOf)) : '';
     $('#growthAsOf').hidden = !g.asOf;
+    $('#growthIntro').textContent = g.intro || '';
+    $('#growthIntro').hidden = !g.intro;
     $('#invQ').value = inv.q;
     $('#invSort').value = inv.sort;
     renderGpOverview();
-    syncInvFilterBtn();
     renderInvList();
     renderGpFoot();
   }
 
-  // Filtrul se schimbă fără a redesena tot: se actualizează cifrele, lista și starea butonului.
+  // Filtrul se schimbă fără a redesena tot: se actualizează butoanele și lista.
   function refreshInv() {
     renderGpOverview();
-    syncInvFilterBtn();
     renderInvList();
-  }
-
-  // Filtrul ascuns (pe ecrane înguste) se deschide din butonul „Filtre”.
-  function setInvFilters(open) {
-    $('#invCtl').setAttribute('data-open', String(open));
-    $('#invFToggle').setAttribute('aria-expanded', String(open));
   }
 
   function goInvestment(id) {
@@ -688,121 +628,105 @@
     var safe = function (u) { return /^https?:\/\//i.test(u || '') ? u : ''; };
     if (co.title) $('#h-coop').textContent = co.title;
     var acord = docsOf('acord-ro').sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
-    $('#acordBox').innerHTML = '<h3>' + (co.acordTitle ? esc(co.acordTitle) : 'Acordul cu Guvernul României') + '</h3>' +
-      (co.acordAmount === '' ? '' : '<p class="amount">' + esc(co.acordAmount || '100 mil. EUR') + '</p>') +
+    $('#acordBox').innerHTML = '<div class="card-head"><h3 class="card-h">' + (co.acordTitle ? esc(co.acordTitle) : 'Acordul cu Guvernul României') + '</h3>' +
+      (co.acordAmount === '' ? '' : '<span class="amount">' + esc(co.acordAmount || '100 mil. EUR') + '</span>') + '</div>' +
       '<p class="panel-intro">' + (co.acordIntro ? esc(co.acordIntro) : 'Program de asistență tehnică și financiară, în baza unui ajutor financiar nerambursabil acordat de România Republicii Moldova. Documentele sunt ordonate după etapele de implementare.') + '</p>' +
       (acord.length ? '<ol class="steps">' + acord.map(function (d) {
         return '<li><a' + docAttrs(d) + '><span>' + titleHtml(d) + '</span>' + ico(d.file ? 'down' : 'ext') + '</a></li>';
       }).join('') + '</ol>' : '<p class="empty">Nu există documente publicate.</p>');
 
+    // cardul Platformei AMP: textul, butonul și informațiile centralizate de platformă (se editează în administrare, la „Cooperare”)
     var amp = $('#ampCard');
     if (amp && (co.ampTitle || co.ampText || co.ampUrl || (co.ampChips || []).length)) {
       var url = safe(co.ampUrl);
       var chips = (co.ampChips || []).filter(Boolean);
-      var inner = '<img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60"><span class="plat-body"><strong>' + esc(co.ampTitle || '') + (url ? ' ' + ico('ext') : '') + '</strong>' +
-        (co.ampText ? '<span class="plat-desc">' + esc(co.ampText) + '</span>' : '') +
-        (chips.length ? '<ul class="plat-chips" aria-label="Informațiile centralizate de platformă">' + chips.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' : '') + '</span>';
-      amp.outerHTML = url ? '<a class="plat plat-amp" id="ampCard" href="' + esc(url) + '" target="_blank" rel="noopener">' + inner + '</a>' : '<div class="plat plat-amp" id="ampCard">' + inner + '</div>';
+      amp.hidden = false;
+      amp.innerHTML = '<div class="amp-main"><h3 class="amp-t">' + esc(co.ampTitle || '') + '</h3>' +
+        (co.ampText ? '<p class="amp-desc">' + esc(co.ampText) + '</p>' : '') +
+        (url ? '<a class="btn btn-primary amp-go" href="' + esc(url) + '" target="_blank" rel="noopener"><img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60">' + T('Deschide platforma AMP') + ' ' + ico('ext') + '</a>' : '') + '</div>' +
+        (chips.length ? '<ol class="amp-chips" aria-label="Informațiile centralizate de platformă">' + chips.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ol>' : '');
     } else if (amp) amp.hidden = true;
   }
 
   /* ================= Programe ================= */
-  var prog = { id: null, group: 'all' };
-
   function progDocs(p) { return D.documents.filter(function (d) { return d.section === 'program' && d.program === p.id; }).sort(cmpDocs); }
 
-  // Pictograma nivelului: aceleași cadre încuibate ca în diagrama de pe prima pagină; cadrul nivelului programului este desenat apăsat.
-  function levelGlyph(lv, size) {
-    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 44 44" aria-hidden="true" class="lglyph">' +
-      [['inter', 3, 38, 3], ['trans', 10, 24, 2.5], ['cross', 17, 10, 2]].map(function (f) {
-        var on = f[0] === lv;
-        return '<rect x="' + f[1] + '" y="' + f[1] + '" width="' + f[2] + '" height="' + f[2] + '" rx="' + f[3] + '" fill="none" stroke="currentColor" stroke-width="' + (on ? 3 : 1.4) + '" opacity="' + (on ? 1 : 0.45) + '"/>';
-      }).join('') + '<rect x="20" y="20" width="4" height="4" rx="1" fill="currentColor"/></svg>';
+  // Programele de cooperare, grupate pe niveluri (transfrontalier, transnațional, interregional): o fișă pentru fiecare program,
+  // cu descrierea, cifrele-cheie, legătura către site-ul programului și scurtătura către documentele lui.
+  function progCard(p) {
+    var n = progDocs(p).length;
+    return '<article class="prog-card" id="prog-' + esc(p.id) + '"><h4 tabindex="-1">' + esc(p.name) + '</h4>' +
+      (p.desc ? '<p class="prog-desc">' + esc(p.desc) + '</p>' : '') +
+      (p.facts || []).map(function (f) { return '<div class="fact"><b>' + esc(f.b) + '</b> ' + esc(f.t) + '</div>'; }).join('') +
+      '<div class="prog-links">' + (p.site ? '<a href="' + esc(p.site) + '" target="_blank" rel="noopener">' + T('Site-ul programului') + ' ' + ico('ext') + '</a>' : '') +
+      (n ? '<button type="button" data-prog-docs="' + esc(p.id) + '">' + T('Documente (%1)', n) + ' ' + ico('arrow-r') + '</button>' : '') + editLink('programs', p.id) + '</div></article>';
   }
 
-  function renderProgNav() {
-    // câte o listă de file (role="tablist") pentru fiecare nivel, cu titlul nivelului drept nume; un titlu nu poate sta direct într-o listă de file
-    $('#progNav').innerHTML = LEVEL_ORDER.map(function (lv) {
-      var list = D.programs.filter(function (p) { return p.level === lv; });
+  function renderPrograms() {
+    $('#progGroups').innerHTML = LEVEL_ORDER.map(function (lv) {
+      var list = D.programs.filter(function (p) { return levelOf(p) === lv; });
       if (!list.length) return '';
-      return '<div class="prog-lv"><h4 id="pgh-' + lv + '">' + LEVELS[lv].name + '</h4><div class="prog-tabs" role="tablist" aria-labelledby="pgh-' + lv + '" aria-orientation="vertical">' + list.map(function (p) {
-        var on = p.id === prog.id;
-        var n = progDocs(p).length;
-        return '<button class="prog-btn" type="button" role="tab" id="ptab-' + esc(p.id) + '" aria-controls="progPanel" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '" data-id="' + esc(p.id) + '"><span>' + esc(shortName(p)) + '</span><span class="pcount">' + n + '<span class="sr"> ' + plural(n, 'document', 'documente') + '</span></span></button>';
-      }).join('') + '</div></div>';
+      var strands = [];
+      list.forEach(function (p) { if (p.strand && strands.indexOf(p.strand) < 0) strands.push(p.strand); });
+      return '<section class="prog-group" aria-labelledby="pgh-' + lv + '"><div><h3 class="pg-label" id="pgh-' + lv + '">' + esc(T(LEVELS[lv].name)) +
+        (strands.length ? '<span class="pg-strand">' + esc(strands.join(', ')) + '</span>' : '') + '</h3></div>' +
+        '<div class="pg-cards">' + list.sort(function (a, b) { return (a.order || 0) - (b.order || 0); }).map(progCard).join('') + '</div></section>';
+    }).join('') || '<p class="empty">Nu există programe.</p>';
+    var aud = docsOf('auditori');
+    $('#auditBox').innerHTML = aud.map(function (d) {
+      return '<div class="callout"><p><strong>Verificarea cheltuielilor.</strong> ' + esc(d.title) + (docMeta(d) ? '<small>' + esc(docMeta(d)) + '</small>' : '') + '</p><div class="btns"><a class="btn btn-primary"' + docAttrs(d) + '>' + ico(d.file ? 'down' : 'ext') + ' ' + (d.file ? 'Descarcă' : 'Deschide') + '</a>' + editLink('documents', d.id) + '</div></div>';
     }).join('');
   }
 
-  function renderProg() {
-    var p = progOf(prog.id);
-    var panel = $('#progPanel');
-    if (!p) { panel.innerHTML = '<p class="empty">Nu există programe.</p>'; return; }
-    panel.setAttribute('aria-labelledby', 'ptab-' + p.id);
-    var all = progDocs(p);
-    var groups = [];
-    all.forEach(function (d) { if (groups.indexOf(d.group) < 0) groups.push(d.group); });
-    var docs = all;
-    var chips = '';
-    if (groups.length > 1) {
-      var order = ['buletin', 'oficial', 'stiri', ''].filter(function (g) { return groups.indexOf(g) > -1; });
-      var active = prog.group === '_' ? '' : prog.group;
-      if (prog.group !== 'all' && groups.indexOf(active) < 0) prog.group = 'all';
-      chips = '<div class="chips" role="group" aria-label="Tipul documentului">' + chipsHtml([{ v: 'all', l: 'Toate', n: all.length }].concat(order.map(function (g) {
-        return { v: g || '_', l: GROUP_LABEL[g], n: all.filter(function (d) { return d.group === g; }).length };
-      })), prog.group, 'data-g') + '</div>';
-      if (prog.group !== 'all') docs = all.filter(function (d) { return d.group === (prog.group === '_' ? '' : prog.group); });
-    }
-    panel.innerHTML =
-      '<div class="prog-top">' + levelGlyph(p.level, 60) + '<div><h3 tabindex="-1" id="progTitle">' + esc(p.name) + '</h3><div class="meta"><span class="tag">' + (LEVELS[p.level] || LEVELS.inter).name + '</span>' +
-      (p.strand ? '<span class="tag">' + esc(p.strand) + '</span>' : '') + (p.site ? '<a href="' + esc(p.site) + '" target="_blank" rel="noopener">Site-ul oficial ' + ico('ext') + '</a>' : '') + '</div></div></div>' +
-      '<div class="prog-body"><p class="prog-desc">' + esc(p.desc || '') + '</p>' +
-      ((p.facts && p.facts.length) ? '<div class="facts">' + p.facts.map(function (f) { return '<div class="fact"><b>' + esc(f.b) + '</b>' + esc(f.t) + '</div>'; }).join('') + '</div>' : '') +
-      '<div class="docs-head"><h4>' + T('Documente (%1)', all.length) + '</h4>' + chips + '</div>' +
-      (docs.length ? '<ul class="docs">' + docs.map(function (d) { return docItem(d, false); }).join('') + '</ul>' : '<p class="empty">Nu există documente publicate pentru acest program.</p>') + '</div>';
+  function goProgram(id) {
+    var card = document.getElementById('prog-' + id);
+    if (!card) return;
+    scrollToEl(card);
+    card.classList.add('flash');
+    setTimeout(function () { card.classList.remove('flash'); }, 1800);
+    setTimeout(function () { var t = $('h4', card); if (t) t.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
+  }
+
+  // „Documente (n)” de pe fișa unui program: biblioteca de documente, filtrată pe programul ales.
+  function showProgramDocs(id) {
+    docs.section = 'program';
+    docs.program = id;
+    docs.shown = 15;
+    renderDocs();
+    scrollToEl($('#documente'));
   }
 
   function docItem(d, showSection) {
     var sec = '';
     if (showSection) {
       var p = d.section === 'program' ? progOf(d.program) : null;
-      sec = '<span class="doc-sec">' + esc(p ? shortName(p) : SECTION_LABEL[d.section] || '') + '</span>';
+      sec = '<span class="doc-sec">' + esc(p ? shortName(p) : T(SECTION_LABEL[d.section] || '')) + '</span>';
     }
-    return '<li class="doc-item"><a class="doc"' + docAttrs(d) + '>' + ftBadge(d) + '<span class="doc-t">' + titleHtml(d) + '<small>' + esc(docMeta(d)) + '</small></span>' +
-      (showSection ? sec : '') + ico(d.file ? 'down' : 'ext') + '</a>' + editLink('documents', d.id) + '</li>';
-  }
-
-  function renderPrograms() {
-    if (!prog.id || !progOf(prog.id)) prog.id = D.programs.length ? D.programs[0].id : null;
-    renderProgNav();
-    renderProg();
-    var aud = docsOf('auditori');
-    $('#auditBox').innerHTML = aud.map(function (d) {
-      return '<div class="callout callout-amber"><p><strong>Verificarea cheltuielilor.</strong> ' + esc(d.title) + (docMeta(d) ? '<small>' + esc(docMeta(d)) + '</small>' : '') + '</p><div class="btns"><a class="btn btn-primary"' + docAttrs(d) + '>' + ico(d.file ? 'down' : 'ext') + ' ' + (d.file ? 'Descarcă' : 'Deschide') + '</a>' + editLink('documents', d.id) + '</div></div>';
-    }).join('');
-  }
-
-  function selectProgram(id) { prog.id = id; prog.group = 'all'; renderProgNav(); renderProg(); }
-  function goProgram(id) {
-    if (!progOf(id)) return;
-    selectProgram(id);
-    // Schema „pe niveluri” și lista de programe sunt în aceeași secțiune: se derulează la programul ales, nu la începutul secțiunii.
-    scrollToEl($('.prog') || $('#programe'));
-    setTimeout(function () { var t = $('#progTitle'); if (t) t.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
+    return '<li class="doc-item"><a class="doc"' + docAttrs(d) + '>' + ftBadge(d) + '<span class="doc-body"><span class="doc-t">' + titleHtml(d) + '</span><small class="doc-m">' + esc(docMeta(d)) + '</small>' + sec + '</span></a>' + editLink('documents', d.id) + '</li>';
   }
 
   /* ================= Biblioteca de documente ================= */
-  var docs = { q: '', section: 'all', year: 'all', shown: 15 };
+  var docs = { q: '', section: 'all', year: 'all', program: 'all', shown: 15 };
 
   function renderDocFilters() {
     var secs = Object.keys(SECTION_LABEL).filter(function (k) { return D.documents.some(function (d) { return d.section === k; }); });
-    $('#docSection').innerHTML = '<option value="all">Toate secțiunile</option>' + secs.map(function (k) {
-      return '<option value="' + k + '"' + (docs.section === k ? ' selected' : '') + '>' + SECTION_LABEL[k] + '</option>';
-    }).join('');
+    if (docs.section !== 'all' && secs.indexOf(docs.section) < 0) docs.section = 'all';
+    $('#docTabs').innerHTML = chipsHtml([{ v: 'all', l: T('Toate'), n: D.documents.length }].concat(secs.map(function (k) {
+      return { v: k, l: T(SECTION_LABEL[k]), n: D.documents.filter(function (d) { return d.section === k; }).length };
+    })), docs.section, 'data-sec');
     var years = [];
     D.documents.forEach(function (d) { var y = docYear(d); if (y && years.indexOf(y) < 0) years.push(y); });
     years.sort(function (a, b) { return b - a; });
     $('#docYear').innerHTML = '<option value="all">Toți anii</option>' + years.map(function (y) {
       return '<option value="' + y + '"' + (String(docs.year) === String(y) ? ' selected' : '') + '>' + y + '</option>';
+    }).join('');
+    // alegerea programului apare numai în rubrica „Programe de cooperare”
+    var progs = D.programs.filter(function (p) { return progDocs(p).length; });
+    if (docs.program !== 'all' && !progs.some(function (p) { return p.id === docs.program; })) docs.program = 'all';
+    var sel = $('#docProgram');
+    sel.hidden = docs.section !== 'program' || !progs.length;
+    sel.innerHTML = '<option value="all">Toate programele</option>' + progs.map(function (p) {
+      return '<option value="' + esc(p.id) + '"' + (docs.program === p.id ? ' selected' : '') + '>' + esc(shortName(p)) + '</option>';
     }).join('');
   }
 
@@ -810,6 +734,7 @@
     renderDocFilters();
     var items = D.documents.filter(function (d) {
       if (docs.section !== 'all' && d.section !== docs.section) return false;
+      if (docs.section === 'program' && docs.program !== 'all' && d.program !== docs.program) return false;
       if (docs.year !== 'all' && String(docYear(d)) !== String(docs.year)) return false;
       var p = d.section === 'program' ? progOf(d.program) : null;
       return DG.matches([d.title, d.kind, d.description, SECTION_LABEL[d.section], p ? p.name : '', DG.dateText(d), docYear(d) || '', d.en ? 'engleza english' : ''].join(' '), docs.q);
@@ -857,8 +782,9 @@
       var st = evStatus(e);
       var range = e.end ? T('până la %1', DG.fmtDate(e.end)) : !e.start ? T('data publicării') : e.time ? T('ora %1', e.time) : '';
       var more = (e.details && e.details.length) || (e.links && e.links.length);
-      return '<li class="event" id="' + esc(e.id) + '"><div class="ev-date"><div class="d">' + String(d[2]).padStart(2, '0') + '</div><div class="m">' + I18n.MONTHS[LANG][d[1] - 1] + ' ' + d[0] + '</div>' + (range ? '<div class="r">' + esc(range) + '</div>' : '') + '</div>' +
-        '<div><div class="ev-meta"><span class="status ' + st[0] + '">' + st[1] + '</span>' + (e.prog ? '<span class="tag">' + esc(e.prog) + '</span>' : '') + (e.place ? '<span>' + esc(e.place) + '</span>' : '') + '</div>' +
+      var mon = (I18n.MONTHS[LANG][d[1] - 1] || '').slice(0, 3);
+      return '<li class="event" id="' + esc(e.id) + '"><div class="ev-date"><span class="d">' + String(d[2]).padStart(2, '0') + '</span><span class="m">' + esc(mon) + '</span><span class="y">' + d[0] + '</span></div>' +
+        '<div class="ev-body"><div class="ev-meta"><span class="status ' + st[0] + '">' + st[1] + '</span>' + (e.prog ? '<span class="prog">' + esc(e.prog) + '</span>' : '') + (range ? '<span>' + esc(range) + '</span>' : '') + (e.place ? '<span>' + esc(e.place) + '</span>' : '') + '</div>' +
         '<h3>' + esc(e.title) + '</h3><p>' + esc(e.summary) + '</p>' +
         (more ? '<details class="ev-more"><summary>Detalii</summary>' +
           (e.details && e.details.length ? '<ul>' + e.details.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
@@ -959,15 +885,15 @@
     var c = D.settings.contact || {};
     var emails = c.emails || [];
     contactTo = c.mailTo || (emails[0] && emails[0].addr) || '';
-    // Fiecare rând: pătrat albastru cu pictogramă, titlu și text (ca pe ie.mf.gov.md).
-    function item(icon, title, body) {
-      return '<div class="ci"><span class="ci-ico">' + ico(icon) + '</span><div class="ci-body"><p class="ci-t">' + title + '</p>' + body + '</div></div>';
+    // Fiecare bloc: eticheta (Adresa, Telefon …) și datele de contact.
+    function item(title, body) {
+      return '<div class="ci"><p class="ci-t">' + title + '</p><div class="ci-body">' + body + '</div></div>';
     }
     $('#contactInfo').innerHTML =
-      (c.address ? item('pin', 'Adresa', '<p>' + esc(c.address) + '</p>' + (c.mapLink ? '<p><a class="maplink" href="' + esc(c.mapLink) + '" target="_blank" rel="noopener">Deschide în Google Maps ' + ico('ext') + '</a></p>' : '')) : '') +
-      ((c.phones && c.phones.length) ? item('phone', 'Telefon', '<p class="phones">' + c.phones.map(function (p) { return '<a href="' + esc(telHref(p)) + '">' + esc(p) + '</a>'; }).join('') + '</p>') : '') +
-      (emails.length ? item('mail', 'E-mail', '<p>' + emails.map(function (m) { return '<a href="mailto:' + esc(m.addr) + '">' + esc(m.addr) + '</a>' + (m.note ? ' (' + esc(m.note) + ')' : ''); }).join('<br>') + '</p>') : '') +
-      (c.hotlinePhone ? item('shield', 'Linia anticorupție', '<p><a href="' + esc(telHref(c.hotlinePhone)) + '">' + esc(c.hotlinePhone) + '</a>' + (c.hotlineHours ? ', ' + esc(c.hotlineHours) : '') + '</p>') : '');
+      (c.address ? item('Adresa', '<p>' + esc(c.address) + '</p>' + (c.mapLink ? '<p><a class="maplink" href="' + esc(c.mapLink) + '" target="_blank" rel="noopener">Deschide în Google Maps ' + ico('ext') + '</a></p>' : '')) : '') +
+      ((c.phones && c.phones.length) ? item('Telefon', '<p class="phones">' + c.phones.map(function (p) { return '<a href="' + esc(telHref(p)) + '">' + esc(p) + '</a>'; }).join('') + '</p>') : '') +
+      (emails.length ? item('E-mail', emails.map(function (m) { return '<p><a href="mailto:' + esc(m.addr) + '">' + esc(m.addr) + '</a>' + (m.note ? ' (' + esc(m.note) + ')' : '') + '</p>'; }).join('')) : '') +
+      (c.hotlinePhone ? item('Linia anticorupție', '<p><a href="' + esc(telHref(c.hotlinePhone)) + '">' + esc(c.hotlinePhone) + '</a>' + (c.hotlineHours ? ', ' + esc(c.hotlineHours) : '') + '</p>') : '');
     var map = $('#contactMap');
     map.hidden = !c.mapEmbed;
     map.innerHTML = c.mapEmbed ? (mapOn ? mapFrame(c.mapEmbed) : mapGate(c)) : '';
@@ -1236,22 +1162,32 @@
 
   /* ================= Accesibilitate, meniu, derulare ================= */
   function setupChrome() {
+    var nav = $('#mainnav');
     var list = $('#navList');
     var toggle = $('#navToggle');
-    toggle.addEventListener('click', function () {
-      var open = list.classList.toggle('open');
+    var ov = $('#navOv');
+    // Pe ecrane înguste meniul este un panou care se deschide din dreapta; pe computer este un rând sub antet.
+    function setNav(open, back) {
+      nav.classList.toggle('open', open);
+      ov.hidden = !open;
       toggle.setAttribute('aria-expanded', String(open));
-    });
-    $$('a', list).forEach(function (a) {
-      a.addEventListener('click', function () { list.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); });
-    });
+      document.body.classList.toggle('nav-lock', open);
+      if (open) { var c = $('#navClose'); if (c) setTimeout(function () { c.focus(); }, 30); } else if (back) toggle.focus();
+    }
+    toggle.addEventListener('click', function () { setNav(!nav.classList.contains('open')); });
+    $('#navClose').addEventListener('click', function () { setNav(false, true); });
+    ov.addEventListener('click', function () { setNav(false, true); });
+    $$('a', list).forEach(function (a) { a.addEventListener('click', function () { setNav(false); }); });
     // Esc închide meniul deschis și readuce cursorul pe butonul „Meniu”
     document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape' || !list.classList.contains('open') || document.querySelector('dialog[open]')) return;
-      list.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.focus();
+      if (e.key !== 'Escape' || !nav.classList.contains('open') || document.querySelector('dialog[open]')) return;
+      setNav(false, true);
     });
+    if (window.matchMedia) {
+      var wide = window.matchMedia('(min-width: 64rem)');
+      var onWide = function () { if (wide.matches && nav.classList.contains('open')) setNav(false); };
+      if (wide.addEventListener) wide.addEventListener('change', onWide); else if (wide.addListener) wide.addListener(onWide);
+    }
 
     var ids = ['despre', 'plan-crestere', 'cadrul-legal', 'cooperare-externa', 'programe', 'documente', 'evenimente', 'noutati', 'galerie', 'contacte'];
     if ('IntersectionObserver' in window) {
@@ -1281,9 +1217,6 @@
 
   /* ================= Evenimente de interfață ================= */
   function setupEvents() {
-    // diagrama nivelurilor
-    $('#levels').addEventListener('click', onLevelClick);
-
     // noutăți
     $('#newsGrid').addEventListener('click', function (e) {
       var a = e.target.closest('[data-news]');
@@ -1324,7 +1257,6 @@
     });
 
     // investiții: proiectele din Planul de creștere
-    $('#invFToggle').addEventListener('click', function () { setInvFilters($('#invCtl').getAttribute('data-open') !== 'true'); });
     $('#invToggle').addEventListener('click', function () {
       var btns = $$('#invList .inv-btn');
       var open = !btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
@@ -1393,30 +1325,10 @@
       $('#tab-' + rep.year).focus();
     });
 
-    // programe
-    var nav = $('#progNav');
-    nav.addEventListener('click', function (e) {
-      var b = e.target.closest('.prog-btn');
-      if (b) { selectProgram(b.getAttribute('data-id')); $('#ptab-' + b.getAttribute('data-id')).focus(); }
-    });
-    nav.addEventListener('keydown', function (e) {
-      if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(e.key) < 0) return;
-      e.preventDefault();
-      var order = [];
-      LEVEL_ORDER.forEach(function (lv) { D.programs.forEach(function (p) { if (p.level === lv) order.push(p.id); }); });
-      var i = order.indexOf(prog.id);
-      var fwd = e.key === 'ArrowDown' || e.key === 'ArrowRight';
-      var id = e.key === 'Home' ? order[0] : e.key === 'End' ? order[order.length - 1] : order[(i + (fwd ? 1 : -1) + order.length) % order.length];
-      selectProgram(id);
-      $('#ptab-' + id).focus();
-    });
-    $('#progPanel').addEventListener('click', function (e) {
-      var c = e.target.closest('[data-g]');
-      if (!c) return;
-      prog.group = c.getAttribute('data-g');
-      renderProg();
-      var again = $('#progPanel [data-g="' + c.getAttribute('data-g') + '"]');
-      if (again) again.focus();
+    // programe: scurtătura către documentele unui program
+    $('#progGroups').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-prog-docs]');
+      if (b) showProgramDocs(b.getAttribute('data-prog-docs'));
     });
 
     // harta Google (se încarcă doar la cerere)
@@ -1432,12 +1344,21 @@
 
     // documente
     $('#docQ').addEventListener('input', DG.debounce(function (e) { docs.q = e.target.value; docs.shown = 15; renderDocs(); }, 80));
-    $('#docSection').addEventListener('change', function (e) { docs.section = e.target.value; docs.shown = 15; renderDocs(); });
+    $('#docTabs').addEventListener('click', function (e) {
+      var b = e.target.closest('.chip');
+      if (!b) return;
+      docs.section = b.getAttribute('data-sec');
+      docs.shown = 15;
+      renderDocs();
+      var again = $('#docTabs [data-sec="' + docs.section + '"]');
+      if (again) again.focus();
+    });
+    $('#docProgram').addEventListener('change', function (e) { docs.program = e.target.value; docs.shown = 15; renderDocs(); });
     $('#docYear').addEventListener('change', function (e) { docs.year = e.target.value; docs.shown = 15; renderDocs(); });
     $('#docMore').addEventListener('click', function () { docs.shown += 15; renderDocs(); });
     $('#docList').addEventListener('click', function (e) {
       if (e.target.id === 'docReset') {
-        docs = { q: '', section: 'all', year: 'all', shown: 15 };
+        docs = { q: '', section: 'all', year: 'all', program: 'all', shown: 15 };
         $('#docQ').value = '';
         renderDocs();
       }
@@ -1509,7 +1430,6 @@
   /* ================= Pornire ================= */
   function renderAll() {
     renderIntro();
-    renderLevels();
     renderNews();
     renderInvestments();
     renderAbout();

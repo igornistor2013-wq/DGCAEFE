@@ -25,7 +25,8 @@
 <meta name="DC.relation" content="https://gov.md/ro/coordonarea-asistentei-externe-si-fonduri-europene">
 <meta name="DC.rights" content="Conținut preluat de pe gov.md, disponibil sub licența CC BY-SA 4.0.">
 <link rel="icon" href="assets/img/gov-logo.svg" type="image/svg+xml">
-<link rel="preload" href="assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/golos-text-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/source-serif-4-latin-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/site.css">
 <noscript><style>.hn-arrow,.hn-bar,.hn-progress{display:none}</style></noscript>
 </head>
@@ -34,14 +35,13 @@
 
 <div class="adminbar" id="adminbar" hidden></div>
 
-<div class="flagstrip" aria-hidden="true"><i></i><i></i><i></i></div>
-
-<div class="utility" role="region" aria-label="Legături utile și opțiuni de afișare">
-  <div class="wrap utility-in">
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <p>Site oficial · <span id="topParent">Cancelaria de Stat a Republicii Moldova</span></p>
     <nav class="lang" aria-label="Limba paginii">
-      <a href="index.html" lang="ro" hreflang="ro" aria-current="true">Română</a>
-      <a href="ru.html" lang="ru" hreflang="ru">Русский</a>
-      <a href="en.html" lang="en" hreflang="en">English</a>
+      <a href="index.html" lang="ro" hreflang="ro" aria-current="true" aria-label="Română">RO</a>
+      <a href="ru.html" lang="ru" hreflang="ru" aria-label="Русский">RU</a>
+      <a href="en.html" lang="en" hreflang="en" aria-label="English">EN</a>
     </nav>
   </div>
 </div>
@@ -55,10 +55,17 @@
         <span class="brand-name" id="brandName">Direcția Generală Coordonare Asistență Externă și Fonduri Europene</span>
       </span>
     </a>
-    <nav class="mainnav" id="mainnav" aria-label="Meniu principal">
-      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navList">
-        <svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg><span>Meniu</span>
+    <div class="masthead-act">
+      <button class="search-open" id="openSearch" type="button" aria-haspopup="dialog" title="Căutare în pagină">
+        <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">Căutare</span><kbd class="sr" id="kbdHint"></kbd>
       </button>
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mainnav"><span>Meniu</span></button>
+    </div>
+  </div>
+  <div class="nav-ov" id="navOv" hidden></div>
+  <nav class="mainnav" id="mainnav" aria-label="Meniu principal">
+    <div class="wrap mainnav-in">
+      <div class="nav-head"><strong>Meniu</strong><button class="icon-btn" id="navClose" type="button" aria-label="Închide meniul"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button></div>
       <ul id="navList">
         <li><a href="#despre">Despre</a></li>
         <li><a href="#plan-crestere">Investiții</a></li>
@@ -71,11 +78,8 @@
         <li><a href="#galerie">Galerie</a></li>
         <li><a href="#contacte">Contacte</a></li>
       </ul>
-    </nav>
-    <button class="search-open" id="openSearch" type="button" aria-haspopup="dialog" title="Căutare în pagină">
-      <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">Căutare</span><kbd class="sr" id="kbdHint"></kbd>
-    </button>
-  </div>
+    </div>
+  </nav>
 </header>
 
 <main id="main">
@@ -86,6 +90,7 @@
   <section class="intro" id="top" aria-labelledby="introTitle">
     <div class="wrap intro-in" id="introMain">
       <div class="intro-text">
+        <p class="eyebrow">Autoritatea națională de coordonare a asistenței externe</p>
         <h1 id="introTitle">Direcția Generală Coordonare Asistență Externă și <span class="h1-b">Fonduri Europene</span></h1>
         <p class="lead" id="introLead">Asigurăm rolul Cancelariei de Stat în calitate de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare la Uniunea Europeană, precum și coordonarea proiectelor investiționale din Planul de creștere. Aici găsiți proiectele, actele normative, rapoartele, acordurile de finanțare și evenimentele pentru potențialii beneficiari.</p>
         <form class="search-box" id="heroSearch" role="search">
@@ -94,10 +99,10 @@
           <input id="heroQ" type="search" placeholder="Ex.: URBACT, HG 377/2018, raport 2024" autocomplete="off">
           <button class="btn btn-primary" type="submit">Caută</button>
         </form>
-        <div class="quick">
-          <h2 class="quick-title">Acces rapid</h2>
-          <ul id="quickLinks"></ul>
-        </div>
+      </div>
+      <div class="quick">
+        <h2 class="quick-title">Acces rapid</h2>
+        <ul id="quickLinks"></ul>
       </div>
     </div>
     <!-- Noutățile, pe fotografie mare, peste prezentare: se văd după ea, pe rând (scriptul hero-news.js). Ascuns până sunt noutăți. -->
@@ -117,34 +122,32 @@
   <!-- DESPRE -->
   <section class="sec sec-alt" id="despre" aria-labelledby="h-despre">
     <div class="wrap">
-      <header class="sec-head">
-        <div><h2 id="h-despre">Despre direcție</h2></div>
-      </header>
       <div class="about-top">
-        <div class="about-text" id="aboutText"></div>
-        <div class="about-princ" id="aboutPrinc" role="group" aria-labelledby="h-princ"></div>
+        <div class="about-main">
+          <header class="sec-head">
+            <p class="eyebrow">Despre direcție</p>
+            <h2 id="h-despre">Misiune și rol</h2>
+          </header>
+          <div class="about-text" id="aboutText"></div>
+          <div class="about-princ" id="aboutPrinc" role="group" aria-labelledby="h-princ"></div>
+        </div>
+        <div class="card about-org" id="structura">
+          <div class="card-head"><h3 class="card-h" id="h-org">Structura și efectivul</h3><span class="card-aside" id="orgTotal"></span></div>
+          <div id="orgChart"></div>
+        </div>
       </div>
-      <ul class="stats" id="aboutStats" aria-label="Direcția în cifre"></ul>
 
       <div class="about-block" id="functii">
         <div class="about-bh">
-          <div>
-            <h3 class="about-h" id="h-fn">Funcțiile de bază</h3>
-          </div>
+          <h3 class="about-h" id="h-fn">Funcțiile de bază</h3>
           <button class="btn btn-line btn-sm" type="button" id="fnToggle" aria-pressed="false">Deschide toate</button>
         </div>
         <ol class="fn-list" id="dutiesList" aria-labelledby="h-fn"></ol>
       </div>
 
-      <div class="about-two">
-        <div class="about-block" id="structura">
-          <h3 class="about-h" id="h-org">Structura și efectivul</h3>
-          <div id="orgChart"></div>
-        </div>
-        <div class="about-block" id="drepturi-responsabilitati">
-          <h3 class="about-h" id="h-roles">Drepturi și responsabilități</h3>
-          <div class="acc-list" id="rolesList"></div>
-        </div>
+      <div class="about-block" id="drepturi-responsabilitati">
+        <h3 class="about-h" id="h-roles">Drepturi și responsabilități</h3>
+        <div class="acc-list" id="rolesList"></div>
       </div>
     </div>
   </section>
@@ -153,13 +156,18 @@
   <section class="sec" id="plan-crestere" aria-labelledby="h-plan">
     <div class="wrap">
       <header class="sec-head sec-head-inv">
-        <h2 id="h-plan">Proiecte investiționale</h2>
-        <p class="src" id="growthAsOf"></p>
-      </header>
-      <div class="inv-ctl" id="invCtl" data-open="false">
-        <div class="inv-fp" id="invFilters">
-          <div class="inv-strip" id="gpOverview"></div>
+        <div class="inv-intro">
+          <p class="eyebrow">Planul de creștere</p>
+          <h2 id="h-plan">Proiecte investiționale</h2>
+          <p class="sec-lead" id="growthIntro" hidden></p>
+          <p class="src" id="growthAsOf"></p>
         </div>
+        <dl class="tiles" id="invTiles">
+          <div class="tile"><dt>Proiecte afișate</dt><dd id="invStatN"></dd></div>
+          <div class="tile"><dt>Valoare indicativă</dt><dd id="invStatSum"></dd></div>
+        </dl>
+      </header>
+      <div class="inv-ctl" id="invCtl">
         <div class="field-icon inv-search">
           <label class="sr" for="invQ">Căutare în proiecte</label>
           <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
@@ -173,16 +181,20 @@
             <option value="minister">După minister</option>
           </select>
         </div>
-        <button class="btn btn-line btn-sm inv-ftoggle" type="button" id="invFToggle" aria-expanded="false" aria-controls="invFilters">Filtre</button>
+      </div>
+      <div class="inv-fp" id="invFilters">
+        <div class="chips" id="gpOverview" role="group" aria-labelledby="h-plan"></div>
       </div>
       <div class="inv-meta">
         <p class="count" id="invCount" aria-live="polite"></p>
         <button class="btn btn-line btn-sm" type="button" id="invToggle" aria-pressed="false" hidden>Deschide toate detaliile</button>
       </div>
-      <div class="inv-head" id="invHead" aria-hidden="true">
-        <span class="h-no">Nr.</span><span>Proiect</span><span>Partener de finanțare</span><span class="h-val">Valoare indicativă</span>
+      <div class="inv-table">
+        <div class="inv-head" id="invHead" aria-hidden="true">
+          <span class="h-no">Nr.</span><span>Proiect</span><span>Partener de finanțare</span><span class="h-val">Valoare indicativă</span><span></span>
+        </div>
+        <ol class="inv-list" id="invList" aria-label="Lista proiectelor investiționale"></ol>
       </div>
-      <ol class="inv-list" id="invList" aria-label="Lista proiectelor investiționale"></ol>
       <div class="gp-foot" id="gpFoot"></div>
     </div>
   </section>
@@ -191,7 +203,8 @@
   <section class="sec sec-alt" id="cadrul-legal" aria-labelledby="h-legal">
     <div class="wrap">
       <header class="sec-head">
-        <div><h2 id="h-legal">Cadrul legal</h2></div>
+        <p class="eyebrow">Acte normative</p>
+        <h2 id="h-legal">Cadrul legal</h2>
       </header>
       <div class="toolbar">
         <div class="chips" id="lawChips" role="group" aria-label="Filtrare după tipul actului"></div>
@@ -210,13 +223,7 @@
         </div>
       </div>
       <p class="count" id="lawCount" aria-live="polite"></p>
-      <div class="table-wrap">
-        <table class="table legal-table">
-          <caption class="sr">Acte normative</caption>
-          <thead><tr><th scope="col">Act normativ</th><th scope="col">Denumire</th></tr></thead>
-          <tbody id="lawBody"></tbody>
-        </table>
-      </div>
+      <ul class="law-list" id="lawBody" aria-label="Acte normative"></ul>
     </div>
   </section>
 
@@ -224,26 +231,25 @@
   <section class="sec" id="cooperare-externa" aria-labelledby="h-coop">
     <div class="wrap">
       <header class="sec-head">
-        <div><h2 id="h-coop">Cooperare externă</h2></div>
+        <p class="eyebrow">Asistență externă</p>
+        <h2 id="h-coop">Cooperare externă</h2>
       </header>
+      <div class="amp" id="ampCard">
+        <div class="amp-main">
+          <h3 class="amp-t">Platforma de Management al Asistenței Externe (AMP)</h3>
+          <p class="amp-desc">Platforma de Management al Asistenței Externe (AMP) este un instrument informațional destinat evidenței, monitorizării și gestionării proiectelor și programelor de asistență externă acordate Republicii Moldova de către partenerii de dezvoltare. Aceasta asigură centralizarea informațiilor privind proiectele de asistență externă, inclusiv datele referitoare la finanțatori, beneficiari și implementatori, valoarea finanțării, perioadele de implementare și debursările efectuate.</p>
+          <a class="btn btn-primary amp-go" href="https://amp.gov.md/portal/" target="_blank" rel="noopener"><img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60">Deschide platforma AMP <svg class="ico" aria-hidden="true"><use href="#i-ext"/></svg></a>
+        </div>
+        <ol class="amp-chips" aria-label="Informațiile centralizate de platformă"><li>Finanțatori</li><li>Beneficiari</li><li>Implementatori</li><li>Valoarea finanțării</li><li>Perioade de implementare</li><li>Debursări efectuate</li></ol>
+      </div>
       <div class="coop">
-        <div class="panel">
-          <h3>Rapoarte anuale privind asistența externă</h3>
+        <div class="card">
+          <h3 class="card-h">Rapoarte anuale privind asistența externă</h3>
           <p class="panel-intro">Alegeți anul pentru a deschide raportul.</p>
           <div class="years" role="tablist" aria-label="Anul raportului" id="years"></div>
           <div class="report-panel" role="tabpanel" id="reportPanel" aria-live="polite"></div>
         </div>
-        <div class="panel panel-accent" id="acordBox"></div>
-      </div>
-      <div class="platforms">
-        <a class="plat plat-amp" id="ampCard" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">
-          <img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60">
-          <span class="plat-body">
-            <strong>Platforma de Management al Asistenței Externe (AMP) <svg class="ico" aria-hidden="true"><use href="#i-ext"/></svg></strong>
-            <span class="plat-desc">Platforma de Management al Asistenței Externe (AMP) este un instrument informațional destinat evidenței, monitorizării și gestionării proiectelor și programelor de asistență externă acordate Republicii Moldova de către partenerii de dezvoltare. Aceasta asigură centralizarea informațiilor privind proiectele de asistență externă, inclusiv datele referitoare la finanțatori, beneficiari și implementatori, valoarea finanțării, perioadele de implementare și debursările efectuate.</span>
-            <ul class="plat-chips" aria-label="Informațiile centralizate de platformă"><li>Finanțatori</li><li>Beneficiari</li><li>Implementatori</li><li>Valoarea finanțării</li><li>Perioade de implementare</li><li>Debursări efectuate</li></ul>
-          </span>
-        </a>
+        <div class="card card-accord" id="acordBox"></div>
       </div>
     </div>
   </section>
@@ -251,19 +257,12 @@
   <!-- PROGRAME -->
   <section class="sec sec-alt" id="programe" aria-labelledby="h-prog">
     <div class="wrap">
-      <header class="sec-head">
-        <div><h2 id="h-prog">Programe de cooperare transfrontalieră, transnațională și interregională</h2></div>
+      <header class="sec-head sec-head-narrow">
+        <p class="eyebrow">Interreg 2021–2027</p>
+        <h2 id="h-prog">Programe de cooperare transfrontalieră, transnațională și interregională</h2>
       </header>
-      <!-- NIVELURILE DE COOPERARE -->
-      <section class="levels-box" aria-labelledby="levelsTitle">
-        <h3 class="levels-title" id="levelsTitle">Programe de cooperare, pe niveluri</h3>
-        <div class="levels" id="levels"></div>
-      </section>
       <div id="auditBox"></div>
-      <div class="prog">
-        <div class="prog-nav" id="progNav" role="group" aria-label="Programe de cooperare"></div>
-        <div class="prog-panel" id="progPanel" role="tabpanel"></div>
-      </div>
+      <div class="prog-groups" id="progGroups"></div>
     </div>
   </section>
 
@@ -271,7 +270,8 @@
   <section class="sec" id="documente" aria-labelledby="h-doc">
     <div class="wrap">
       <header class="sec-head">
-        <div><h2 id="h-doc">Documente și publicații</h2></div>
+        <p class="eyebrow">Publicații</p>
+        <h2 id="h-doc">Documente și publicații</h2>
       </header>
       <div class="toolbar toolbar-docs">
         <div class="field-icon grow">
@@ -280,12 +280,13 @@
           <input class="input" id="docQ" type="search" placeholder="Căutați după titlu, tip sau cuvânt-cheie" autocomplete="off">
         </div>
         <div class="tools">
-          <label class="sr" for="docSection">Secțiunea</label>
-          <select class="select" id="docSection"></select>
+          <label class="sr" for="docProgram">Programul</label>
+          <select class="select" id="docProgram" hidden></select>
           <label class="sr" for="docYear">Anul</label>
           <select class="select" id="docYear"></select>
         </div>
       </div>
+      <div class="chips doc-tabs" id="docTabs" role="group" aria-label="Secțiunea"></div>
       <p class="count" id="docCount" aria-live="polite"></p>
       <ul class="doc-list" id="docList"></ul>
       <p class="more"><button class="btn btn-line" type="button" id="docMore" hidden>Arată mai multe documente</button></p>
@@ -296,7 +297,7 @@
   <section class="sec sec-alt" id="evenimente" aria-labelledby="h-ev">
     <div class="wrap">
       <header class="sec-head">
-        <div><h2 id="h-ev">Evenimente</h2></div>
+        <h2 id="h-ev">Evenimente</h2>
       </header>
       <div class="ev-filters">
         <fieldset><legend>Anul</legend><div class="chips" id="evYear"></div></fieldset>
@@ -310,7 +311,7 @@
   <section class="sec" id="noutati" aria-labelledby="h-noutati">
     <div class="wrap">
       <header class="sec-head">
-        <div><h2 id="h-noutati">Noutăți</h2></div>
+        <h2 id="h-noutati">Noutăți</h2>
       </header>
       <div class="news-grid" id="newsGrid"></div>
       <p class="more"><button class="btn btn-line" type="button" id="newsMore" hidden>Arată mai multe noutăți</button></p>
@@ -321,7 +322,8 @@
   <section class="sec sec-alt" id="galerie" aria-labelledby="h-gal">
     <div class="wrap">
       <header class="sec-head">
-        <div><h2 id="h-gal">Galerie foto</h2><p>Fotografii de la evenimente, întâlniri și vizite de lucru.</p></div>
+        <h2 id="h-gal">Galerie foto</h2>
+        <p>Fotografii de la evenimente, întâlniri și vizite de lucru.</p>
       </header>
       <div class="chips" id="galChips" role="group" aria-label="Filtrare după album"></div>
       <ul class="gallery" id="galGrid"></ul>
@@ -332,12 +334,14 @@
   <!-- CONTACTE -->
   <section class="sec" id="contacte" aria-labelledby="h-contact">
     <div class="wrap">
-      <header class="sec-head">
-        <div><h2 id="h-contact">Contacte</h2></div>
-      </header>
-      <div class="contact-map" id="contactMap" hidden></div>
       <div class="contact">
-        <div class="cinfo" id="contactInfo"></div>
+        <div class="contact-main">
+          <header class="sec-head">
+            <h2 id="h-contact">Contacte</h2>
+          </header>
+          <div class="cinfo" id="contactInfo"></div>
+          <div class="contact-map" id="contactMap" hidden></div>
+        </div>
         <form class="form" id="contactForm" novalidate>
           <h3>Scrieți-ne</h3>
           <p class="panel-intro">Completați formularul, iar mesajul se va deschide gata scris în aplicația dvs. de e-mail.</p>
@@ -369,8 +373,10 @@
             <textarea id="fMsg" name="message" aria-describedby="eMsg"></textarea>
             <div class="err" id="eMsg"></div>
           </div>
-          <button class="btn btn-primary" type="submit"><svg class="ico" aria-hidden="true"><use href="#i-mail"/></svg> Deschide mesajul în e-mail</button>
-          <p class="form-note">Destinatar: <span id="toAddr"></span></p>
+          <div class="form-foot">
+            <p class="form-note">Destinatar: <span id="toAddr"></span></p>
+            <button class="btn btn-primary" type="submit"><svg class="ico" aria-hidden="true"><use href="#i-mail"/></svg> Deschide mesajul în e-mail</button>
+          </div>
           <div id="formOk" class="form-ok" hidden></div>
         </form>
       </div>
