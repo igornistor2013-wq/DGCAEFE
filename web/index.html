@@ -161,7 +161,7 @@
           <p class="src" id="growthAsOf"></p>
         </div>
         <dl class="tiles" id="invTiles">
-          <div class="tile"><dt>Proiecte afișate</dt><dd id="invStatN"></dd></div>
+          <div class="tile"><dt>Proiecte în listă</dt><dd id="invStatN"></dd></div>
           <div class="tile"><dt>Valoare indicativă</dt><dd id="invStatSum"></dd></div>
         </dl>
       </header>
@@ -193,6 +193,7 @@
         </div>
         <ol class="inv-list" id="invList" aria-label="Lista proiectelor investiționale"></ol>
       </div>
+      <div class="more-row" id="invMoreBox" hidden></div>
       <div class="gp-foot" id="gpFoot"></div>
     </div>
   </section>
@@ -222,6 +223,7 @@
       </div>
       <p class="count" id="lawCount" aria-live="polite"></p>
       <ul class="law-list" id="lawBody" aria-label="Acte normative"></ul>
+      <div class="more-row" id="lawMoreBox" hidden></div>
     </div>
   </section>
 
@@ -237,6 +239,7 @@
         <p class="subhead-note">Alegeți anul pentru a deschide raportul.</p>
       </div>
       <div class="rep-grid" id="reportGrid" aria-labelledby="h-rapoarte"></div>
+      <div class="more-row" id="repMoreBox" hidden></div>
       <a class="amp" id="ampCard" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">
         <span class="amp-logo"><img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60"></span>
         <span class="amp-main">
@@ -286,7 +289,7 @@
       <div class="chips doc-tabs" id="docTabs" role="group" aria-label="Secțiunea"></div>
       <p class="count" id="docCount" aria-live="polite"></p>
       <ul class="doc-list" id="docList"></ul>
-      <p class="more"><button class="btn btn-line" type="button" id="docMore" hidden>Arată mai multe documente</button></p>
+      <div class="more-row" id="docMoreBox" hidden></div>
     </div>
   </section>
 
@@ -300,7 +303,8 @@
       <div class="ev-filters">
         <fieldset><legend>Programul</legend><div class="chips" id="evProg"></div></fieldset>
       </div>
-      <ol class="events" id="timeline"></ol>
+      <ol class="events" id="timeline" aria-label="Evenimente în ordine cronologică"></ol>
+      <div class="more-row tl-end" id="evMoreBox" hidden></div>
     </div>
   </section>
 
@@ -311,7 +315,7 @@
         <h2 id="h-noutati">Noutăți</h2>
       </header>
       <div class="news-grid" id="newsGrid"></div>
-      <p class="more"><button class="btn btn-line" type="button" id="newsMore" hidden>Arată mai multe noutăți</button></p>
+      <div class="more-row" id="newsMoreBox" hidden></div>
     </div>
   </section>
 
@@ -324,7 +328,7 @@
       </header>
       <div class="chips" id="galChips" role="group" aria-label="Filtrare după album"></div>
       <ul class="gallery" id="galGrid"></ul>
-      <p class="more"><button class="btn btn-line" type="button" id="galMore" hidden>Arată mai multe fotografii</button></p>
+      <div class="more-row" id="galMoreBox" hidden></div>
     </div>
   </section>
 

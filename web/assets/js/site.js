@@ -173,6 +173,80 @@
     return open;
   }
 
+  /* ---------- Liste lungi: primele elemente și butonul „Vezi mai mult” ---------- */
+  // Fiecare listă arată întâi primele elemente (5; noutățile 6, fotografiile 12). Butonul de sub ea spune câte mai sunt, le adaugă pe următoarele
+  // și, când s-au afișat toate, devine „Vezi mai puțin”. La orice căutare, filtru sau ordonare lista revine la primele elemente.
+  var MORE = {
+    docs: { box: 'docMoreBox', list: '#docList > li', ctl: 'docList', head: 'h-doc', first: 5, step: 10, draw: function () { renderDocs(); } },
+    law: { box: 'lawMoreBox', list: '#lawBody > li', ctl: 'lawBody', head: 'h-legal', first: 5, step: 10, draw: function () { renderLegal(); } },
+    inv: { box: 'invMoreBox', list: '#invList > li', ctl: 'invList', head: 'h-plan', first: 5, step: 10, draw: function () { renderInvList(); } },
+    events: { box: 'evMoreBox', list: '#timeline .ev-body', ctl: 'timeline', head: 'h-ev', first: 5, step: 10, draw: function () { renderEvents(); } },
+    reports: { box: 'repMoreBox', list: '#reportGrid > .rep-wrap', ctl: 'reportGrid', head: 'h-rapoarte', first: 5, step: 10, draw: function () { renderReports(); } },
+    steps: { box: 'stepMoreBox', list: '#stepList > li', ctl: 'stepList', head: 'h-acord', first: 5, step: 10, draw: function () { renderSteps(); } },
+    news: { box: 'newsMoreBox', list: '#newsGrid > .news-card', ctl: 'newsGrid', head: 'h-noutati', first: 6, step: 6, draw: function () { renderNews(); } },
+    gal: { box: 'galMoreBox', list: '#galGrid > li', ctl: 'galGrid', head: 'h-gal', first: 12, step: 12, draw: function () { renderGallery(); } }
+  };
+  var PRINT_ALL = ['docs', 'law', 'inv', 'events', 'reports', 'steps']; // listele care se tipăresc întregi
+  var lim = {}; // câte elemente se văd din fiecare listă (lipsește = primele)
+  var limTotal = {}; // câte elemente are fiecare listă după filtre
+  function limOf(k) { return lim[k] || MORE[k].first; }
+  function limReset(k) { delete lim[k]; }
+  // lista trebuie să arate și elementul cu numărul `i` (de exemplu când căutarea din pagină duce la el)
+  function limShow(k, i) { if (i >= limOf(k)) lim[k] = i + 1; }
+  // elementele care se văd acum din lista `k`
+  function moreSlice(k, items) {
+    limTotal[k] = items.length;
+    return items.slice(0, limOf(k));
+  }
+  // butonul de sub listă: se actualizează pe loc (cursorul rămâne pe el), iar fără elemente în plus dispare
+  function moreBox(k) {
+    var c = MORE[k];
+    var box = document.getElementById(c.box);
+    if (!box) return;
+    var total = limTotal[k] || 0;
+    if (total <= c.first) { box.hidden = true; box.innerHTML = ''; return; }
+    var shown = Math.min(limOf(k), total);
+    var all = shown >= total;
+    var btn = $('.more-btn', box);
+    if (!btn) {
+      box.innerHTML = '<button class="more-btn" type="button" data-more="' + k + '" aria-controls="' + c.ctl + '" aria-describedby="' + c.head + '"><span class="more-t"></span><span class="more-n"></span>' + ico('chev-d') + '</button><span class="more-info"></span>';
+      btn = $('.more-btn', box);
+    }
+    btn.setAttribute('aria-expanded', String(all));
+    $('.more-t', box).textContent = T(all ? 'Vezi mai puțin' : 'Vezi mai mult');
+    var n = $('.more-n', box);
+    n.textContent = all ? '' : T('încă %1', total - shown);
+    n.hidden = all;
+    $('.more-info', box).textContent = T('Afișate %1 din %2', shown, total);
+    box.hidden = false;
+  }
+  // după „Vezi mai mult” cursorul trece pe primul element nou (cititoarele de ecran continuă de acolo)
+  function focusNew(el) {
+    if (!el) return;
+    var f = $('summary, a[href]:not([tabindex="-1"]), button', el) || el;
+    if (f === el) el.setAttribute('tabindex', '-1');
+    f.focus();
+  }
+  function setupMore() {
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('.more-btn[data-more]');
+      if (!b) return;
+      var k = b.getAttribute('data-more');
+      var c = MORE[k];
+      var total = limTotal[k] || 0;
+      var cur = Math.min(limOf(k), total);
+      var grow = cur < total;
+      lim[k] = grow ? Math.min(cur + c.step, total) : c.first;
+      c.draw();
+      if (grow) { focusNew($$(c.list)[cur]); return; }
+      // „Vezi mai puțin”: lista se scurtează, iar butonul trebuie să rămână la vedere
+      var nb = $('.more-btn[data-more="' + k + '"]');
+      if (!nb) return;
+      var r = nb.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > window.innerHeight) nb.scrollIntoView({ block: 'center', behavior: reduceMotion() ? 'auto' : 'smooth' });
+    });
+  }
+
   /* ---------- încărcarea datelor ---------- */
   function loadData() {
     var seed = document.getElementById('seed-data');
@@ -228,8 +302,6 @@
   }
 
   /* ================= Noutăți ================= */
-  var newsShown = 6;
-
   function newsCard(n) {
     var href = '#stire/' + n.id;
     var thumb = n.image && (n.image.thumb || n.image.path);
@@ -244,10 +316,9 @@
   }
 
   function renderNews() {
-    var list = D.news;
-    var grid = $('#newsGrid');
-    grid.innerHTML = list.length ? list.slice(0, newsShown).map(newsCard).join('') : '<p class="empty">Nu există noutăți publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/news/new">Adăugați prima știre</a>.' : '') + '</p>';
-    $('#newsMore').hidden = list.length <= newsShown;
+    var list = moreSlice('news', D.news);
+    $('#newsGrid').innerHTML = list.length ? list.map(newsCard).join('') : '<p class="empty">Nu există noutăți publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/news/new">Adăugați prima știre</a>.' : '') + '</p>';
+    moreBox('news');
   }
 
   var newsDlg;
@@ -390,13 +461,15 @@
     });
     $('#lawCount').textContent = T('%1 din %2 acte', items.length, D.legal.length);
     // Un rând pe act: tipul și numărul, denumirea și legătura către legis.md (sau către fișierul actului, dacă nu are link).
-    $('#lawBody').innerHTML = items.length ? items.map(function (l) {
+    var shown = moreSlice('law', items);
+    $('#lawBody').innerHTML = shown.length ? shown.map(function (l) {
       var href = l.url || (l.file && l.file.path) || '';
       var inner = '<span class="law-ico" aria-hidden="true">' + ico('gavel') + '</span><span class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + T('nr.') + ' ' + esc(l.nr) + '/' + l.year + '</strong></span>' +
         '<span class="law-title"><span>' + esc(l.title) + '</span>' + (l.topic ? '<span class="law-topic">' + esc(l.topic) + '</span>' : '') + '</span>' +
         (href ? '<span class="law-open">' + T(/legis\.md/.test(href) ? 'legis.md' : 'Deschide') + ' ' + ico('ext') + '</span>' : '');
       return '<li class="law-row">' + (href ? '<a class="law-a" href="' + esc(href) + '" target="_blank" rel="noopener" title="' + esc(T(/legis\.md/.test(href) ? 'Deschide pe legis.md' : 'Deschide')) + '">' + inner + '</a>' : '<div class="law-a">' + inner + '</div>') + editLink('legal', l.id) + '</li>';
     }).join('') : '<li class="empty-row">' + T('Niciun act nu corespunde căutării%1. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu.', law.q ? ' „' + esc(law.q) + '”' : '') + ' <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></li>';
+    moreBox('law');
   }
 
   /* ================= Proiecte investiționale ================= */
@@ -542,9 +615,11 @@
     items.forEach(function (p) { if ((p.currency || 'EUR') === 'EUR' && typeof p.amount === 'number') sum += p.amount; });
     $('#invStatN').textContent = String(items.length);
     $('#invStatSum').innerHTML = esc(numRo(Math.round(sum * 10) / 10)) + ' <small>' + esc(T('mil.')) + ' EUR</small>';
-    $('#invList').innerHTML = items.length ? items.map(invItem).join('') :
+    var shown = moreSlice('inv', items);
+    $('#invList').innerHTML = shown.length ? shown.map(invItem).join('') :
       '<li class="empty">' + (all.length ? 'Niciun proiect nu corespunde filtrelor alese. <button class="btn btn-line btn-sm" type="button" id="invReset">Arată toate proiectele</button>' :
         'Nu există proiecte publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/investments/new">Adăugați primul proiect</a>.' : '')) + '</li>';
+    moreBox('inv');
     syncInvToggle();
   }
 
@@ -607,7 +682,8 @@
   function goInvestment(id) {
     var p = byId(D.investments, id);
     if (!p) return;
-    if (!invMatches(p)) { inv.min = 'all'; inv.q = ''; $('#invQ').value = ''; refreshInv(); }
+    if (!invMatches(p)) { inv.min = 'all'; inv.q = ''; $('#invQ').value = ''; }
+    limShow('inv', invSorted(D.investments.filter(invMatches)).indexOf(p));
     accState['inv:' + id] = true;
     refreshInv();
     var li = document.getElementById('proiect-' + id);
@@ -621,35 +697,48 @@
 
   /* ================= Cooperare externă ================= */
 
-  function renderCoop() {
+  // un card pentru fiecare raport, cel mai recent evidențiat; cardul duce direct la document
+  function renderReports() {
     var reports = docsOf('rapoarte');
     var years = [];
     reports.forEach(function (d) { var y = docYear(d); if (y && years.indexOf(y) < 0) years.push(y); });
     years.sort(function (a, b) { return b - a; });
-
-    // un card pentru fiecare raport, cel mai recent evidențiat; cardul duce direct la document
-    var grid = $('#reportGrid');
     var latest = years[0];
     $('#h-rapoarte').parentNode.hidden = !reports.length;
-    grid.innerHTML = reports.slice().sort(function (x, y) { return (docYear(y) || 0) - (docYear(x) || 0); }).map(function (d, i) {
+    var shown = moreSlice('reports', reports.slice().sort(function (x, y) { return (docYear(y) || 0) - (docYear(x) || 0); }));
+    $('#reportGrid').innerHTML = shown.map(function (d, i) {
       var y = docYear(d);
       var isNew = i === 0 && y === latest;
       return '<div class="rep-wrap"><a class="rep-card' + (isNew ? ' is-new' : '') + '"' + docAttrs(d) + ' title="' + esc(d.title) + '">' +
         '<span class="rep-top">' + ico('pdf') + '<span class="rep-tag">' + (isNew ? T('NOU') : kindOf(d).label) + '</span></span>' +
         '<span class="rep-bot"><span class="rep-year">' + (y || '') + '</span><span class="rep-lbl">' + T('Raport anual') + '</span></span></a>' + editLink('documents', d.id) + '</div>';
     }).join('') || '<p class="empty">Nu există rapoarte publicate.</p>';
+    moreBox('reports');
+  }
+
+  // documentele Acordului cu România, în ordinea etapelor
+  function renderSteps() {
+    var list = $('#stepList');
+    if (!list) return;
+    var acord = docsOf('acord-ro').sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+    list.innerHTML = moreSlice('steps', acord).map(function (d) {
+      return '<li><a' + docAttrs(d) + '><span>' + titleHtml(d) + '</span>' + ico(d.file ? 'down' : 'ext') + '</a></li>';
+    }).join('');
+    moreBox('steps');
+  }
+
+  function renderCoop() {
+    renderReports();
 
     // textele secțiunii se editează din administrare (settings.coop); ce lipsește rămâne cum este în șablon
     var co = D.settings.coop || {};
     var safe = function (u) { return /^https?:\/\//i.test(u || '') ? u : ''; };
     if (co.title) $('#h-coop').textContent = co.title;
-    var acord = docsOf('acord-ro').sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
-    $('#acordBox').innerHTML = '<div class="card-head"><h3 class="card-h">' + (co.acordTitle ? esc(co.acordTitle) : 'Acordul cu Guvernul României') + '</h3>' +
+    $('#acordBox').innerHTML = '<div class="card-head"><h3 class="card-h" id="h-acord">' + (co.acordTitle ? esc(co.acordTitle) : 'Acordul cu Guvernul României') + '</h3>' +
       (co.acordAmount === '' ? '' : '<span class="amount">' + esc(co.acordAmount || '100 mil. EUR') + '</span>') + '</div>' +
       '<p class="panel-intro">' + (co.acordIntro ? esc(co.acordIntro) : 'Program de asistență tehnică și financiară, în baza unui ajutor financiar nerambursabil acordat de România Republicii Moldova. Documentele sunt ordonate după etapele de implementare.') + '</p>' +
-      (acord.length ? '<ol class="steps">' + acord.map(function (d) {
-        return '<li><a' + docAttrs(d) + '><span>' + titleHtml(d) + '</span>' + ico(d.file ? 'down' : 'ext') + '</a></li>';
-      }).join('') + '</ol>' : '<p class="empty">Nu există documente publicate.</p>');
+      (docsOf('acord-ro').length ? '<ol class="steps" id="stepList"></ol><div class="more-row" id="stepMoreBox" hidden></div>' : '<p class="empty">Nu există documente publicate.</p>');
+    renderSteps();
 
     // cardul Platformei AMP: textul, butonul și informațiile centralizate de platformă (se editează în administrare, la „Cooperare”)
     var amp = $('#ampCard');
@@ -721,7 +810,7 @@
   function showProgramDocs(id) {
     docs.section = 'program';
     docs.program = id;
-    docs.shown = 15;
+    limReset('docs');
     renderDocs();
     scrollToEl($('#documente'));
   }
@@ -736,7 +825,7 @@
   }
 
   /* ================= Biblioteca de documente ================= */
-  var docs = { q: '', section: 'all', year: 'all', program: 'all', shown: 15 };
+  var docs = { q: '', section: 'all', year: 'all', program: 'all' };
 
   function renderDocFilters() {
     var secs = Object.keys(SECTION_LABEL).filter(function (k) { return D.documents.some(function (d) { return d.section === k; }); });
@@ -770,9 +859,10 @@
       return DG.matches([d.title, d.kind, d.description, SECTION_LABEL[d.section], p ? p.name : '', DG.dateText(d), docYear(d) || '', d.en ? 'engleza english' : ''].join(' '), docs.q);
     }).sort(cmpDocs);
     $('#docCount').textContent = T('%1 din %2 documente', items.length, D.documents.length);
-    $('#docList').innerHTML = items.length ? items.slice(0, docs.shown).map(function (d) { return docItem(d, true); }).join('') :
+    var shown = moreSlice('docs', items);
+    $('#docList').innerHTML = shown.length ? shown.map(function (d) { return docItem(d, true); }).join('') :
       '<li class="empty">Niciun document nu corespunde filtrelor alese. <button class="btn btn-line btn-sm" type="button" id="docReset">Arată toate documentele</button></li>';
-    $('#docMore').hidden = items.length <= docs.shown;
+    moreBox('docs');
   }
 
   /* ================= Evenimente ================= */
@@ -803,30 +893,53 @@
     $('#evYearBox').hidden = !D.events.length;
   }
 
-  function renderEvents() {
-    renderEvFilters();
-    var list = D.events.filter(function (e) {
+  // evenimentele care corespund filtrelor, cele mai noi întâi
+  function eventList() {
+    return D.events.filter(function (e) {
       return (evs.year === 'all' || evDate(e).indexOf(evs.year) === 0) && (evs.prog === 'all' || e.prog === evs.prog);
     }).sort(function (a, b) { return evDate(b).localeCompare(evDate(a)); });
-    $('#timeline').innerHTML = list.length ? list.map(function (e) {
-      var d = evDate(e).split('-').map(Number);
-      var st = evStatus(e);
-      var range = e.end ? T('până la %1', DG.fmtDate(e.end)) : !e.start ? T('data publicării') : e.time ? T('ora %1', e.time) : '';
-      var more = (e.details && e.details.length) || (e.links && e.links.length);
-      var mon = (I18n.MONTHS[LANG][d[1] - 1] || '').slice(0, 3);
-      return '<li class="event" id="' + esc(e.id) + '"><div class="ev-date"><span class="d">' + String(d[2]).padStart(2, '0') + '</span><span class="m">' + esc(mon) + '</span><span class="y">' + d[0] + '</span></div>' +
-        '<div class="ev-body"><div class="ev-meta">' + (e.prog ? '<span class="prog">' + esc(e.prog) + '</span>' : '') + '<span class="status ' + st[0] + '">' + st[1] + '</span>' + (range ? '<span class="ev-range">' + esc(range) + '</span>' : '') + '</div>' +
-        '<h3>' + esc(e.title) + '</h3>' + (e.place ? '<p class="ev-place">' + ico('pin') + '<span>' + esc(e.place) + '</span></p>' : '') + (e.summary ? '<p class="ev-sum">' + esc(e.summary) + '</p>' : '') +
-        (more ? '<details class="ev-more"><summary>Detalii</summary>' +
-          (e.details && e.details.length ? '<ul>' + e.details.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
-          (e.links && e.links.length ? '<div class="ev-links">' + e.links.map(function (l) { return '<a class="btn btn-line btn-sm" href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.t) + ' ' + ico('ext') + '</a>'; }).join('') + '</div>' : '') + '</details>' : '') +
-        editLink('events', e.id) + '</div></li>';
-    }).join('') : '<li class="empty">' + (D.events.length ? 'Nu există evenimente pentru filtrele alese. <button class="btn btn-line btn-sm" type="button" id="evReset">Arată toate evenimentele</button>' : 'Nu există evenimente publicate.') + '</li>';
+  }
+
+  // un eveniment al cronologiei: data în stânga, pe linie punctul (culoarea lui arată starea), în dreapta cardul
+  function eventItem(e) {
+    var iso = evDate(e);
+    var d = iso.split('-').map(Number);
+    var st = evStatus(e);
+    var range = e.end ? T('până la %1', DG.fmtDate(e.end)) : !e.start ? T('data publicării') : e.time ? T('ora %1', e.time) : '';
+    var more = (e.details && e.details.length) || (e.links && e.links.length);
+    var mon = (I18n.MONTHS[LANG][d[1] - 1] || '').slice(0, 3);
+    return '<li class="event ' + st[0].replace('st-', 'is-') + '" id="' + esc(e.id) + '">' +
+      '<time class="ev-date" datetime="' + esc(iso) + '"><span class="sr">' + esc(DG.fmtDate(iso)) + '</span><span class="d" aria-hidden="true">' + String(d[2]).padStart(2, '0') + '</span>' +
+      '<span class="my" aria-hidden="true"><span class="m">' + esc(mon) + '</span> <span class="y">' + d[0] + '</span></span></time>' +
+      '<div class="ev-body"><div class="ev-meta">' + (e.prog ? '<span class="prog">' + esc(e.prog) + '</span>' : '') + '<span class="status ' + st[0] + '">' + st[1] + '</span>' + (range ? '<span class="ev-range">' + esc(range) + '</span>' : '') + '</div>' +
+      '<h3>' + esc(e.title) + '</h3>' + (e.place ? '<p class="ev-place">' + ico('pin') + '<span>' + esc(e.place) + '</span></p>' : '') + (e.summary ? '<p class="ev-sum">' + esc(e.summary) + '</p>' : '') +
+      (more ? '<details class="ev-more"><summary>Detalii</summary><div class="ev-extra">' +
+        (e.details && e.details.length ? '<ul>' + e.details.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
+        (e.links && e.links.length ? '<div class="ev-links">' + e.links.map(function (l) { return '<a class="btn btn-line btn-sm" href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.t) + ' ' + ico('ext') + '</a>'; }).join('') + '</div>' : '') + '</div></details>' : '') +
+      editLink('events', e.id) + '</div></li>';
+  }
+
+  function renderEvents() {
+    renderEvFilters();
+    var list = eventList();
+    var shown = moreSlice('events', list);
+    var tl = $('#timeline');
+    tl.setAttribute('data-more', String(list.length > MORE.events.first));
+    var html = '';
+    var yr = '';
+    shown.forEach(function (e) {
+      var y = evDate(e).slice(0, 4);
+      if (y !== yr) { yr = y; html += '<li class="tl-year" aria-hidden="true"><span class="tl-chip">' + esc(y) + '</span></li>'; }
+      html += eventItem(e);
+    });
+    tl.innerHTML = html || '<li class="empty">' + (D.events.length ? 'Nu există evenimente pentru filtrele alese. <button class="btn btn-line btn-sm" type="button" id="evReset">Arată toate evenimentele</button>' : 'Nu există evenimente publicate.') + '</li>';
+    moreBox('events');
   }
 
   function goEvent(id) {
     evs.year = 'all';
     evs.prog = 'all';
+    limShow('events', eventList().map(function (e) { return e.id; }).indexOf(id));
     renderEvents();
     var li = document.getElementById(id);
     if (!li) return;
@@ -838,7 +951,7 @@
   }
 
   /* ================= Galerie foto ================= */
-  var gal = { album: 'all', shown: 12 };
+  var gal = { album: 'all' };
 
   function galleryItems() {
     return D.gallery.filter(function (g) { return gal.album === 'all' || (g.album || '_') === gal.album; });
@@ -853,13 +966,14 @@
       return { v: a, l: a === '_' ? 'Fără album' : a, n: D.gallery.filter(function (g) { return (g.album || '_') === a; }).length };
     })), gal.album, 'data-album');
     var items = galleryItems();
-    $('#galGrid').innerHTML = items.length ? items.slice(0, gal.shown).map(function (g, i) {
+    var shown = moreSlice('gal', items);
+    $('#galGrid').innerHTML = shown.length ? shown.map(function (g, i) {
       var label = g.title || T('Fotografie');
       return '<li class="g-item"><button class="g-btn" type="button" data-g="' + i + '"><span class="sr">Deschide fotografia: </span><span class="g-img"><img src="' + esc(g.file.thumb || g.file.path) + '" alt="" width="466" height="350" loading="lazy"></span>' +
         '<span class="g-zoom" aria-hidden="true">' + ico('zoom') + '</span><span class="g-cap"><strong>' + esc(label) + '</strong><span>' + esc([DG.fmtDate(g.date), g.album].filter(Boolean).join(' · ')) + '</span></span></button>' +
         (g.sample ? '<span class="g-sample">Imagine de exemplu</span>' : '') + editLink('gallery', g.id) + '</li>';
     }).join('') : '<li class="empty">Nu există fotografii publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/gallery">Încărcați fotografii</a>.' : '') + '</li>';
-    $('#galMore').hidden = items.length <= gal.shown;
+    moreBox('gal');
   }
 
   var lb = { items: [], i: 0, el: null };
@@ -1009,7 +1123,7 @@
       if (d.text || (d.items && d.items.length)) idx.push({ cat: 'Despre direcție', t: d.title, s: T('Funcție de bază. Deschide atribuțiile'), k: (d.text || '') + ' ' + (d.items || []).join(' '), go: function () { goFunction(i); } });
     });
     D.events.forEach(function (e) { idx.push({ cat: 'Evenimente', t: e.title, s: [DG.fmtDate(evDate(e)), e.place].filter(Boolean).join(', '), k: (e.prog || '') + ' ' + e.summary, go: function () { goEvent(e.id); } }); });
-    D.gallery.forEach(function (g) { idx.push({ cat: 'Galerie foto', t: g.title || T('Fotografie'), s: [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · '), k: g.alt || '', go: function () { gal.album = 'all'; renderGallery(); var i = D.gallery.indexOf(g); gal.shown = Math.max(gal.shown, i + 1); renderGallery(); openLightbox(i); } }); });
+    D.gallery.forEach(function (g) { idx.push({ cat: 'Galerie foto', t: g.title || T('Fotografie'), s: [DG.fmtDate(g.date), g.album].filter(Boolean).join(' · '), k: g.alt || '', go: function () { gal.album = 'all'; var i = D.gallery.indexOf(g); limShow('gal', i); renderGallery(); openLightbox(i); } }); });
     idx.push({ cat: 'Platforme', t: T('Platforma pentru gestionarea asistenței externe (AMP)'), s: 'amp.gov.md', k: 'aid management platform proiecte donatori', u: 'https://amp.gov.md/portal/' });
     [['Servicii publice', 'servicii.gov.md', 'portalul serviciilor publice servicii electronice'], ['Consultări publice', 'particip.gov.md', 'participare proiecte de acte normative'],
       ['Achiziții publice (MTender)', 'mtender.gov.md', 'licitații tenders contracte'], ['Cariere în sectorul public', 'cariere.gov.md', 'posturi vacante concursuri angajare'],
@@ -1232,7 +1346,7 @@
       setNav(false, true);
     });
     if (window.matchMedia) {
-      var wide = window.matchMedia('(min-width: 64rem)');
+      var wide = window.matchMedia('(min-width: 70rem)');
       var onWide = function () { if (wide.matches && nav.classList.contains('open')) setNav(false); };
       if (wide.addEventListener) wide.addEventListener('change', onWide); else if (wide.addListener) wide.addListener(onWide);
     }
@@ -1250,13 +1364,23 @@
       }, { rootMargin: '-35% 0px -60% 0px' }).observe($('#top'));
     }
 
-    // la tipărire, secțiunile pliate trebuie să apară deschise (stilurile de tipărire afișează și acordeoanele)
+    // la tipărire (sau salvare PDF) listele cuprind toate elementele, nu doar primele, iar secțiunile pliate apar deschise
     var folded = [];
+    var kept = null;
     window.addEventListener('beforeprint', function () {
+      if (kept) return;
+      kept = {};
+      PRINT_ALL.forEach(function (k) { kept[k] = lim[k]; lim[k] = 1e9; MORE[k].draw(); });
       folded = $$('details:not([open])');
       folded.forEach(function (d) { d.open = true; });
     });
-    window.addEventListener('afterprint', function () { folded.forEach(function (d) { d.open = false; }); folded = []; });
+    window.addEventListener('afterprint', function () {
+      folded.forEach(function (d) { d.open = false; });
+      folded = [];
+      if (!kept) return;
+      PRINT_ALL.forEach(function (k) { if (kept[k] === undefined) delete lim[k]; else lim[k] = kept[k]; MORE[k].draw(); });
+      kept = null;
+    });
 
     var toTop = $('#toTop');
     window.addEventListener('scroll', function () { toTop.classList.toggle('show', window.scrollY > 900); }, { passive: true });
@@ -1272,7 +1396,6 @@
       e.preventDefault();
       location.hash = '#stire/' + a.getAttribute('data-news');
     });
-    $('#newsMore').addEventListener('click', function () { newsShown += 6; renderNews(); });
     newsDlg = $('#newsDlg');
     newsDlg.addEventListener('click', function (e) {
       if (isBackdropClick(newsDlg, e) || e.target.closest('[data-close]')) { newsDlg.close(); return; }
@@ -1330,17 +1453,19 @@
       if (!b) return;
       var v = b.getAttribute('data-min');
       inv.min = inv.min === v ? 'all' : v;
+      limReset('inv');
       refreshInv();
       var again = $$('#gpOverview [data-min]').filter(function (x) { return x.getAttribute('data-min') === v; })[0];
       if (again) again.focus();
     });
-    $('#invQ').addEventListener('input', DG.debounce(function (e) { inv.q = e.target.value; renderInvList(); }, 80));
-    $('#invSort').addEventListener('change', function (e) { inv.sort = e.target.value; renderInvList(); });
+    $('#invQ').addEventListener('input', DG.debounce(function (e) { inv.q = e.target.value; limReset('inv'); renderInvList(); }, 80));
+    $('#invSort').addEventListener('change', function (e) { inv.sort = e.target.value; limReset('inv'); renderInvList(); });
     $('#invList').addEventListener('click', function (e) {
       var c = e.target.closest('[data-copy-inv]');
       if (c) DG.copyText(location.href.split('#')[0] + '#proiect/' + c.getAttribute('data-copy-inv'), T('Adresa proiectului a fost copiată'));
       if (e.target.id === 'invReset') {
         inv.min = 'all'; inv.q = ''; $('#invQ').value = '';
+        limReset('inv');
         refreshInv();
         $('#invQ').focus();
       }
@@ -1351,17 +1476,19 @@
       var b = e.target.closest('.chip');
       if (!b) return;
       law.type = b.getAttribute('data-v');
+      limReset('law');
       renderLegal();
       var again = $('#lawChips [data-v="' + law.type + '"]');
       if (again) again.focus();
     });
-    $('#lawQ').addEventListener('input', DG.debounce(function (e) { law.q = e.target.value; renderLegal(); }, 80));
-    $('#lawSort').addEventListener('change', function (e) { law.sort = e.target.value; renderLegal(); });
+    $('#lawQ').addEventListener('input', DG.debounce(function (e) { law.q = e.target.value; limReset('law'); renderLegal(); }, 80));
+    $('#lawSort').addEventListener('change', function (e) { law.sort = e.target.value; limReset('law'); renderLegal(); });
     $('#lawBody').addEventListener('click', function (e) {
       var c = e.target.closest('[data-copy]');
       if (c) DG.copyText(c.getAttribute('data-copy'), T('Referința a fost copiată'));
       if (e.target.id === 'lawReset') {
         law.type = 'all'; law.q = ''; $('#lawQ').value = '';
+        limReset('law');
         renderLegal();
         $('#lawQ').focus();
       }
@@ -1399,22 +1526,22 @@
     });
 
     // documente
-    $('#docQ').addEventListener('input', DG.debounce(function (e) { docs.q = e.target.value; docs.shown = 15; renderDocs(); }, 80));
+    $('#docQ').addEventListener('input', DG.debounce(function (e) { docs.q = e.target.value; limReset('docs'); renderDocs(); }, 80));
     $('#docTabs').addEventListener('click', function (e) {
       var b = e.target.closest('.chip');
       if (!b) return;
       docs.section = b.getAttribute('data-sec');
-      docs.shown = 15;
+      limReset('docs');
       renderDocs();
       var again = $('#docTabs [data-sec="' + docs.section + '"]');
       if (again) again.focus();
     });
-    $('#docProgram').addEventListener('change', function (e) { docs.program = e.target.value; docs.shown = 15; renderDocs(); });
-    $('#docYear').addEventListener('change', function (e) { docs.year = e.target.value; docs.shown = 15; renderDocs(); });
-    $('#docMore').addEventListener('click', function () { docs.shown += 15; renderDocs(); });
+    $('#docProgram').addEventListener('change', function (e) { docs.program = e.target.value; limReset('docs'); renderDocs(); });
+    $('#docYear').addEventListener('change', function (e) { docs.year = e.target.value; limReset('docs'); renderDocs(); });
     $('#docList').addEventListener('click', function (e) {
       if (e.target.id === 'docReset') {
-        docs = { q: '', section: 'all', year: 'all', program: 'all', shown: 15 };
+        docs = { q: '', section: 'all', year: 'all', program: 'all' };
+        limReset('docs');
         $('#docQ').value = '';
         renderDocs();
       }
@@ -1425,13 +1552,14 @@
       var b = e.target.closest('#evYear .chip, .ev-filters .chip');
       if (!b) return;
       if (b.hasAttribute('data-year')) evs.year = b.getAttribute('data-year'); else evs.prog = b.getAttribute('data-prog-f');
+      limReset('events');
       renderEvents();
       var sel = b.hasAttribute('data-year') ? '[data-year="' + evs.year + '"]' : '[data-prog-f="' + evs.prog + '"]';
       var again = $('#evYear ' + sel + ', .ev-filters ' + sel);
       if (again) again.focus();
     });
     $('#timeline').addEventListener('click', function (e) {
-      if (e.target.id === 'evReset') { evs.year = 'all'; evs.prog = 'all'; renderEvents(); }
+      if (e.target.id === 'evReset') { evs.year = 'all'; evs.prog = 'all'; limReset('events'); renderEvents(); }
     });
 
     // galerie
@@ -1439,12 +1567,11 @@
       var b = e.target.closest('.chip');
       if (!b) return;
       gal.album = b.getAttribute('data-album');
-      gal.shown = 12;
+      limReset('gal');
       renderGallery();
       var again = $('#galChips [data-album="' + gal.album + '"]');
       if (again) again.focus();
     });
-    $('#galMore').addEventListener('click', function () { gal.shown += 12; renderGallery(); });
     $('#galGrid').addEventListener('click', function (e) {
       var b = e.target.closest('.g-btn');
       if (b) openLightbox(Number(b.getAttribute('data-g')));
@@ -1528,6 +1655,7 @@
     D.investments = D.investments || [];
     setupChrome();
     setupEvents();
+    setupMore();
     setupSearch();
     setupForm();
     renderAll();

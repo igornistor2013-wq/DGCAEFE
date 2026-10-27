@@ -392,7 +392,7 @@
  "Închide meniul": "Закрыть меню",
  "Autoritatea națională de coordonare a asistenței externe": "Национальный орган по координации внешней помощи",
  "Misiune și rol": "Миссия и роль",
- "Proiecte afișate": "Показано проектов",
+ "Proiecte în listă": "Проектов в списке",
  "Publicații": "Публикации",
  "Site-ul programului": "Сайт программы",
  "Toate programele": "Все программы",
@@ -400,5 +400,10 @@
  "funcții": "функции",
  "NOU": "НОВЫЙ",
  "Raport anual": "Годовой отчёт",
- "Nivelul programului": "Уровень программы"
+ "Nivelul programului": "Уровень программы",
+ "Vezi mai mult": "Показать ещё",
+ "Vezi mai puțin": "Показать меньше",
+ "încă %1": "ещё %1",
+ "Afișate %1 din %2": "Показано %1 из %2",
+ "Evenimente în ordine cronologică": "Мероприятия в хронологическом порядке"
 }

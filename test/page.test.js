@@ -70,15 +70,70 @@ test('„Asistență externă”: carduri pentru rapoartele anuale (ultimul evid
   assert.match(css, /\.amp\{display:grid;grid-template-columns:auto minmax\(0,1fr\) auto/);
 });
 
-test('documente și evenimente: listă cu pictograme și buton de descărcare; cronologie cu data în casetă', () => {
+test('documente: listă cu pictograme și buton de descărcare; evenimente: linie cronologică (data, punct pe linie, card)', () => {
   assert.match(site, /class="doc-ico"[^;]*docIcon\(d\)/);
   assert.match(site, /class="doc-go"/);
   assert.match(css, /\.doc\{display:grid;grid-template-columns:3rem minmax\(0,1fr\) auto/);
   assert.match(css, /\.doc-list\{display:block;background:#fff;border:1px solid var\(--line\)/);
   const ev = sectionOf('evenimente');
   assert.match(ev, /<fieldset class="ev-year" id="evYearBox">/, 'filtrul de an este lângă titlu');
-  assert.match(css, /\.event\{display:grid;grid-template-columns:5\.5rem/);
+  assert.match(ev, /<ol class="events" id="timeline" aria-label="Evenimente în ordine cronologică">/);
+  // trei coloane: data, linia cu punctul, cardul; linia este un segment între puncte, iar punctul își schimbă culoarea după stare
+  assert.match(css, /\.event\{display:grid;grid-template-columns:6\.5rem 3rem minmax\(0,1fr\)/);
+  assert.match(css, /\.events>li::before\{content:"";position:absolute;left:calc\(8rem - 1px\)/);
+  assert.match(css, /\.event::after\{content:"";position:absolute;left:7\.5rem/);
+  assert.match(css, /\.event\.is-now::after\{background:var\(--yellow\)/);
+  assert.match(css, /\.event\.is-next::after\{background:var\(--blue\)/);
+  assert.match(css, /\.events\[data-more="true"\]>li:last-child::before\{[^}]*dashed/, 'dacă mai sunt evenimente, linia continuă punctat spre buton');
+  assert.match(css, /\.tl-chip\{[^}]*background:var\(--navy\)/, 'anul este o pastilă pe linie');
   assert.match(css, /\.ev-date \.d\{[^}]*color:var\(--blue\)/);
+  assert.match(css, /@media \(prefers-reduced-motion:no-preference\)\{\.event\.is-now::after\{animation:/, 'pulsul punctului galben se oprește pentru cine a cerut mai puține mișcări');
+  // construirea: un marcaj de an la fiecare schimbare de an, stare pe fiecare eveniment, data într-un element <time>
+  assert.match(site, /class="tl-year" aria-hidden="true"><span class="tl-chip">/);
+  assert.match(site, /'<li class="event ' \+ st\[0\]\.replace\('st-', 'is-'\)/);
+  assert.match(site, /<time class="ev-date" datetime="/);
+  assert.match(site, /tl\.setAttribute\('data-more'/);
+});
+
+// Sub listele lungi se văd întâi primele elemente (5), iar butonul „Vezi mai mult” le adaugă pe următoarele.
+test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documente, acte, proiecte, evenimente, rapoarte, acord); noutăți și fotografii păstrează 6 / 12', () => {
+  const m = /var MORE = \{([\s\S]*?)\n  \};/.exec(site);
+  assert.ok(m, 'MORE există în site.js');
+  const cfg = {};
+  for (const r of m[1].matchAll(/(\w+): \{ box: '(\w+)', list: '([^']+)', ctl: '(\w+)', head: '([\w-]+)', first: (\d+), step: (\d+)/g)) {
+    cfg[r[1]] = { box: r[2], ctl: r[4], head: r[5], first: Number(r[6]), step: Number(r[7]) };
+  }
+  assert.deepEqual(Object.keys(cfg).sort(), ['docs', 'events', 'gal', 'inv', 'law', 'news', 'reports', 'steps']);
+  for (const k of ['docs', 'law', 'inv', 'events', 'reports', 'steps']) assert.equal(cfg[k].first, 5, `${k}: primele 5`);
+  assert.equal(cfg.news.first, 6);
+  assert.equal(cfg.gal.first, 12);
+  for (const [k, c] of Object.entries(cfg)) {
+    // fiecare listă își are locul pentru buton și titlul la care se referă butonul
+    if (k !== 'steps') {
+      assert.match(html, new RegExp(`<div class="more-row[^"]*" id="${c.box}" hidden></div>`), `${k}: ${c.box} în pagină`);
+      assert.match(html, new RegExp(`id="${c.ctl}"`), `${k}: lista ${c.ctl}`);
+    }
+    assert.match(html + site, new RegExp(`id="${c.head}"`), `${k}: titlul ${c.head}`);
+    assert.match(site, new RegExp(`moreSlice\\('${k}'`), `${k}: lista se taie la primele elemente`);
+    assert.match(site, new RegExp(`moreBox\\('${k}'\\)`), `${k}: butonul se actualizează la fiecare desenare`);
+  }
+  assert.match(site, /id="stepMoreBox" hidden/, 'pașii acordului au butonul lor în card');
+  // vechile butoane „Arată mai multe…” au dispărut
+  assert.doesNotMatch(html, /id="(docMore|newsMore|galMore)"|class="more"/);
+  assert.doesNotMatch(site, /docs\.shown|gal\.shown|newsShown/);
+  // eticheta se schimbă, iar starea o citesc și cititoarele de ecran
+  assert.match(site, /T\(all \? 'Vezi mai puțin' : 'Vezi mai mult'\)/);
+  assert.match(site, /T\('încă %1', total - shown\)/);
+  assert.match(site, /btn\.setAttribute\('aria-expanded', String\(all\)\)/);
+  assert.match(css, /\.more-btn\{[^}]*min-height:3\.25rem[^}]*border-radius:999px/);
+  // orice căutare, filtru sau ordonare readuce lista la primele elemente
+  for (const k of ['docs', 'law', 'inv', 'events', 'gal']) assert.match(site, new RegExp(`limReset\\('${k}'\\)`), `${k}: limReset`);
+  // căutarea din pagină și adresele #eveniment/…, #proiect/… arată elementul căutat chiar dacă era după primele 5
+  assert.match(site, /limShow\('events', eventList\(\)/);
+  assert.match(site, /limShow\('inv', invSorted\(D\.investments\.filter\(invMatches\)\)\.indexOf\(p\)\)/);
+  assert.match(site, /limShow\('gal', i\)/);
+  // la tipărire se scot limitele
+  assert.match(site, /addEventListener\('beforeprint'[\s\S]*PRINT_ALL\.forEach[\s\S]*addEventListener\('afterprint'/);
 });
 
 test('proiectele investiționale: grupate după minister, fără obiective economice și fără lista „Beneficiari finali”', () => {
