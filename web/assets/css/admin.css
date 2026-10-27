@@ -1,16 +1,22 @@
-/* Panoul de administrare — același limbaj vizual ca pagina publică (albastru regal, fontul Onest). */
+/* Panoul de administrare — același limbaj vizual ca pagina publică (albastru, fontul Golos Text). */
 
-@font-face{font-family:"Onest";src:url("../fonts/onest-latin.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap;unicode-range:U+0000-017F,U+0218-021B,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Onest";src:url("../fonts/onest-cyrillic.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-04FF,U+2116}
+@font-face{font-family:"Golos Text";src:url("../fonts/golos-text-latin-400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-024F,U+0259,U+1E00-1EFF,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Golos Text";src:url("../fonts/golos-text-latin-500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap;unicode-range:U+0000-024F,U+0259,U+1E00-1EFF,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Golos Text";src:url("../fonts/golos-text-latin-600.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap;unicode-range:U+0000-024F,U+0259,U+1E00-1EFF,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Golos Text";src:url("../fonts/golos-text-latin-700.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap;unicode-range:U+0000-024F,U+0259,U+1E00-1EFF,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Golos Text";src:url("../fonts/golos-text-cyrillic-400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Golos Text";src:url("../fonts/golos-text-cyrillic-500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Golos Text";src:url("../fonts/golos-text-cyrillic-600.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Golos Text";src:url("../fonts/golos-text-cyrillic-700.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 
 :root{
   --blue:#063295; --blue-d:#042677; --blue-dd:#10297A; --blue-l:#EEF2FA; --blue-m:#C8D4EE;
-  --ink:#232A3B; --muted:#586074; --line:#DCE1EC; --line-d:#B4BECF; --paper:#F2F3F5; --white:#fff;
+  --ink:#14213d; --muted:#586074; --line:#e3e7ef; --line-d:#B4BECF; --paper:#f6f7f9; --white:#fff;
   --accent:#F9DA1B; --red:#B3261E; --red-l:#FCEBEA; --green:#14683F; --green-l:#E4F3EB; --orange:#8A3F08; --orange-l:#FFF1E0;
   --focus:#0B5BC0; --focus-dark:#FFD84D;
-  --head:"Onest",Arial,Helvetica,sans-serif;
-  --sans:"Onest",Arial,Helvetica,sans-serif;
-  --r:4px; --topbar:3.6rem; --side:15.5rem;
+  --head:"Golos Text",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --sans:"Golos Text",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --r:.5rem; --topbar:3.6rem; --side:15.5rem;
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -37,7 +43,7 @@ button{cursor:pointer}
 .skip:focus{top:.5rem}
 .noscript{margin:0;padding:1rem;background:#FFF6D6;text-align:center;font-weight:700}
 .boot{position:fixed;inset:0;display:grid;place-items:center;background:var(--paper);color:var(--muted);z-index:100}
-.flagstrip{display:flex;height:4px}
+.flagstrip{display:none}
 .flagstrip i{flex:1}
 .flagstrip i:nth-child(1){background:#0046AE}
 .flagstrip i:nth-child(2){background:#FFD200}

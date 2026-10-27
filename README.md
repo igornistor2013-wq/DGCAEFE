@@ -392,7 +392,7 @@ lib/                   logica serverului: api.js (rutele de administrare), auth.
 web/index.html         pagina publică (șablon; titlul, prezentarea, noutățile și linkurile rapide se completează din setări și din știri)
 web/404.html           pagina „404” (șablon)
 web/admin/             panoul de administrare (index.html)
-web/assets/            css/, js/ (site.js, common.js, hero-news.js, admin-*.js), fonts/ (Golos Text, Source Serif 4; Onest pentru administrare), img/ (siglele)
+web/assets/            css/, js/ (site.js, common.js, hero-news.js, admin-*.js), fonts/ (Golos Text, Source Serif 4), img/ (siglele)
                        hero-news.js (noutățile derulate în partea de sus; același cod scrie diapozitivele în HTML la
                        construirea paginii și în browser)
                        admin-schemas.js (validările, comune serverului și browserului), admin-github-core.js
@@ -443,7 +443,7 @@ Administrarea direct pe GitHub se verifică pe un simulator al API-ului GitHub (
 - Hotărârea cere și găzduirea pe **platforma guvernamentală comună** (domeniu `.md`, șablon aprobat de Cancelaria de Stat) în 12 luni (pct. 5). GitHub Pages nu este această platformă; decizia de migrare aparține instituției.
 - Conținutul (știri, documente, proiecte etc.) este construit de JavaScript; fără JavaScript se văd doar titlul, prima noutate din partea de sus (fără butoane), linkurile „Acces rapid” și datele de identificare. Motoarele de căutare actuale execută JavaScript, dar o pagină cu tot textul scris pe server ar fi mai sigură pentru indexare.
 - `robots.txt` este citit de motoarele de căutare doar la rădăcina unui domeniu (de exemplu un domeniu propriu); pentru `utilizator.github.io/depozit/` nu are efect. Pagina de administrare are oricum eticheta `noindex`.
-- Fișierele de font vechi rămân în depozit după actualizare; se pot șterge cele nefolosite din `web/assets/fonts/`. Pagina publică folosește acum `golos-text-*` și `source-serif-4-*`; panoul de administrare folosește în continuare `onest-latin.woff2` și `onest-cyrillic.woff2`.
+- Fișierele de font vechi (Onest etc.) pot rămâne în depozit după actualizare, dar nu se mai folosesc; se pot șterge din `web/assets/fonts/`. Atât pagina publică, cât și panoul de administrare folosesc acum Golos Text și Source Serif 4.
 - Formularul de contact deschide programul de e-mail al vizitatorului (`mailto:`); nu trimite mesaje de pe server.
 - Harta din secțiunea Contacte este încorporată de la Google și se încarcă numai după ce vizitatorul apasă „Afișează harta”; este singurul serviciu extern al paginii publice.
 
@@ -455,9 +455,9 @@ Administrarea direct pe GitHub se verifică pe un simulator al API-ului GitHub (
 - **Sigla:** emblema Guvernului Republicii Moldova (fișier furnizat de beneficiar); drepturile aparțin Guvernului.
 - **Sigla platformei AMP:** `web/assets/img/amp-logo.png` (61 × 60 px, fundal transparent), fișierul trimis de beneficiar; drepturile aparțin proprietarului platformei. Fișierul este mic, așa că se afișează la cel mult 5 rem (circa 60 px). Dacă există o variantă mai mare sau în format SVG, se înlocuiește fișierul (același nume, cu extensia potrivită, și se schimbă calea în `web/index.html` și în `web/assets/js/site.js`); mărimea afișată se schimbă din `.plat-logo` în `site.css`.
 - **Rubricile Despre, Asistență externă, Programe, Documente și Evenimente** au aspectul din propunerea „Rubrici DGCAEFE”: file (Despre și nivelurile Interreg), carduri pentru rapoartele anuale, bandă pentru Platforma AMP, listă de documente cu pictograme, cronologie de evenimente. Pictogramele sunt în proiect (nu se încarcă de la Google).
-- **Font (design nou):** [Golos Text](https://fonts.google.com/specimen/Golos+Text) pentru texte, meniu, butoane și formulare (400/500/600/700) și [Source Serif 4](https://fonts.google.com/specimen/Source+Serif+4) (600) pentru titlurile mari. Fiecare are fișier latin (română, include ă â î ș ț) și chirilic (rusă, se descarcă numai când e nevoie). Licența: SIL Open Font License 1.1 (`LICENSE-golos-text.txt`, `LICENSE-source-serif-4.txt`). Panoul de administrare rămâne cu Onest.
+- **Font (design nou):** [Golos Text](https://fonts.google.com/specimen/Golos+Text) pentru texte, meniu, butoane și formulare (400/500/600/700) și [Source Serif 4](https://fonts.google.com/specimen/Source+Serif+4) (600) pentru titlurile mari. Fiecare are fișier latin (română, include ă â î ș ț) și chirilic (rusă, se descarcă numai când e nevoie). Licența: SIL Open Font License 1.1 (`LICENSE-golos-text.txt`, `LICENSE-source-serif-4.txt`). Panoul de administrare folosește același font (Golos Text).
 - **Mărimile și spațiile textului** (în `web/assets/css/site.css`, ultimele blocuri): patru mărimi pentru text (`--fs-xs` … `--fs-lg`), cinci trepte de spațiu (`--sp-1` … `--sp-5`), înălțimea rândului 1,55, paragrafe de cel mult 58 rem lățime (`--measure`), iar spațiul de sus al fiecărei secțiuni se stabilește dintr-o singură variabilă (`--sec-pt`). Dacă o secțiune nouă arată prea aerisită sau prea strânsă, se ajustează aceste variabile, nu fiecare regulă în parte.
-- **Revenire la Onest:** în `site.css` se înlocuiesc regulile `@font-face` cu cele din `admin.css` și se pun `--sans` și `--serif` pe `"Onest"` (fișierele Onest rămân în proiect).
+
 - **Dependențe:** Express, helmet, compression, multer, express-rate-limit, bcryptjs, archiver, fiecare cu licența proprie (MIT sau similară).
 - **Codul aplicației:** nu are o licență alocată (`UNLICENSED` în `package.json`). Dacă îl publicați într-un depozit public și doriți să permiteți reutilizarea, adăugați un fișier `LICENSE`.
 

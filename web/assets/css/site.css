@@ -761,3 +761,5 @@ body.nf-page main{flex:1 0 auto}
 .g-zoom{position:absolute;right:.625rem;bottom:.625rem;z-index:1;display:grid;place-items:center;width:2.25rem;height:2.25rem;border-radius:.625rem;background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(16,26,51,.2)}
 .g-zoom .ico{width:1.25rem;height:1.25rem;stroke-width:1.75}
 @media (max-width:47.99rem){.law-ico{display:none}.law-a{grid-template-columns:minmax(0,1fr)}}
+.ev-body .edit-link{align-self:flex-start}
+.law-row .edit-link,.rep-wrap .edit-link{white-space:nowrap}

@@ -160,7 +160,7 @@ test('scripturile paginii nu declară de două ori aceeași funcție la nivelul 
 
 const stripTags = h => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
 
-test('fonturile: Golos Text pentru texte și Source Serif 4 pentru titluri, găzduite local, cu licențele alăturate; panoul de administrare rămâne cu Onest', () => {
+test('fonturile: Golos Text pentru texte și Source Serif 4 pentru titluri, găzduite local, cu licențele alăturate; panoul de administrare folosește aceleași fonturi', () => {
   const FONTS = path.join(WEB, 'assets', 'fonts');
   const adm = read('assets', 'css', 'admin.css');
   // pagina publică: Golos Text 400/500/600/700 și Source Serif 4 600, fiecare cu litere latine (română) și chirilice (rusă)
@@ -185,10 +185,11 @@ test('fonturile: Golos Text pentru texte și Source Serif 4 pentru titluri, găz
     assert.equal(b.subarray(0, 4).toString('latin1'), 'wOF2', `${f}: fișier woff2`);
     assert.ok(b.length > 5000 && b.length < 40000, `${f}: dimensiune rezonabilă`);
   }
-  assert.deepEqual(fs.readdirSync(FONTS).sort(), [...new Set(faces.map(m => m[2])), 'LICENSE-golos-text.txt', 'LICENSE-onest.txt', 'LICENSE-source-serif-4.txt', 'onest-cyrillic.woff2', 'onest-latin.woff2'].sort(), 'în dosarul fonturilor sunt numai fișierele folosite');
-  for (const l of ['golos-text', 'source-serif-4', 'onest']) assert.match(fs.readFileSync(path.join(FONTS, `LICENSE-${l}.txt`), 'utf8'), /SIL OPEN FONT LICENSE/i);
-  assert.equal((adm.match(/@font-face/g) || []).length, 2, 'administrare: Onest latin și chirilic');
-  assert.match(adm, /--sans:"Onest",Arial/);
+  assert.deepEqual(fs.readdirSync(FONTS).sort(), [...new Set(faces.map(m => m[2])), 'LICENSE-golos-text.txt', 'LICENSE-source-serif-4.txt'].sort(), 'în dosarul fonturilor sunt numai fișierele folosite');
+  for (const l of ['golos-text', 'source-serif-4']) assert.match(fs.readFileSync(path.join(FONTS, `LICENSE-${l}.txt`), 'utf8'), /SIL OPEN FONT LICENSE/i);
+  assert.equal((adm.match(/@font-face/g) || []).length, 8, 'administrare: Golos Text latin și chirilic, 4 greutăți');
+  assert.match(adm, /--sans:"Golos Text",system-ui/);
+  assert.doesNotMatch(adm, /Onest/);
   // doar fișierele cu litere latine se cer din timp; cele chirilice se cer numai pe pagina în rusă (vezi i18n.test.js)
   assert.match(html, /<link rel="preload" href="assets\/fonts\/golos-text-latin-400\.woff2" as="font" type="font\/woff2" crossorigin>/);
   assert.match(html, /<link rel="preload" href="assets\/fonts\/source-serif-4-latin-600\.woff2" as="font" type="font\/woff2" crossorigin>/);

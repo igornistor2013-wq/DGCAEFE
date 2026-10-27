@@ -306,7 +306,7 @@ test('serverul: prima pagină cu titlul gata scris, robots.txt și pagina „404
 
     // stilurile și fonturile din pagina 404 există pe server
     assert.equal((await get('/assets/css/site.css')).status, 200);
-    assert.equal((await fetch(base + '/assets/fonts/onest-latin.woff2')).status, 200);
+    assert.equal((await fetch(base + '/assets/fonts/golos-text-latin-400.woff2')).status, 200);
   } finally {
     server.close();
     cfg.SITE_URL = '';
