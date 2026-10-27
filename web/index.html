@@ -122,31 +122,29 @@
   <!-- DESPRE -->
   <section class="sec sec-alt" id="despre" aria-labelledby="h-despre">
     <div class="wrap">
+      <header class="sec-head about-head">
+        <p class="eyebrow">Despre direcție</p>
+        <h2 id="h-despre">Autoritatea națională de coordonare a asistenței externe</h2>
+      </header>
       <div class="about-top">
-        <div class="about-main">
-          <header class="sec-head">
-            <p class="eyebrow">Despre direcție</p>
-            <h2 id="h-despre">Misiune și rol</h2>
-          </header>
-          <div class="about-text" id="aboutText"></div>
-          <div class="about-princ" id="aboutPrinc" role="group" aria-labelledby="h-princ"></div>
-        </div>
-        <div class="card about-org" id="structura">
-          <div class="card-head"><h3 class="card-h" id="h-org">Structura și efectivul</h3><span class="card-aside" id="orgTotal"></span></div>
-          <div id="orgChart"></div>
-        </div>
+        <div class="about-text" id="aboutText"></div>
+        <div class="about-princ" id="aboutPrinc" role="group" aria-labelledby="h-princ"></div>
       </div>
 
-      <div class="about-block" id="functii">
-        <div class="about-bh">
-          <h3 class="about-h" id="h-fn">Funcțiile de bază</h3>
-          <button class="btn btn-line btn-sm" type="button" id="fnToggle" aria-pressed="false">Deschide toate</button>
-        </div>
-        <ol class="fn-list" id="dutiesList" aria-labelledby="h-fn"></ol>
+      <div class="tabs about-tabs" role="tablist" aria-label="Despre direcție" id="aboutTabs">
+        <button class="tab" type="button" role="tab" id="tab-functii" aria-controls="functii" aria-selected="true" data-tab="functii"><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg><span>Funcțiile de bază</span></button>
+        <button class="tab" type="button" role="tab" id="tab-structura" aria-controls="structura" aria-selected="false" tabindex="-1" data-tab="structura"><svg class="ico" aria-hidden="true"><use href="#i-tree"/></svg><span>Structura și efectivul</span></button>
+        <button class="tab" type="button" role="tab" id="tab-drepturi" aria-controls="drepturi-responsabilitati" aria-selected="false" tabindex="-1" data-tab="drepturi-responsabilitati"><svg class="ico" aria-hidden="true"><use href="#i-gavel"/></svg><span>Drepturi și responsabilități</span></button>
       </div>
-
-      <div class="about-block" id="drepturi-responsabilitati">
-        <h3 class="about-h" id="h-roles">Drepturi și responsabilități</h3>
+      <div class="tab-panel" id="functii" role="tabpanel" aria-labelledby="tab-functii">
+        <div class="panel-bar"><span id="fnCount" class="panel-note"></span><button class="btn btn-line btn-sm" type="button" id="fnToggle" aria-pressed="false">Deschide toate</button></div>
+        <ol class="fn-list" id="dutiesList" aria-label="Funcțiile de bază"></ol>
+      </div>
+      <div class="tab-panel" id="structura" role="tabpanel" aria-labelledby="tab-structura" hidden>
+        <div class="panel-bar"><span class="panel-note" id="orgTotal"></span></div>
+        <div id="orgChart"></div>
+      </div>
+      <div class="tab-panel" id="drepturi-responsabilitati" role="tabpanel" aria-labelledby="tab-drepturi" hidden>
         <div class="acc-list" id="rolesList"></div>
       </div>
     </div>
@@ -234,23 +232,21 @@
         <p class="eyebrow">Asistență externă</p>
         <h2 id="h-coop">Cooperare externă</h2>
       </header>
-      <div class="amp" id="ampCard">
-        <div class="amp-main">
-          <h3 class="amp-t">Platforma de Management al Asistenței Externe (AMP)</h3>
-          <p class="amp-desc">Platforma de Management al Asistenței Externe (AMP) este un instrument informațional destinat evidenței, monitorizării și gestionării proiectelor și programelor de asistență externă acordate Republicii Moldova de către partenerii de dezvoltare. Aceasta asigură centralizarea informațiilor privind proiectele de asistență externă, inclusiv datele referitoare la finanțatori, beneficiari și implementatori, valoarea finanțării, perioadele de implementare și debursările efectuate.</p>
-          <a class="btn btn-primary amp-go" href="https://amp.gov.md/portal/" target="_blank" rel="noopener"><img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60">Deschide platforma AMP <svg class="ico" aria-hidden="true"><use href="#i-ext"/></svg></a>
-        </div>
-        <ol class="amp-chips" aria-label="Informațiile centralizate de platformă"><li>Finanțatori</li><li>Beneficiari</li><li>Implementatori</li><li>Valoarea finanțării</li><li>Perioade de implementare</li><li>Debursări efectuate</li></ol>
+      <div class="subhead">
+        <h3 class="subhead-t" id="h-rapoarte">Rapoarte anuale privind asistența externă</h3>
+        <p class="subhead-note">Alegeți anul pentru a deschide raportul.</p>
       </div>
-      <div class="coop">
-        <div class="card">
-          <h3 class="card-h">Rapoarte anuale privind asistența externă</h3>
-          <p class="panel-intro">Alegeți anul pentru a deschide raportul.</p>
-          <div class="years" role="tablist" aria-label="Anul raportului" id="years"></div>
-          <div class="report-panel" role="tabpanel" id="reportPanel" aria-live="polite"></div>
-        </div>
-        <div class="card card-accord" id="acordBox"></div>
-      </div>
+      <div class="rep-grid" id="reportGrid" aria-labelledby="h-rapoarte"></div>
+      <a class="amp" id="ampCard" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">
+        <span class="amp-logo"><img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60"></span>
+        <span class="amp-main">
+          <span class="amp-t">Platforma de Management al Asistenței Externe (AMP)</span>
+          <span class="amp-desc">Platforma de Management al Asistenței Externe (AMP) este un instrument informațional destinat evidenței, monitorizării și gestionării proiectelor și programelor de asistență externă acordate Republicii Moldova de către partenerii de dezvoltare. Aceasta asigură centralizarea informațiilor privind proiectele de asistență externă, inclusiv datele referitoare la finanțatori, beneficiari și implementatori, valoarea finanțării, perioadele de implementare și debursările efectuate.</span>
+          <span class="amp-chips" aria-label="Informațiile centralizate de platformă"><span>Finanțatori</span><span>Beneficiari</span><span>Implementatori</span><span>Valoarea finanțării</span><span>Perioade de implementare</span><span>Debursări efectuate</span></span>
+        </span>
+        <span class="amp-go" aria-hidden="true"><svg class="ico"><use href="#i-ext"/></svg></span>
+      </a>
+      <div class="card card-accord" id="acordBox"></div>
     </div>
   </section>
 
@@ -261,8 +257,9 @@
         <p class="eyebrow">Interreg 2021–2027</p>
         <h2 id="h-prog">Programe de cooperare transfrontalieră, transnațională și interregională</h2>
       </header>
+      <div class="seg" role="tablist" aria-label="Nivelul programului" id="progTabs"></div>
+      <div class="prog-grid" id="progGroups" role="tabpanel" aria-live="polite"></div>
       <div id="auditBox"></div>
-      <div class="prog-groups" id="progGroups"></div>
     </div>
   </section>
 
@@ -296,11 +293,11 @@
   <!-- EVENIMENTE -->
   <section class="sec sec-alt" id="evenimente" aria-labelledby="h-ev">
     <div class="wrap">
-      <header class="sec-head">
+      <header class="sec-head sec-head-row">
         <h2 id="h-ev">Evenimente</h2>
+        <fieldset class="ev-year" id="evYearBox"><legend class="sr">Anul</legend><div class="chips" id="evYear"></div></fieldset>
       </header>
       <div class="ev-filters">
-        <fieldset><legend>Anul</legend><div class="chips" id="evYear"></div></fieldset>
         <fieldset><legend>Programul</legend><div class="chips" id="evProg"></div></fieldset>
       </div>
       <ol class="events" id="timeline"></ol>

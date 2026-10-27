@@ -28,26 +28,57 @@ function sectionOf(id) {
   return start;
 }
 
-test('programele de cooperare sunt grupate pe niveluri în secțiunea Programe, cu fișă pentru fiecare program', () => {
+test('programele de cooperare: file pe niveluri (transfrontalier, transnațional, interregional) și fișe cu nume, descriere, parteneri și legătură', () => {
   const programe = sectionOf('programe');
-  assert.match(programe, /id="progGroups"/, 'grupele de programe sunt în #programe');
-  assert.ok(programe.indexOf('id="auditBox"') < programe.indexOf('id="progGroups"'), 'nota despre verificarea cheltuielilor vine înaintea programelor');
-  assert.doesNotMatch(html, /id="levels"|levels-box|id="progNav"|id="progPanel"|levels-sec|intro-levels/, 'diagrama cu cadre și lista cu file au dispărut');
+  assert.match(programe, /role="tablist"[^>]*id="progTabs"/, 'filele pe niveluri');
+  assert.match(programe, /id="progGroups"/, 'fișele sunt în #programe');
+  assert.ok(programe.indexOf('id="progTabs"') < programe.indexOf('id="progGroups"') && programe.indexOf('id="progGroups"') < programe.indexOf('id="auditBox"'));
+  assert.doesNotMatch(html, /id="levels"|levels-box|id="progNav"|id="progPanel"|levels-sec|intro-levels/, 'diagrama cu cadre și lista veche cu file au dispărut');
   assert.match(site, /function progCard\(/);
+  assert.match(site, /role="tab"[^;]*data-level/, 'file cu ARIA');
   assert.match(site, /data-prog-docs/, 'fișa duce la documentele programului');
   assert.match(site, /function showProgramDocs\(/);
+  assert.match(site, /progLevel = levelOf\(pr\)/, 'legăturile directe către un program deschid fila lui');
+  assert.match(css, /\.seg\{[^}]*background:#e7ebf3/);
+  assert.match(css, /\.prog-grid\{display:grid;grid-template-columns:repeat\(auto-fill,minmax\(min\(100%,21\.25rem\)/);
 });
 
-test('„Despre direcție”: misiunea și principiile în stânga, structura și efectivul în dreapta, apoi funcțiile și drepturile pe toată lățimea', () => {
+test('„Despre direcție”: titlul și prezentarea, apoi trei file (funcții, structură, drepturi și responsabilități) cu un singur panou vizibil', () => {
   const despre = sectionOf('despre');
-  assert.match(despre, /id="aboutText"/);
-  assert.match(despre, /id="aboutPrinc"/);
-  assert.ok(despre.indexOf('id="aboutText"') < despre.indexOf('id="aboutPrinc"'), 'principiile vin după text');
-  assert.ok(despre.indexOf('id="aboutPrinc"') < despre.indexOf('id="structura"'), 'structura este în coloana a doua');
-  assert.ok(despre.indexOf('id="structura"') < despre.indexOf('id="functii"') && despre.indexOf('id="functii"') < despre.indexOf('id="drepturi-responsabilitati"'));
+  assert.match(despre, /<h2 id="h-despre">Autoritatea națională de coordonare a asistenței externe<\/h2>/);
+  const order = ['id="aboutText"', 'id="aboutPrinc"', 'id="aboutTabs"', 'id="functii"', 'id="structura"', 'id="drepturi-responsabilitati"'].map(k => despre.indexOf(k));
+  assert.ok(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), 'ordinea: text, principii, file, panouri');
+  assert.equal((despre.match(/role="tab"/g) || []).length, 3);
+  assert.equal((despre.match(/role="tabpanel"/g) || []).length, 3);
+  assert.match(despre, /id="structura" role="tabpanel"[^>]* hidden/);
+  assert.match(despre, /aria-controls="drepturi-responsabilitati"/);
+  assert.match(site, /function aboutTab\(/);
+  assert.match(site, /ArrowRight[\s\S]{0,400}aboutTab\(/, 'săgețile mută între file');
+  assert.match(site, /function goFunction\(i\) \{\s*aboutTab\('functii'\)/, 'căutarea deschide fila funcțiilor');
   assert.doesNotMatch(html, /aboutNote|about-note|id="aboutStats"/);
-  assert.doesNotMatch(site, /aboutNote|aboutStats/);
   assert.match(css, /\.pills\{display:flex;flex-wrap:wrap/, 'principiile sunt etichete rotunjite');
+  assert.match(css, /\.tab\[aria-selected="true"\]\{background:var\(--blue\)/);
+});
+
+test('„Asistență externă”: carduri pentru rapoartele anuale (ultimul evidențiat) și banda Platformei AMP', () => {
+  const coop = sectionOf('cooperare-externa');
+  assert.ok(coop.indexOf('id="reportGrid"') > 0 && coop.indexOf('id="reportGrid"') < coop.indexOf('id="ampCard"') && coop.indexOf('id="ampCard"') < coop.indexOf('id="acordBox"'));
+  assert.match(coop, /<a class="amp" id="ampCard" href="https:\/\/amp\.gov\.md\/portal\/"/);
+  assert.doesNotMatch(html, /id="years"|id="reportPanel"/);
+  assert.match(site, /rep-card' \+ \(isNew \? ' is-new' : ''\)/);
+  assert.match(css, /\.rep-grid\{display:grid;grid-template-columns:repeat\(auto-fill,minmax\(min\(100%,10\.625rem\)/);
+  assert.match(css, /\.amp\{display:grid;grid-template-columns:auto minmax\(0,1fr\) auto/);
+});
+
+test('documente și evenimente: listă cu pictograme și buton de descărcare; cronologie cu data în casetă', () => {
+  assert.match(site, /class="doc-ico"[^;]*docIcon\(d\)/);
+  assert.match(site, /class="doc-go"/);
+  assert.match(css, /\.doc\{display:grid;grid-template-columns:3rem minmax\(0,1fr\) auto/);
+  assert.match(css, /\.doc-list\{display:block;background:#fff;border:1px solid var\(--line\)/);
+  const ev = sectionOf('evenimente');
+  assert.match(ev, /<fieldset class="ev-year" id="evYearBox">/, 'filtrul de an este lângă titlu');
+  assert.match(css, /\.event\{display:grid;grid-template-columns:5\.5rem/);
+  assert.match(css, /\.ev-date \.d\{[^}]*color:var\(--blue\)/);
 });
 
 test('proiectele investiționale: grupate după minister, fără obiective economice și fără lista „Beneficiari finali”', () => {

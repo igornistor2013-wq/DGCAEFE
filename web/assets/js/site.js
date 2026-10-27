@@ -107,6 +107,11 @@
   function kindOf(d) { return DG.fileKind(d.file ? d.file.path : d.url); }
   // Titlul unui document în limba engleză este marcat ca atare (cititoarele de ecran îl pronunță corect).
   function titleHtml(d) { return d.en ? '<span lang="en">' + esc(d.title) + '</span>' : esc(d.title); }
+  function docIcon(d) {
+    var k = kindOf(d).cls;
+    if (d.section === 'ghiduri' || /ghid|metodolog/i.test(d.title || '')) return 'book';
+    return k === 'pdf' ? 'pdf' : k === 'xls' ? 'table' : k === 'web' ? 'link' : 'file';
+  }
   function ftBadge(d) { var k = kindOf(d); return '<span class="ft ft-' + k.cls + '" aria-hidden="true">' + k.label + '</span>'; }
   function docMeta(d) {
     return [d.kind, DG.dateText(d) || (d.section === 'rapoarte' && d.year ? String(d.year) : ''), d.en ? T('în limba engleză') : '', d.file && d.file.size ? DG.formatSize(d.file.size) : ''].filter(Boolean).join(', ');
@@ -297,7 +302,7 @@
     $('#aboutPrinc').innerHTML = pr.length ? '<h3 id="h-princ">Principii de activitate</h3><ul class="pills">' + pr.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '';
 
     // funcțiile de bază: fiecare se deschide și arată textul funcției și atribuțiile (a, b, c …) prin care se realizează
-    $('#functii').hidden = !duties.length;
+    $('#fnCount').textContent = duties.length ? countRo(duties.length, 'funcție', 'funcții') : '';
     $('#dutiesList').innerHTML = duties.map(function (d, i) {
       var items = d.items || [];
       var key = 'fn:' + i;
@@ -315,14 +320,19 @@
     syncFnToggle();
 
     // structura: unitățile din statul de personal și numărul de posturi
-    $('#structura').hidden = !staff.length;
     $('#orgTotal').textContent = total ? countRo(total, 'unitate', 'unități') : '';
     $('#orgChart').innerHTML = staff.length ? '<ul class="org">' + staff.map(function (r) {
       return '<li class="org-row"><span class="org-t">' + esc(r.title) + '</span><span class="org-n">' + esc(r.count) + '</span></li>';
     }).join('') + '</ul>' : '';
 
     var roles = [['Drepturile direcției', s.rights], ['Responsabilitățile direcției', s.responsibilities]].filter(function (r) { return r[1] && r[1].length; });
-    $('#drepturi-responsabilitati').hidden = !roles.length;
+    // filele fără conținut dispar; prima rămasă se deschide
+    var has = { 'functii': duties.length, 'structura': staff.length, 'drepturi-responsabilitati': roles.length };
+    $$('#aboutTabs [data-tab]').forEach(function (t) { t.hidden = !has[t.getAttribute('data-tab')]; });
+    var cur = aboutTab.current;
+    if (!has[cur]) cur = Object.keys(has).filter(function (k) { return has[k]; })[0] || 'functii';
+    $('#aboutTabs').hidden = !Object.keys(has).some(function (k) { return has[k]; });
+    aboutTab(cur);
     $('#rolesList').innerHTML = roles.map(function (r, i) {
       var key = 'role:' + i;
       var open = !!accState[key];
@@ -332,7 +342,22 @@
     }).join('');
   }
 
+  // Filele din „Despre direcție”: Funcții / Structură / Drepturi. Se vede un singur panou; săgețile mută între file.
+  function aboutTab(name, focus) {
+    aboutTab.current = name;
+    $$('#aboutTabs [data-tab]').forEach(function (t) {
+      var on = t.getAttribute('data-tab') === name;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      var panel = document.getElementById(t.getAttribute('data-tab'));
+      if (panel) panel.hidden = !on;
+      if (on && focus) t.focus();
+    });
+  }
+  aboutTab.current = 'functii';
+
   function goFunction(i) {
+    aboutTab('functii');
     var b = document.getElementById('fn-b-' + i);
     if (!b) return;
     accToggle(b, true);
@@ -595,33 +620,24 @@
   }
 
   /* ================= Cooperare externă ================= */
-  var rep = { year: null };
 
   function renderCoop() {
     var reports = docsOf('rapoarte');
     var years = [];
     reports.forEach(function (d) { var y = docYear(d); if (y && years.indexOf(y) < 0) years.push(y); });
     years.sort(function (a, b) { return b - a; });
-    if (!rep.year || years.indexOf(rep.year) < 0) rep.year = years[0] || null;
 
-    $('#years').hidden = !years.length;
-    $('#years').innerHTML = years.map(function (y) {
-      var on = y === rep.year;
-      return '<button class="year" type="button" role="tab" id="tab-' + y + '" aria-controls="reportPanel" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '" data-y="' + y + '">' + y + '</button>';
-    }).join('');
-
-    var panel = $('#reportPanel');
-    if (!rep.year) {
-      panel.removeAttribute('aria-labelledby');
-      panel.innerHTML = '<p class="empty">Nu există rapoarte publicate.</p>';
-    } else {
-      panel.setAttribute('aria-labelledby', 'tab-' + rep.year);
-      var items = reports.filter(function (d) { return docYear(d) === rep.year; });
-      panel.innerHTML = '<div class="rp-year">' + rep.year + '</div><div>' + items.map(function (d, i) {
-        return '<div class="rp-item"><h4>' + titleHtml(d) + '</h4><p>' + esc([i === 0 && rep.year === years[0] ? T('Cel mai recent raport publicat') : '', docMeta(d)].filter(Boolean).join('. ') || T('Document publicat')) + '</p>' +
-          '<div class="rp-docs"><a class="btn btn-primary"' + docAttrs(d) + '>' + ico(d.file ? 'down' : 'ext') + ' Deschide documentul</a>' + editLink('documents', d.id) + '</div></div>';
-      }).join('') + '</div>';
-    }
+    // un card pentru fiecare raport, cel mai recent evidențiat; cardul duce direct la document
+    var grid = $('#reportGrid');
+    var latest = years[0];
+    $('#h-rapoarte').parentNode.hidden = !reports.length;
+    grid.innerHTML = reports.slice().sort(function (x, y) { return (docYear(y) || 0) - (docYear(x) || 0); }).map(function (d, i) {
+      var y = docYear(d);
+      var isNew = i === 0 && y === latest;
+      return '<div class="rep-wrap"><a class="rep-card' + (isNew ? ' is-new' : '') + '"' + docAttrs(d) + ' title="' + esc(d.title) + '">' +
+        '<span class="rep-top">' + ico('pdf') + '<span class="rep-tag">' + (isNew ? T('NOU') : kindOf(d).label) + '</span></span>' +
+        '<span class="rep-bot"><span class="rep-year">' + (y || '') + '</span><span class="rep-lbl">' + T('Raport anual') + '</span></span></a>' + editLink('documents', d.id) + '</div>';
+    }).join('') || '<p class="empty">Nu există rapoarte publicate.</p>';
 
     // textele secțiunii se editează din administrare (settings.coop); ce lipsește rămâne cum este în șablon
     var co = D.settings.coop || {};
@@ -641,10 +657,12 @@
       var url = safe(co.ampUrl);
       var chips = (co.ampChips || []).filter(Boolean);
       amp.hidden = false;
-      amp.innerHTML = '<div class="amp-main"><h3 class="amp-t">' + esc(co.ampTitle || '') + '</h3>' +
-        (co.ampText ? '<p class="amp-desc">' + esc(co.ampText) + '</p>' : '') +
-        (url ? '<a class="btn btn-primary amp-go" href="' + esc(url) + '" target="_blank" rel="noopener"><img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60">' + T('Deschide platforma AMP') + ' ' + ico('ext') + '</a>' : '') + '</div>' +
-        (chips.length ? '<ol class="amp-chips" aria-label="Informațiile centralizate de platformă">' + chips.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ol>' : '');
+      if (url) amp.setAttribute('href', url);
+      amp.innerHTML = '<span class="amp-logo"><img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60"></span>' +
+        '<span class="amp-main"><span class="amp-t">' + esc(co.ampTitle || '') + '</span>' +
+        (co.ampText ? '<span class="amp-desc">' + esc(co.ampText) + '</span>' : '') +
+        (chips.length ? '<span class="amp-chips" aria-label="Informațiile centralizate de platformă">' + chips.map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</span>' : '') + '</span>' +
+        '<span class="amp-go" aria-hidden="true">' + ico('ext') + '</span>';
     } else if (amp) amp.hidden = true;
   }
 
@@ -653,25 +671,35 @@
 
   // Programele de cooperare, grupate pe niveluri (transfrontalier, transnațional, interregional): o fișă pentru fiecare program,
   // cu descrierea, cifrele-cheie, legătura către site-ul programului și scurtătura către documentele lui.
+  var LEVEL_ICON = { cross: 'compare', trans: 'globe', inter: 'hub' };
+  var progLevel = 'cross';
+
   function progCard(p) {
     var n = progDocs(p).length;
-    return '<article class="prog-card" id="prog-' + esc(p.id) + '"><h4 tabindex="-1">' + esc(p.name) + '</h4>' +
+    var money = (p.facts || []).filter(function (f) { return /€|eur|mil/i.test(f.b || ''); })[0];
+    return '<article class="prog-card" id="prog-' + esc(p.id) + '">' +
+      '<div class="pc-top"><span class="pc-ico">' + ico(LEVEL_ICON[levelOf(p)] || 'hub') + '</span>' + (money ? '<span class="pc-money">' + esc(money.b) + '</span>' : '') + '</div>' +
+      '<h4 class="pc-name" tabindex="-1">' + (p.site ? '<a class="pc-link" href="' + esc(p.site) + '" target="_blank" rel="noopener">' + esc(p.name) + '</a>' : esc(p.name)) + '</h4>' +
       (p.desc ? '<p class="prog-desc">' + esc(p.desc) + '</p>' : '') +
       (p.facts || []).map(function (f) { return '<div class="fact"><b>' + esc(f.b) + '</b> ' + esc(f.t) + '</div>'; }).join('') +
-      '<div class="prog-links">' + (p.site ? '<a href="' + esc(p.site) + '" target="_blank" rel="noopener">' + T('Site-ul programului') + ' ' + ico('ext') + '</a>' : '') +
-      (n ? '<button type="button" data-prog-docs="' + esc(p.id) + '">' + T('Documente (%1)', n) + ' ' + ico('arrow-r') + '</button>' : '') + editLink('programs', p.id) + '</div></article>';
+      '<div class="pc-foot"><span class="pc-strand">' + ico('flag') + '<span>' + esc(p.strand || '') + '</span></span>' +
+      (n ? '<button type="button" class="pc-docs" data-prog-docs="' + esc(p.id) + '">' + T('Documente (%1)', n) + '</button>' : '') +
+      (p.site ? '<span class="pc-more" aria-hidden="true">' + T('Detalii') + ' →</span>' : '') + editLink('programs', p.id) + '</div></article>';
   }
 
   function renderPrograms() {
-    $('#progGroups').innerHTML = LEVEL_ORDER.map(function (lv) {
-      var list = D.programs.filter(function (p) { return levelOf(p) === lv; });
-      if (!list.length) return '';
-      var strands = [];
-      list.forEach(function (p) { if (p.strand && strands.indexOf(p.strand) < 0) strands.push(p.strand); });
-      return '<section class="prog-group" aria-labelledby="pgh-' + lv + '"><div><h3 class="pg-label" id="pgh-' + lv + '">' + esc(T(LEVELS[lv].name)) +
-        (strands.length ? '<span class="pg-strand">' + esc(strands.join(', ')) + '</span>' : '') + '</h3></div>' +
-        '<div class="pg-cards">' + list.sort(function (a, b) { return (a.order || 0) - (b.order || 0); }).map(progCard).join('') + '</div></section>';
-    }).join('') || '<p class="empty">Nu există programe.</p>';
+    var levels = LEVEL_ORDER.filter(function (lv) { return D.programs.some(function (p) { return levelOf(p) === lv; }); });
+    if (levels.indexOf(progLevel) < 0) progLevel = levels[0] || 'cross';
+    $('#progTabs').hidden = levels.length < 2;
+    $('#progTabs').innerHTML = levels.map(function (lv) {
+      var n = D.programs.filter(function (p) { return levelOf(p) === lv; }).length;
+      var on = lv === progLevel;
+      return '<button type="button" class="seg-btn" role="tab" id="ptab-' + lv + '" data-level="' + lv + '" aria-selected="' + on + '" aria-controls="progGroups" tabindex="' + (on ? 0 : -1) + '">' +
+        ico(LEVEL_ICON[lv]) + '<span>' + esc(T(LEVELS[lv].name)) + '</span><span class="seg-n">' + n + '</span></button>';
+    }).join('');
+    var list = D.programs.filter(function (p) { return levelOf(p) === progLevel; }).sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+    $('#progGroups').setAttribute('aria-labelledby', 'ptab-' + progLevel);
+    $('#progGroups').innerHTML = list.map(progCard).join('') || '<p class="empty">Nu există programe.</p>';
     var aud = docsOf('auditori');
     $('#auditBox').innerHTML = aud.map(function (d) {
       return '<div class="callout"><p><strong>Verificarea cheltuielilor.</strong> ' + esc(d.title) + (docMeta(d) ? '<small>' + esc(docMeta(d)) + '</small>' : '') + '</p><div class="btns"><a class="btn btn-primary"' + docAttrs(d) + '>' + ico(d.file ? 'down' : 'ext') + ' ' + (d.file ? 'Descarcă' : 'Deschide') + '</a>' + editLink('documents', d.id) + '</div></div>';
@@ -679,6 +707,8 @@
   }
 
   function goProgram(id) {
+    var pr = progOf(id);
+    if (pr && levelOf(pr) !== progLevel) { progLevel = levelOf(pr); renderPrograms(); }
     var card = document.getElementById('prog-' + id);
     if (!card) return;
     scrollToEl(card);
@@ -700,9 +730,9 @@
     var sec = '';
     if (showSection) {
       var p = d.section === 'program' ? progOf(d.program) : null;
-      sec = '<span class="doc-sec">' + esc(p ? shortName(p) : T(SECTION_LABEL[d.section] || '')) + '</span>';
+      sec = true;
     }
-    return '<li class="doc-item"><a class="doc"' + docAttrs(d) + '>' + ftBadge(d) + '<span class="doc-body"><span class="doc-t">' + titleHtml(d) + '</span><small class="doc-m">' + esc(docMeta(d)) + '</small>' + sec + '</span></a>' + editLink('documents', d.id) + '</li>';
+    return '<li class="doc-item"><a class="doc"' + docAttrs(d) + '><span class="doc-ico" aria-hidden="true">' + ico(docIcon(d)) + '</span><span class="doc-body"><span class="doc-t">' + titleHtml(d) + '</span><small class="doc-m">' + esc([sec && (function () { var p = d.section === 'program' ? progOf(d.program) : null; return p ? shortName(p) : T(SECTION_LABEL[d.section] || ''); })(), docMeta(d)].filter(Boolean).join(' · ')) + '</small></span><span class="doc-go" aria-hidden="true">' + ico(d.file ? 'down' : 'ext') + '</span></a>' + editLink('documents', d.id) + '</li>';
   }
 
   /* ================= Biblioteca de documente ================= */
@@ -769,7 +799,8 @@
     years.sort().reverse();
     $('#evYear').innerHTML = chipsHtml([{ v: 'all', l: 'Toți' }].concat(years.map(function (y) { return { v: y, l: y }; })), evs.year, 'data-year');
     $('#evProg').innerHTML = chipsHtml([{ v: 'all', l: 'Toate' }].concat(progs.map(function (p) { return { v: p, l: p }; })), evs.prog, 'data-prog-f');
-    $('.ev-filters').hidden = !D.events.length;
+    $('.ev-filters').hidden = !progs.length;
+    $('#evYearBox').hidden = !D.events.length;
   }
 
   function renderEvents() {
@@ -784,8 +815,8 @@
       var more = (e.details && e.details.length) || (e.links && e.links.length);
       var mon = (I18n.MONTHS[LANG][d[1] - 1] || '').slice(0, 3);
       return '<li class="event" id="' + esc(e.id) + '"><div class="ev-date"><span class="d">' + String(d[2]).padStart(2, '0') + '</span><span class="m">' + esc(mon) + '</span><span class="y">' + d[0] + '</span></div>' +
-        '<div class="ev-body"><div class="ev-meta"><span class="status ' + st[0] + '">' + st[1] + '</span>' + (e.prog ? '<span class="prog">' + esc(e.prog) + '</span>' : '') + (range ? '<span>' + esc(range) + '</span>' : '') + (e.place ? '<span>' + esc(e.place) + '</span>' : '') + '</div>' +
-        '<h3>' + esc(e.title) + '</h3><p>' + esc(e.summary) + '</p>' +
+        '<div class="ev-body"><div class="ev-meta">' + (e.prog ? '<span class="prog">' + esc(e.prog) + '</span>' : '') + '<span class="status ' + st[0] + '">' + st[1] + '</span>' + (range ? '<span class="ev-range">' + esc(range) + '</span>' : '') + '</div>' +
+        '<h3>' + esc(e.title) + '</h3>' + (e.place ? '<p class="ev-place">' + ico('pin') + '<span>' + esc(e.place) + '</span></p>' : '') + (e.summary ? '<p class="ev-sum">' + esc(e.summary) + '</p>' : '') +
         (more ? '<details class="ev-more"><summary>Detalii</summary>' +
           (e.details && e.details.length ? '<ul>' + e.details.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
           (e.links && e.links.length ? '<div class="ev-links">' + e.links.map(function (l) { return '<a class="btn btn-line btn-sm" href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.t) + ' ' + ico('ext') + '</a>'; }).join('') + '</div>' : '') + '</details>' : '') +
@@ -1249,6 +1280,20 @@
       if (b.classList.contains('fn-btn')) syncFnToggle();
       if (b.classList.contains('inv-btn')) syncInvToggle();
     });
+    $('#aboutTabs').addEventListener('click', function (e) {
+      var t = e.target.closest('[data-tab]');
+      if (t) aboutTab(t.getAttribute('data-tab'));
+    });
+    $('#aboutTabs').addEventListener('keydown', function (e) {
+      var k = e.key;
+      if (k !== 'ArrowRight' && k !== 'ArrowLeft' && k !== 'Home' && k !== 'End') return;
+      var tabs = $$('#aboutTabs [data-tab]').filter(function (t) { return !t.hidden; });
+      var i = tabs.indexOf(document.activeElement);
+      if (i < 0) return;
+      e.preventDefault();
+      i = k === 'Home' ? 0 : k === 'End' ? tabs.length - 1 : (i + (k === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      aboutTab(tabs[i].getAttribute('data-tab'), true);
+    });
     $('#fnToggle').addEventListener('click', function () {
       var btns = $$('#dutiesList .fn-btn');
       var open = !btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
@@ -1305,24 +1350,18 @@
       }
     });
 
-    // rapoarte
-    var years = $('#years');
-    years.addEventListener('click', function (e) {
-      var b = e.target.closest('.year');
-      if (!b) return;
-      rep.year = Number(b.getAttribute('data-y'));
-      renderCoop();
-      $('#tab-' + rep.year).focus();
-    });
-    years.addEventListener('keydown', function (e) {
+    // programe: filele pe niveluri
+    var pt = $('#progTabs');
+    function setLevel(lv) { progLevel = lv; renderPrograms(); var t = document.getElementById('ptab-' + lv); if (t) t.focus(); }
+    pt.addEventListener('click', function (e) { var b = e.target.closest('[data-level]'); if (b) setLevel(b.getAttribute('data-level')); });
+    pt.addEventListener('keydown', function (e) {
       if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(e.key) < 0) return;
+      var tabs = $$('[data-level]', pt);
+      var i = tabs.map(function (t) { return t.getAttribute('data-level'); }).indexOf(progLevel);
+      if (i < 0) return;
       e.preventDefault();
-      var tabs = $$('.year', years);
-      var i = tabs.map(function (t) { return Number(t.getAttribute('data-y')); }).indexOf(rep.year);
       var j = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-      rep.year = Number(tabs[j].getAttribute('data-y'));
-      renderCoop();
-      $('#tab-' + rep.year).focus();
+      setLevel(tabs[j].getAttribute('data-level'));
     });
 
     // programe: scurtătura către documentele unui program
@@ -1365,13 +1404,13 @@
     });
 
     // evenimente
-    $('.ev-filters').addEventListener('click', function (e) {
-      var b = e.target.closest('.chip');
+    $('#evYearBox').parentNode.parentNode.addEventListener('click', function (e) {
+      var b = e.target.closest('#evYear .chip, .ev-filters .chip');
       if (!b) return;
       if (b.hasAttribute('data-year')) evs.year = b.getAttribute('data-year'); else evs.prog = b.getAttribute('data-prog-f');
       renderEvents();
       var sel = b.hasAttribute('data-year') ? '[data-year="' + evs.year + '"]' : '[data-prog-f="' + evs.prog + '"]';
-      var again = $('.ev-filters ' + sel);
+      var again = $('#evYear ' + sel + ', .ev-filters ' + sel);
       if (again) again.focus();
     });
     $('#timeline').addEventListener('click', function (e) {
