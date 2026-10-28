@@ -178,22 +178,21 @@ test('scripturile paginii nu declară de două ori aceeași funcție la nivelul 
 
 const stripTags = h => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
 
-test('fonturile: Onest pentru tot textul (cel cerut de HG 728/2023, pct. 26) și JetBrains Mono doar pentru etichetele mici, găzduite local, cu licențele alăturate; panoul de administrare rămâne cu Golos Text', () => {
+test('fonturile: Onest pentru tot textul (cel cerut de HG 728/2023, pct. 26) (un singur font), găzduit local, cu licențele alăturate; panoul de administrare rămâne cu Golos Text', () => {
   const FONTS = path.join(WEB, 'assets', 'fonts');
   const adm = read('assets', 'css', 'admin.css');
-  // pagina publică: Onest 400/500/600/700 și JetBrains Mono 500, fiecare cu litere latine (română) și chirilice (rusă)
+  // pagina publică: Onest 400/500/600/700 fiecare cu litere latine (română) și chirilice (rusă)
   const faces = [...css.matchAll(/@font-face\{font-family:"([^"]+)";src:url\("\.\.\/fonts\/([\w.-]+\.woff2)"\) format\("woff2"\);font-weight:(\d+);font-style:normal;font-display:swap;unicode-range:[^}]+\}/g)];
   assert.equal((css.match(/@font-face/g) || []).length, faces.length, 'toate regulile @font-face au forma așteptată');
   assert.deepEqual(faces.map(m => `${m[1]} ${m[2]}`), [
     ...[400, 500, 600, 700].map(w => `Onest onest-latin-${w}.woff2`),
-    ...[400, 500, 600, 700].map(w => `Onest onest-cyrillic-${w}.woff2`),
-    'JetBrains Mono jetbrains-mono-latin-500.woff2', 'JetBrains Mono jetbrains-mono-cyrillic-500.woff2'
+    ...[400, 500, 600, 700].map(w => `Onest onest-cyrillic-${w}.woff2`)
   ]);
   assert.match(css, /--sans:"Onest",system-ui/);
-  assert.match(css, /--mono:"JetBrains Mono","Courier New",Courier,monospace/, 'etichetele mici au rezervă Courier (permis de HG 728/2023, pct. 33)');
+  assert.match(css, /--mono:var\(--sans\)/, 'și etichetele mici sunt tot în Onest');
   assert.doesNotMatch(css, /Golos|Source Serif|Raleway|fonts\.googleapis|fonts\.gstatic/i, 'fără alte fonturi');
   assert.doesNotMatch(css, /url\(["']?https?:/i, 'fără adrese externe');
-  const other = [...css.matchAll(/font-family:\s*([^;}]+)/g)].map(m => m[1].trim()).filter(v => !/^(?:"Onest"|"JetBrains Mono"|var\(--(?:sans|mono)\)|inherit)$/.test(v));
+  const other = [...css.matchAll(/font-family:\s*([^;}]+)/g)].map(m => m[1].trim()).filter(v => !/^(?:"Onest"|var\(--(?:sans|mono)\)|inherit)$/.test(v));
   assert.deepEqual(other, [], 'orice text din pagina publică folosește unul din cele două fonturi');
   assert.match(css, /body\{margin:0;font-family:var\(--sans\)/, 'textul paginii este în Onest');
   assert.match(css, /h1,h2,h3,h4\{font-family:var\(--sans\)/, 'titlurile sunt tot în Onest, fără cursive (HG 728/2023, pct. 33)');
@@ -205,8 +204,8 @@ test('fonturile: Onest pentru tot textul (cel cerut de HG 728/2023, pct. 26) și
     assert.ok(b.length > 5000 && b.length < 40000, `${f}: dimensiune rezonabilă`);
   }
   const golos = [...adm.matchAll(/golos-text-[\w-]+\.woff2/g)].map(m => m[0]);
-  assert.deepEqual(fs.readdirSync(FONTS).sort(), [...new Set([...faces.map(m => m[2]), ...golos]), 'LICENSE-golos-text.txt', 'LICENSE-jetbrains-mono.txt', 'LICENSE-onest.txt'].sort(), 'în dosarul fonturilor sunt numai fișierele folosite');
-  for (const l of ['golos-text', 'jetbrains-mono', 'onest']) assert.match(fs.readFileSync(path.join(FONTS, `LICENSE-${l}.txt`), 'utf8'), /SIL OPEN FONT LICENSE/i);
+  assert.deepEqual(fs.readdirSync(FONTS).sort(), [...new Set([...faces.map(m => m[2]), ...golos]), 'LICENSE-golos-text.txt', 'LICENSE-onest.txt'].sort(), 'în dosarul fonturilor sunt numai fișierele folosite');
+  for (const l of ['golos-text', 'onest']) assert.match(fs.readFileSync(path.join(FONTS, `LICENSE-${l}.txt`), 'utf8'), /SIL OPEN FONT LICENSE/i);
   assert.equal((adm.match(/@font-face/g) || []).length, 8, 'administrare: Golos Text latin și chirilic, 4 greutăți');
   assert.match(adm, /--sans:"Golos Text",system-ui/);
   // doar fișierele cu litere latine se cer din timp; cele chirilice se cer numai pe pagina în rusă (vezi i18n.test.js)

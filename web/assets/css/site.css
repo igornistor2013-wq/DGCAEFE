@@ -1,6 +1,6 @@
 /* Pagina publică. Design din propunerea „Claude Design” (a doua): fond gri-albăstrui deschis, carduri albe cu colțuri mari, antet plutitor,
-   etichete numerotate cu font monospațiat, titluri groase cu litere strânse. Font: Onest (cel cerut pentru site-urile autorităților publice,
-   HG 728/2023) + JetBrains Mono doar pentru etichetele mici și numere (găzduite local, licența SIL OFL, vezi web/assets/fonts).
+   etichete numerotate cu font monospațiat, titluri groase cu litere strânse. Font: numai Onest (cel cerut pentru site-urile autorităților publice,
+   HG 728/2023), găzduit local, licența SIL OFL, vezi web/assets/fonts.
    Toate mărimile sunt în rem: litera rădăcină are 16 px până la 1920 px lățime și crește ușor abia pe ecrane mai late (vezi „html”); conținutul se lărgește odată cu ecranul (--wrap). */
 
 @font-face{font-family:"Onest";src:url("../fonts/onest-latin-400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-024F,U+0259,U+1E00-1EFF,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -11,8 +11,6 @@
 @font-face{font-family:"Onest";src:url("../fonts/onest-cyrillic-500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 @font-face{font-family:"Onest";src:url("../fonts/onest-cyrillic-600.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 @font-face{font-family:"Onest";src:url("../fonts/onest-cyrillic-700.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
-@font-face{font-family:"JetBrains Mono";src:url("../fonts/jetbrains-mono-latin-500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap;unicode-range:U+0000-024F,U+0259,U+1E00-1EFF,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"JetBrains Mono";src:url("../fonts/jetbrains-mono-cyrillic-500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 
 :root{
   --blue:#063295; --blue-h:#0a46c9; --navy:#061c5c; --night:#020c2a; --ink:#0b1430; --ink2:#2b3552; --body:#46526f; --muted:#5a6785;
@@ -20,7 +18,7 @@
   --yellow:#f5c518; --amber-bg:#fff4cc; --amber:#6b5200; --red:#b3261e; --green:#14683f; --orange:#a24a0b;
   --focus:#0b5bc0; --focus-dark:#f5c518;
   --sans:"Onest",system-ui,-apple-system,"Segoe UI",Arial,Helvetica,sans-serif;
-  --mono:"JetBrains Mono","Courier New",Courier,monospace;
+  --mono:var(--sans);
   --wrap:min(max(77rem,72vw),120rem,100% - 2*var(--gutter)); --gutter:1.5rem;
   --r:.75rem; --rc:1.5rem; --rl:2rem; --hdr:6rem;
   --shadow:0 1px 2px rgba(11,20,48,.04),0 10px 28px rgba(11,20,48,.05);

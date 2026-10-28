@@ -175,7 +175,7 @@ test('fonturile: pagina în rusă cere din timp și literele chirilice; română
   assert.deepEqual(pre('index.html'), latin);
   assert.deepEqual(pre('en.html'), latin);
   assert.deepEqual(pre('ru.html'), ['assets/fonts/onest-latin-400.woff2', 'assets/fonts/onest-cyrillic-400.woff2', 'assets/fonts/onest-latin-700.woff2', 'assets/fonts/onest-cyrillic-700.woff2']);
-  for (const n of ['onest-latin-400', 'onest-latin-700', 'onest-cyrillic-400', 'onest-cyrillic-700', 'jetbrains-mono-latin-500', 'jetbrains-mono-cyrillic-500']) assert.ok(files.has(`assets/fonts/${n}.woff2`), `lipsește ${n}.woff2 din pagina statică`);
+  for (const n of ['onest-latin-400', 'onest-latin-700', 'onest-cyrillic-400', 'onest-cyrillic-700']) assert.ok(files.has(`assets/fonts/${n}.woff2`), `lipsește ${n}.woff2 din pagina statică`);
   assert.ok(![...files.keys()].some(n => /sourceserif|source-serif|robotocondensed|raleway/i.test(n)), 'niciun font vechi în pagina statică');
 });
 
