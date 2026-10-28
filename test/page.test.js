@@ -40,7 +40,7 @@ test('programele de cooperare: file pe niveluri (transfrontalier, transnațional
   assert.match(site, /function showProgramDocs\(/);
   assert.match(site, /progLevel = levelOf\(pr\)/, 'legăturile directe către un program deschid fila lui');
   assert.match(css, /\.seg\{[^}]*background:#e7ebf3/);
-  assert.match(css, /\.prog-grid\{display:grid;grid-template-columns:repeat\(auto-fill,minmax\(min\(100%,21\.25rem\)/);
+  assert.match(css, /\.prog-grid\{display:grid;grid-template-columns:repeat\(auto-fit,minmax\(min\(100%,21\.25rem\)/);
 });
 
 test('„Despre direcție”: titlul și prezentarea, apoi trei file (funcții, structură, drepturi și responsabilități) cu un singur panou vizibil', () => {
@@ -417,10 +417,10 @@ test('caruselul se potrivește ecranului: banda crește cu fereastra, titlul din
   assert.ok(t, 'formulele așteptate');
   assert.match(css, /\.hn-title\{[^}]*font-size:clamp\(1\.65rem,1rem \+ 2\.4vw,var\(--hn-t,3rem\)\)/, 'titlul urmează variabila, cu valoare de rezervă');
   assert.match(css, /\.hn-text\{max-width:calc\(var\(--hn-t,3rem\)\*15\.5\);text-align:left\}/, 'coloana de text crește odată cu litera');
-  // formulele, calculate pentru o fereastră (litera rădăcină urmează regula „html”: clamp(100%, .75rem + .3125vw, 1.375rem))
-  assert.match(css, /html\{font-size:clamp\(100%,\.75rem \+ \.3125vw,1\.375rem\)/);
+  // formulele, calculate pentru o fereastră (litera rădăcină urmează regula „html”: 16 px până la 1920 px, apoi crește ușor, cel mult 22 px)
+  assert.match(css, /html\{font-size:clamp\(100%,calc\(100% \+ \(100vw - 120rem\)\*\.003125\),1\.375rem\)/);
   const ev = (w, h) => {
-    const root = Math.min(22, Math.max(16, 12 + 0.003125 * w));
+    const root = Math.min(22, Math.max(16, 16 + 0.003125 * (w - 1920)));
     const band = Math.max(28 * root, Math.min(0.34 * w, 0.66 * h, Infinity), 0);
     const bandClamped = Math.min(62 * root, band);
     const title = Math.max(3 * root, Math.min(0.022 * w + root, 4.4 * root));
@@ -431,6 +431,7 @@ test('caruselul se potrivește ecranului: banda crește cu fereastra, titlul din
     assert.ok(ev(w, h).band >= old(w, h) - 0.5, `${w}×${h}: banda nu e mai joasă decât înainte`);
   }
   assert.ok(ev(1905, 943).band >= 600, 'pe 1905×943 banda are cel puțin 600 px (înainte 471)');
+  assert.equal(ev(1905, 943).root, 16, 'pe 1905 px literele nu mai cresc: 16 px');
   assert.ok(ev(2560, 1300).band >= 800, 'pe 2560×1300 banda are cel puțin 800 px (înainte 602)');
   for (const [w, h] of [[1536, 730], [1905, 943], [1920, 945], [2304, 1200], [2560, 1300]]) {
     assert.ok(ev(w, h).band / h <= 0.67, `${w}×${h}: sub bandă se vede începutul paginii`);
@@ -512,4 +513,26 @@ test('aliniere la design: titluri, filtre-pastile, rânduri de listă și varian
   assert.match(html, /<section class="topbar" aria-label="Site oficial">/);
   assert.match(site, /<h3 class="pc-name"/);
   assert.doesNotMatch(site, /<h4 class="pc-name"/);
+});
+
+// Textul și titlurile folosesc toată lățimea (nu coloane înguste cu spațiu gol alături), iar pagina se potrivește ecranului.
+test('text pe toată lățimea: „Despre direcție” pe o coloană, introducerile și titlurile fără limite de lățime, scalare pe ecran mare și mic', () => {
+  const despre = sectionOf('despre');
+  // ordinea: text, principii (pe un rând), butoane, file
+  const order = ['id="aboutText"', 'id="aboutPrinc"', 'id="aboutCta"', 'id="aboutTabs"'].map(k => despre.indexOf(k));
+  assert.ok(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), 'ordinea: text, principii, butoane, file');
+  assert.match(css, /\.about-top\{display:grid;grid-template-columns:minmax\(0,1fr\);/, 'o singură coloană');
+  assert.match(css, /\.about-princ\{display:flex;flex-wrap:wrap;align-items:center;/, 'principiile: eticheta și pastilele pe un rând');
+  assert.doesNotMatch(css, /\.about-head h2\{max-width/);
+  assert.match(site, /\$\('#aboutCta'\)\.innerHTML = /);
+  // titlurile și introducerile de secțiune nu mai au lățime maximă
+  assert.doesNotMatch(css, /\.sec-head-narrow/);
+  assert.doesNotMatch(html, /sec-head-narrow/);
+  assert.doesNotMatch(css, /\.sec-head p:not\(\.eyebrow\)\{[^}]*max-width/);
+  assert.doesNotMatch(css, /\.amp-desc\{[^}]*max-width/);
+  assert.match(css, /\.sec-head-inv\{display:grid;grid-template-columns:minmax\(0,1fr\)/, 'investiții: introducerea pe toată lățimea, cifrele dedesubt');
+  // conținutul se lărgește cu ecranul (72 % din lățime, între 77 rem și 120 rem), iar pe tabletă tabelele își strâng coloanele
+  assert.match(css, /--wrap:min\(max\(77rem,72vw\),120rem,100% - 2\*var\(--gutter\)\)/);
+  assert.match(css, /@media \(min-width:48rem\) and \(max-width:63\.99rem\)\{[^@]*--inv-cols:2\.5rem minmax\(0,1fr\) 6\.5rem 8rem 1\.5rem/);
+  assert.match(css, /@media \(min-width:48rem\) and \(max-width:63\.99rem\)\{[^@]*\.toolbar>\.tools\{flex:1 1 100%\}/);
 });
