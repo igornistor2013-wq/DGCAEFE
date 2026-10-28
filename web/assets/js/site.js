@@ -357,7 +357,7 @@
     var staff = s.structure || [];
     var total = staffTotal(staff);
 
-    $('#aboutText').innerHTML = (s.aboutP1 ? '<p class="about-lead">' + esc(s.aboutP1) + '</p>' : '') + (s.aboutP2 ? '<p>' + esc(s.aboutP2) + '</p>' : '');
+    $('#aboutText').innerHTML = (s.aboutP1 ? '<p>' + esc(s.aboutP1) + '</p>' : '') + (s.aboutP2 ? '<p>' + esc(s.aboutP2) + '</p>' : '');
     $('#aboutCta').innerHTML = '<a class="btn btn-primary" href="#cadrul-legal">Vezi cadrul legal</a><a class="btn btn-line" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">Platforma AMP ' + ico('ext') + '</a>';
 
     var pr = s.principles || [];

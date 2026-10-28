@@ -436,8 +436,8 @@ test('contacte, cadrul legal, galerie: pictograme în casete, subiectul ca pasti
 test('aliniere la design: titluri, filtre-pastile, rânduri de listă și varianta de telefon', () => {
   // titlurile secțiunilor groase și strânse; deasupra, eticheta numerotată în font monospațiat („01 · DESPRE DIRECȚIE”)
   assert.match(css, /\.sec-head h2\{font-size:clamp\(2rem,1\.1rem \+ 2\.4vw,2\.875rem\)/);
-  assert.match(css, /\.eyebrow\{[^}]*border-radius:999px[^}]*background:var\(--tint\)[^}]*font-family:var\(--mono\)/);
-  assert.match(css, /\.sec \.eyebrow::before\{content:counter\(sec,decimal-leading-zero\) " · "\}/, 'numărul secțiunii vine din CSS');
+  assert.doesNotMatch(html, /class="eyebrow"/, 'fără etichete numerotate deasupra titlurilor');
+  assert.doesNotMatch(css, /\.eyebrow|counter\(sec/);
   // secțiuni: spațiu mare deasupra, mic dedesubt (fondul este același, fără benzi)
   assert.match(css, /--sec-pt:clamp\(2\.5rem,[^;]*5rem\)/);
   // filtre: pastile de 44 px, fără chenar, cea aleasă este neagră; numărul din ele mai subțire
