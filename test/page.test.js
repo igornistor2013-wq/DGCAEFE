@@ -353,7 +353,7 @@ test('partea de sus: card bleumarin cu prezentarea în stânga și fotografia ul
   assert.match(html, /<script src="assets\/js\/hero-news\.js" defer><\/script>/);
   assert.match(site, /window\.HeroNews\.render\(\$\('#heroNews'\), D\.news, DG, \$\('#top \.hero'\)\)/);
   // o știre deschisă din partea de sus sau din „Ultimele noutăți”: la închidere adresa revine sus (#top), nu la rubrica Noutăți
-  assert.match(site, /newsBack = a\.closest\('#heroNews, #latest'\) \? '#top' : '#noutati'/);
+  assert.match(site, /newsBack = a\.closest\('#heroNews'\) \? '#top' : '#noutati'/);
   assert.match(site, /location\.search \+ newsBack\)/);
   assert.match(html, /<section class="intro" id="top"/);
   // stiluri: schimbare lină, dar fără animații pentru cine a cerut mișcare redusă; contrast ridicat și tipărire tratate
@@ -362,9 +362,10 @@ test('partea de sus: card bleumarin cu prezentarea în stânga și fotografia ul
   assert.match(css, /@media \(forced-colors:active\)/);
 });
 
-test('ultimele noutăți de sub accesul rapid: una mare și trei mici, scrise în pagină ascunse până sunt noutăți', () => {
-  assert.match(html, /<section class="latest" id="latest" aria-labelledby="latestTitle" hidden>/);
-  assert.match(html, /<div class="latest-grid" id="latestGrid">/);
+test('rubrica Noutăți: una mare și trei mici, apoi restul în carduri; blocul nu mai e sub accesul rapid', () => {
+  assert.doesNotMatch(html, /id="latest"/);
+  assert.match(html, /id="h-noutati"[\s\S]*<div class="latest-grid" id="latestGrid">[\s\S]*<div class="news-grid" id="newsGrid">/);
+  assert.match(site, /moreSlice\('news', all\.slice\(4\)\)/);
   assert.match(site, /function renderLatest\(/);
   assert.match(site, /\(D\.news \|\| \[\]\)\.slice\(0, 4\)/);
   assert.match(css, /\.latest-grid\{display:grid/);

@@ -282,7 +282,7 @@
       editLink('news', n.id) + '</div></article>';
   }
 
-  // blocul de sub „Acces rapid”: ultima noutate, mare, și următoarele trei, mici
+  // rubrica Noutăți: ultima noutate, mare, și următoarele trei, mici; restul — în carduri, dedesubt
   function latestMain(n) {
     var href = '#stire/' + n.id;
     var pic = n.image && (n.image.path || n.image.thumb);
@@ -301,15 +301,16 @@
       '<div><time datetime="' + esc(n.date) + '">' + esc(DG.dateText(n)) + '</time><h3><a href="' + href + '" data-news="' + esc(n.id) + '">' + esc(n.title) + '</a></h3></div></article>';
   }
   function renderLatest() {
-    var box = $('#latest');
     var list = (D.news || []).slice(0, 4);
-    box.hidden = !list.length;
     $('#latestGrid').innerHTML = list.length ? latestMain(list[0]) + (list.length > 1 ? '<div class="lt-side">' + list.slice(1).map(latestItem).join('') + '</div>' : '') : '';
   }
 
   function renderNews() {
-    var list = moreSlice('news', D.news);
-    $('#newsGrid').innerHTML = list.length ? list.map(newsCard).join('') : '<p class="empty">Nu există noutăți publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/news/new">Adăugați prima știre</a>.' : '') + '</p>';
+    var all = D.news || [];
+    var list = moreSlice('news', all.slice(4));
+    var g = $('#newsGrid');
+    g.hidden = !list.length && all.length > 0;
+    g.innerHTML = all.length ? list.map(newsCard).join('') : '<p class="empty">Nu există noutăți publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/news/new">Adăugați prima știre</a>.' : '') + '</p>';
     moreBox('news');
   }
 
@@ -1193,7 +1194,7 @@
     var newsBack = '#noutati';
     document.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('a[href^="#stire/"]');
-      if (a) newsBack = a.closest('#heroNews, #latest') ? '#top' : '#noutati';
+      if (a) newsBack = a.closest('#heroNews') ? '#top' : '#noutati';
     }, true);
     newsDlg.addEventListener('close', function () {
       if (location.hash.indexOf('#stire/') === 0) history.replaceState(null, '', location.pathname + location.search + newsBack);

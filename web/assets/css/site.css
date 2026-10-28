@@ -194,9 +194,9 @@ abbr[title]{text-decoration:none;cursor:help}
 .quick-t{font-size:.9375rem;font-weight:600;line-height:1.35;letter-spacing:-.01em}
 .quick a:hover .quick-go{color:var(--blue)}
 
-/* Ultimele noutăți, sub accesul rapid: una mare și trei mici */
-.latest{margin-top:clamp(2.5rem,1.2rem + 4vw,5rem)}
+/* Noutăți: una mare și trei mici, apoi restul în carduri */
 .latest-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:1.25rem}
+.latest-grid:not(:empty)+.news-grid:not([hidden]){margin-top:1.25rem}
 .lt-main{display:grid;grid-template-columns:minmax(0,1fr);background:#fff;border-radius:1.75rem;overflow:hidden;box-shadow:var(--shadow)}
 .lt-pic{position:relative;display:block;width:100%;min-width:0;min-height:14rem;aspect-ratio:16/10;background:var(--tint)}
 .lt-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -895,7 +895,7 @@ body.nf-page main{flex:1 0 auto}
 
 /* ---------- Tipărire ---------- */
 @media print{
-  .topbar,.lang,.mainnav,.nav-ov,.nav-toggle,.adminbar,.search-open,.search-box,.quick,.toolbar,.doc-bar,.ev-filters,.chips,.more-row,.totop,.toasts,.edit-link,.contact-map,.maplink,.form,.skip,.hero-news,.amp-go,.prog-links button,.doc-tabs,.inv-ctl,.inv-fp,.inv-head,#fnToggle,#invToggle,.fold,.about-cta,.fn-chev,.inv-chev,.ev-go,.latest{display:none!important}
+  .topbar,.lang,.mainnav,.nav-ov,.nav-toggle,.adminbar,.search-open,.search-box,.quick,.toolbar,.doc-bar,.ev-filters,.chips,.more-row,.totop,.toasts,.edit-link,.contact-map,.maplink,.form,.skip,.hero-news,.amp-go,.prog-links button,.doc-tabs,.inv-ctl,.inv-fp,.inv-head,#fnToggle,#invToggle,.fold,.about-cta,.fn-chev,.inv-chev,.ev-go{display:none!important}
   body{font-size:11pt;color:#000;background:#fff}
   .masthead{position:static;margin:0}
   .masthead-in{box-shadow:none;border-bottom:1px solid #000;border-radius:0}
