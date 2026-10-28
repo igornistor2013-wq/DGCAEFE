@@ -20,9 +20,9 @@
   --focus:#0b5bc0; --focus-dark:#ffd23f;
   --sans:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
-  --wrap:min(77.5rem,100% - 2*var(--gutter)); --gutter:1.5rem;
+  --wrap:min(77rem,100% - 2*var(--gutter)); --gutter:1.5rem;
   --r:.5rem; --rc:.875rem; --hdr:5rem;
-  --sec-pt:clamp(3rem,2rem + 3.5vw,5rem);
+  --sec-pt:clamp(2.5rem,1rem + 5.5vw,5rem); --sec-pb:clamp(3.5rem,1.5rem + 5.5vw,5.5rem);
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -183,10 +183,11 @@ abbr[title]{text-decoration:none;cursor:help}
 }
 
 /* ---------- Secțiuni ---------- */
-.sec{padding-block:var(--sec-pt);background:#fff;border-top:1px solid var(--line)}
+.sec{padding-block:var(--sec-pt) var(--sec-pb);background:#fff;border-top:1px solid var(--line)}
 .sec-alt{background:var(--paper)}
-.sec-head{display:flex;flex-direction:column;gap:.75rem;margin-bottom:clamp(1.5rem,1rem + 1.6vw,2.5rem)}
-.sec-head h2{font-size:clamp(1.75rem,1.2rem + 1.4vw,2.25rem);line-height:1.15;text-wrap:balance}
+.sec-head{display:flex;flex-direction:column;gap:.625rem;margin-bottom:clamp(1.25rem,.9rem + 1vw,1.75rem)}
+.sec-head h2{font-size:clamp(2rem,1.4rem + 1.8vw,2.5rem);line-height:1.15;text-wrap:balance}
+.sec-head .eyebrow{font-size:.75rem;letter-spacing:.12em;line-height:1.6}
 .sec-head p:not(.eyebrow){margin:0;color:var(--body);font-size:1rem;max-width:62ch}
 .sec-head-narrow{max-width:47.5rem}
 .sec-lead{margin:0;font-size:1rem;line-height:1.65;color:var(--body)}
@@ -220,21 +221,22 @@ abbr[title]{text-decoration:none;cursor:help}
 .btn-line{background:#fff;border-color:var(--line-d);color:var(--ink)}
 .btn-line:hover{background:var(--tint);border-color:var(--blue);color:var(--blue);text-decoration:none}
 .btn-sm{min-height:2.25rem;font-size:.875rem;padding:.3rem .875rem}
-.chips{display:flex;flex-wrap:wrap;gap:.4rem}
-.chip{display:inline-flex;align-items:center;gap:.375rem;min-height:2.5rem;font-size:.875rem;font-weight:500;padding:0 .875rem;border:1px solid var(--line-d);background:#fff;border-radius:999px;color:var(--ink);cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
-.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{display:inline-flex;align-items:center;gap:.625rem;min-height:2.75rem;font-size:.9375rem;font-weight:600;padding:0 1.125rem;border:1px solid var(--line-d);background:#fff;border-radius:999px;color:var(--ink);cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+.chip:hover{border-color:var(--blue)}
 .chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
-.chip .n{opacity:.7}
+.chip .n{font-weight:500;color:var(--muted)}
+.chip[aria-pressed="true"] .n{color:#dbe4fb}
 .input,.select,.fgroup input,.fgroup select,.fgroup textarea{font:inherit;font-size:.9375rem;min-height:2.75rem;padding:.55rem .875rem;border:1px solid var(--line-d);border-radius:var(--r);background:#fff;color:var(--ink);width:100%}
 .input:focus,.select:focus,.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{outline:3px solid rgba(6,50,149,.3);outline-offset:0;border-color:var(--blue)}
 .select{width:auto;min-width:11rem}
 .field-icon{position:relative;min-width:16rem}
 .field-icon.grow{flex:1 1 20rem}
 .field-icon .ico{position:absolute;left:.875rem;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
-.field-icon .input{padding-left:2.5rem}
-.toolbar{display:flex;gap:.75rem 1.25rem;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:1rem}
+.field-icon .input{padding-left:2.75rem}
+.toolbar{display:flex;gap:.75rem 1.25rem;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:0}
 .tools{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
-.count{font-size:.875rem;color:var(--muted);margin:0 0 .75rem}
+.count{font-size:.875rem;color:var(--muted);margin:1.25rem 0 .75rem}
 .tag{display:inline-block;font-size:.8125rem;font-weight:600;padding:.1rem .65rem;border-radius:999px;background:var(--tint);color:var(--blue);line-height:1.6}
 .tag-warn{background:var(--amber-bg);color:var(--amber)}
 
@@ -298,37 +300,38 @@ button.fn-btn:hover .fn-t,.acc-btn:hover .acc-t{color:var(--blue)}
 
 /* ---------- Proiecte investiționale ---------- */
 .sec-head-inv{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,26rem),1fr));gap:2rem;align-items:end}
-.inv-intro{display:flex;flex-direction:column;gap:.75rem;min-width:0}
+.inv-intro{display:flex;flex-direction:column;gap:.625rem;min-width:0}
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:0}
 .tile{background:var(--paper);border-radius:.75rem;padding:1.25rem;display:flex;flex-direction:column;gap:.375rem;min-width:0}
 .tile dt{font-size:.8125rem;color:var(--muted)}
 .tile dd{margin:0;font-size:2rem;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .tile dd small{font-size:.9375rem;color:var(--muted);font-weight:500}
-.inv-ctl{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:.875rem}
+.inv-ctl{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:1.25rem}
 .inv-search{flex:1 1 16rem;min-width:0}
-.inv-fp{margin-bottom:1rem}
-.inv-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1.25rem;margin-bottom:.75rem}
+.inv-fp{margin-bottom:0}
+.inv-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1.25rem;margin:1.25rem 0 .75rem}
+.inv-meta .btn-sm{margin-block:-.5rem}
 .inv-meta .count{margin:0 auto 0 0;font-weight:600;color:var(--ink)}
 .inv-table{background:#fff;border:1px solid var(--line);border-radius:var(--rc);overflow:hidden}
-.inv-list,.inv-head{--inv-cols:3rem minmax(0,1fr) minmax(0,15rem) 8.5rem 1.25rem;--inv-gap:1rem}
-.inv-head{display:grid;grid-template-columns:var(--inv-cols);column-gap:var(--inv-gap);align-items:center;padding:.75rem 1.25rem;background:var(--paper);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.inv-list,.inv-head{--inv-cols:3.5rem minmax(0,1fr) 11.875rem 10.625rem 1.75rem;--inv-gap:1.25rem}
+.inv-head{display:grid;grid-template-columns:var(--inv-cols);column-gap:var(--inv-gap);align-items:center;padding:.875rem 1.5rem;background:var(--paper);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .inv-head .h-val{text-align:right}
 .inv{border-top:1px solid var(--line2);transition:background-color .6s}
 .inv:first-child{border-top:0}
 .inv.flash{background:#fff6d6}
-.inv-btn{display:grid;grid-template-columns:var(--inv-cols);gap:.15rem var(--inv-gap);align-items:center;width:100%;padding:1rem 1.25rem;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink)}
+.inv-btn{display:grid;grid-template-columns:var(--inv-cols);gap:.15rem var(--inv-gap);align-items:center;width:100%;padding:1.125rem 1.5rem;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink)}
 .inv-btn:hover{background:#f9fafc}
-.inv-no{color:var(--muted);font-variant-numeric:tabular-nums}
-.inv-main{display:flex;flex-direction:column;gap:.25rem;min-width:0}
-.inv-name{font-weight:600;font-size:.9375rem;line-height:1.4;overflow-wrap:anywhere}
-.inv-sub{display:flex;flex-wrap:wrap;align-items:baseline;gap:.1rem .5rem;font-size:.8125rem;color:var(--muted)}
-.inv-min{font-weight:600;color:var(--ink2)}
-.inv-fin{min-width:0;font-size:.875rem;line-height:1.4;color:var(--body);overflow-wrap:anywhere}
+.inv-no{font-size:.9375rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.inv-main{display:flex;flex-direction:column;gap:.1875rem;min-width:0}
+.inv-name{font-weight:600;font-size:1rem;line-height:1.35;overflow-wrap:anywhere}
+.inv-sub{font-size:.875rem;line-height:1.4;color:var(--muted)}
+.inv-min{font-weight:600;color:var(--ink);margin-right:.375rem}
+.inv-fin{min-width:0;font-size:.9375rem;line-height:1.4;color:var(--ink2);overflow-wrap:anywhere}
 .inv-fin .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.inv-val{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:0 .3rem;text-align:right;font-variant-numeric:tabular-nums}
-.inv-val b{font-weight:600;font-size:.9375rem}
-.inv-val small{font-size:.8125rem;color:var(--muted)}
-.inv-panel{padding:.25rem 1.25rem 1.5rem calc(1.25rem + 3rem + 1rem);background:#fbfcfe}
+.inv-val{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:0 .3rem;text-align:right;font-size:.9375rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.inv-val b{font-weight:700;font-size:1rem;color:var(--ink)}
+.inv-val small{font-size:.9375rem;color:var(--muted)}
+.inv-panel{padding:.25rem 1.5rem 1.5rem calc(1.5rem + 3.5rem + 1.25rem);background:#fbfcfe}
 .inv-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:1.5rem 2rem;align-items:start;margin-top:1rem}
 .inv-text{display:grid;gap:1.25rem;min-width:0}
 .inv-col h4{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:.5rem}
@@ -357,16 +360,16 @@ button.fn-btn:hover .fn-t,.acc-btn:hover .acc-t{color:var(--blue)}
 .law-list{background:#fff;border:1px solid var(--line);border-radius:var(--rc);overflow:hidden}
 .law-row{display:flex;align-items:center;gap:1rem;border-top:1px solid var(--line2)}
 .law-row:first-child{border-top:0}
-.law-a{flex:1;min-width:0;display:grid;grid-template-columns:3rem 10.5rem minmax(0,1fr) auto;gap:1.25rem;align-items:center;padding:1.1rem 1.4rem;color:var(--ink);text-decoration:none}
+.law-a{flex:1;min-width:0;display:grid;grid-template-columns:3rem 11.5rem minmax(0,1fr) auto;gap:1.25rem;align-items:center;padding:1.25rem 1.5rem;color:var(--ink);text-decoration:none}
 a.law-a:hover{background:#f9fafc;color:var(--ink);text-decoration:none}
 .law-ico{display:grid;place-items:center;width:3rem;height:3rem;border-radius:.625rem;background:var(--tint);color:var(--blue)}
-.law-ico .ico{width:1.5rem;height:1.5rem;stroke-width:1.75}
+.law-ico .ico{width:1.375rem;height:1.375rem;stroke-width:1.9}
 .law-no{display:flex;flex-direction:column;gap:.125rem}
-.law-no .type{font-size:.75rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.05em}
-.law-no strong{font-weight:600;font-variant-numeric:tabular-nums}
-.law-title{display:flex;flex-direction:column;gap:.25rem;font-size:.9375rem;line-height:1.45}
-.law-topic{font-size:.8125rem;color:var(--muted)}
-.law-open{display:inline-flex;align-items:center;gap:.35rem;color:var(--blue);font-size:.875rem;font-weight:600;white-space:nowrap}
+.law-no .type{font-size:.75rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em}
+.law-no strong{font-size:1.0625rem;font-weight:600;font-variant-numeric:tabular-nums}
+.law-title{display:flex;flex-direction:column;gap:.1875rem;font-size:1rem;line-height:1.45}
+.law-topic{font-size:.875rem;color:var(--muted)}
+.law-open{display:inline-flex;align-items:center;justify-content:flex-end;gap:.375rem;min-width:5.5rem;color:var(--blue);font-size:.875rem;font-weight:600;white-space:nowrap}
 .law-row .edit-link{margin-right:1rem}
 .empty-row{padding:2rem 1rem;text-align:center;color:var(--muted)}
 .callout{display:flex;gap:1rem 2rem;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:1.25rem 1.5rem;background:var(--amber-bg);border:1px solid #f0dc8a;border-radius:var(--rc);margin-bottom:1.5rem}
@@ -445,23 +448,21 @@ a.law-a:hover{background:#f9fafc;color:var(--ink);text-decoration:none}
 #auditBox{margin-top:1.5rem}
 
 /* ---------- Documente ---------- */
-.toolbar-docs{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:.75rem}
+.toolbar-docs{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:0}
 .toolbar-docs .field-icon.grow{flex:1 1 17.5rem;min-width:0}
-.toolbar-docs .input,.toolbar-docs .select{min-height:3rem;border-radius:.625rem;border-color:#c9d0de}
 .toolbar-docs .tools{gap:.75rem}
-.doc-tabs{margin-bottom:1rem;gap:.75rem}
-.doc-tabs .chip{min-height:3rem;padding:0 1.125rem;border-radius:.625rem;border-color:#c9d0de}
+.doc-tabs{margin:1.25rem 0 0}
 .doc-list{display:block;background:#fff;border:1px solid var(--line);border-radius:var(--rc);overflow:hidden}
 .doc-item{position:relative;border-top:1px solid var(--line2)}
 .doc-item:first-child{border-top:0}
-.doc{display:grid;grid-template-columns:3rem minmax(0,1fr) auto;gap:1.25rem;align-items:center;padding:1.125rem 1.5rem;color:var(--ink);text-decoration:none;transition:background-color .15s}
+.doc{display:grid;grid-template-columns:3rem minmax(0,1fr) auto;gap:1.25rem;align-items:center;padding:1.25rem 1.5rem;color:var(--ink);text-decoration:none;transition:background-color .15s}
 .doc:hover{background:#f7f9fd;color:var(--ink);text-decoration:none}
 .doc-ico{display:grid;place-items:center;width:3rem;height:3rem;border-radius:.625rem;background:var(--tint);color:var(--blue)}
-.doc-ico .ico{width:1.5rem;height:1.5rem;stroke-width:1.75}
+.doc-ico .ico{width:1.375rem;height:1.375rem;stroke-width:1.9}
 .doc-body{display:flex;flex-direction:column;gap:.25rem;min-width:0}
-.doc-t{font-size:1rem;font-weight:600;line-height:1.35}
-.doc-m{font-size:.8125rem;color:var(--muted);font-weight:400}
-.doc-go{display:grid;place-items:center;width:2.5rem;height:2.5rem;border:1px solid #c9d0de;border-radius:50%;color:var(--blue)}
+.doc-t{font-size:1.0625rem;font-weight:600;line-height:1.35}
+.doc-m{font-size:.875rem;color:var(--muted);font-weight:400}
+.doc-go{display:grid;place-items:center;width:2.5rem;height:2.5rem;border:1px solid var(--line-d);border-radius:50%;color:var(--blue)}
 .doc-go .ico{width:1.25rem;height:1.25rem}
 .doc:hover .doc-go{border-color:var(--blue);background:#fff}
 .doc-item .edit-link{position:absolute;right:4.5rem;top:.35rem}
@@ -473,7 +474,8 @@ a.law-a:hover{background:#f9fafc;color:var(--ink);text-decoration:none}
 .ev-filters{margin-bottom:0;padding-bottom:1.75rem;border-bottom:1px solid var(--line-d)}
 .ev-filters fieldset{border:0;padding:0;margin:0;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem}
 .ev-filters legend{float:left;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0;margin-right:.75rem}
-.ev-year .chip,.ev-filters .chip{min-height:2.75rem;padding:0 1.25rem;font-size:.9375rem;font-weight:600}
+.ev-year .chip,.ev-filters .chip{padding:0 1.25rem}
+#h-ev{font-size:clamp(2rem,1.2rem + 2.2vw,2.75rem)}
 /* lista este o linie verticală: în stânga data, pe linie punctul (galben = în desfășurare, albastru = urmează), în dreapta cardul */
 .events{display:block;margin:2.25rem 0 0;padding:0;list-style:none}
 .events>li{position:relative}
@@ -722,7 +724,7 @@ body.nf-page main{flex:1 0 auto}
   .ev-place .ico{margin-top:.125rem}
   .ev-more summary{min-height:3rem}
   .ev-links .btn{width:100%}
-  .more-row{flex-direction:column;align-items:stretch;gap:.625rem}
+  .more-row{flex-direction:column;align-items:stretch;gap:.625rem;margin-top:1.5rem}
   .more-btn{width:100%;justify-content:center;padding:0 1.25rem}
   .more-info{text-align:center}
   .more-row.tl-end{padding-left:2.75rem}
@@ -731,27 +733,36 @@ body.nf-page main{flex:1 0 auto}
   .amp-go{display:none}
   .seg{width:100%}
   .seg-btn{flex:1 1 auto;justify-content:center;padding:.625rem .75rem}
-  .doc{grid-template-columns:2.5rem minmax(0,1fr);gap:.875rem;padding:1rem}
+  .doc{grid-template-columns:2.5rem minmax(0,1fr) 1.125rem;align-items:start;gap:.875rem;padding:1rem}
   .doc-ico{width:2.5rem;height:2.5rem}
-  .doc-go{display:none}
+  .doc-ico .ico{width:1.25rem;height:1.25rem}
+  .doc-t{font-size:1rem}
+  .doc-m{font-size:.84375rem;line-height:1.4}
+  .doc-go,.doc:hover .doc-go{width:1.125rem;height:auto;margin-top:.6875rem;border:0;border-radius:0;background:none}
+  .doc-go .ico{width:1.125rem;height:1.125rem}
   .doc-item .edit-link{right:.5rem}
   .prog-card{padding:1.375rem}
   .tools{width:100%}
   .field-icon{flex:1 1 100%;min-width:0}
   .select{flex:1 1 45%;min-width:0}
   .inv-head{display:none}
-  .inv-btn{grid-template-columns:2rem minmax(0,1fr) auto 1.25rem;grid-template-areas:"no main main chev" ". fin val .";gap:.4rem .75rem;padding:1rem}
-  .inv-no{grid-area:no}
+  .inv-btn{grid-template-columns:2rem minmax(0,1fr) auto 1.25rem;grid-template-areas:"no main main chev" ". fin val .";align-items:start;gap:.5rem .75rem;padding:1rem}
+  .inv-no{grid-area:no;display:grid;place-items:center;width:1.75rem;height:1.75rem;border-radius:50%;background:var(--line2);font-size:.8125rem;font-weight:600;color:var(--body)}
+  .inv-no:empty{display:none}
   .inv-main{grid-area:main}
-  .inv-fin{grid-area:fin;align-self:center}
-  .inv-val{grid-area:val;align-self:center}
+  .inv-fin{grid-area:fin;align-self:start;font-size:.90625rem}
+  .inv-val{grid-area:val;align-self:start;font-size:.90625rem}
   .inv-fin:empty,.inv-val:empty{display:none}
-  .inv-fin .lbl{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal;color:var(--muted)}
   .inv-chev{grid-area:chev;align-self:start;margin-top:.25rem}
-  .inv-btn.fl{grid-template-areas:"no main main chev" ". fin fin ." ". val val ."}
-  .inv-btn.fl .inv-val{justify-content:flex-start;text-align:left}
+  .inv-sub{font-size:.84375rem}
   .inv-panel{padding:.25rem 1rem 1.25rem}
-  .law-a{grid-template-columns:minmax(0,1fr);gap:.375rem;padding:1rem}
+  .law-a{grid-template-columns:2.5rem minmax(0,1fr);gap:.375rem .875rem;align-items:start;padding:1rem}
+  .law-ico{width:2.5rem;height:2.5rem;grid-row:1 / span 2}
+  .law-ico .ico{width:1.25rem;height:1.25rem}
+  .law-no,.law-title{grid-column:2}
+  .law-no strong{font-size:1rem}
+  .law-title{gap:.25rem;font-size:.9375rem;line-height:1.5}
+  .law-topic{font-size:.84375rem}
   .law-open{display:none}
   .law-row{align-items:flex-start}
   .lb-stage{padding:0 .25rem}
@@ -759,10 +770,22 @@ body.nf-page main{flex:1 0 auto}
   .gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
   .abbr-list{grid-template-columns:minmax(0,1fr)}
   .toolbar{align-items:stretch}
+  /* ca în design: titlul, apoi filtrele pe un singur rând care alunecă pe orizontală, până la marginea ecranului */
+  .sec-head:not(.sec-head-inv){gap:.5rem}
+  .sec-head-row{flex-direction:column;align-items:stretch;gap:1.25rem}
+  .ev-year{width:100%}
+  .chips{flex-wrap:nowrap;overflow-x:auto;margin:-.375rem calc(-1*var(--gutter));padding:.375rem var(--gutter);scrollbar-width:none;overscroll-behavior-x:contain}
+  .chips::-webkit-scrollbar{display:none}
+  .chips>.chip{flex:none}
+  .toolbar>.chips{flex:1 1 100%;min-width:0}
+  .ev-filters{padding-bottom:1.5rem}
+  .ev-filters fieldset{display:block}
+  .ev-filters legend{float:none;margin:0 0 .5rem}
+  .doc-list,.law-list,.inv-table{border-radius:.75rem}
+  .inv-meta .btn-sm{margin-block:0}
+  .ev-sum{font-size:.9375rem}
 }
 @media (max-width:30rem){
-  .inv-btn{grid-template-columns:2rem minmax(0,1fr) 1.25rem;grid-template-areas:"no main chev" "fin fin fin" "val val val"}
-  .inv-val{justify-content:flex-start;text-align:left}
   .tiles{grid-template-columns:minmax(0,1fr)}
   .search-box{flex-wrap:wrap}
 }
@@ -808,7 +831,7 @@ body.nf-page main{flex:1 0 auto}
 }
 
 /* ---------- Stil comun al câmpurilor și al pastilelor (din propunerea „Pagina DGCAEFE”) ---------- */
-.input,.select,.fgroup input,.fgroup select,.fgroup textarea{min-height:3rem;border-radius:.625rem;border-color:#c9d0de}
+.input,.select,.fgroup input,.fgroup select,.fgroup textarea{min-height:3rem;border-radius:.625rem;border-color:var(--line-d);font-size:1rem}
 .fgroup .lbl{display:block;font-size:.875rem;font-weight:500;margin-bottom:.4rem}
 .pill-set{display:flex;flex-wrap:wrap;gap:.5rem}
 .pill{min-height:2.5rem;padding:0 1rem;border:1px solid #c9d0de;border-radius:999px;background:#fff;color:var(--ink);font-size:.875rem;font-weight:500;cursor:pointer;transition:border-color .15s,color .15s}
@@ -816,7 +839,6 @@ body.nf-page main{flex:1 0 auto}
 .pill[aria-checked="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
 .g-zoom{position:absolute;right:.625rem;bottom:.625rem;z-index:1;display:grid;place-items:center;width:2.25rem;height:2.25rem;border-radius:.625rem;background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(16,26,51,.2)}
 .g-zoom .ico{width:1.25rem;height:1.25rem;stroke-width:1.75}
-@media (max-width:47.99rem){.law-ico{display:none}.law-a{grid-template-columns:minmax(0,1fr)}}
 .ev-body .edit-link{align-self:flex-start}
 .law-row .edit-link,.rep-wrap .edit-link{white-space:nowrap}
 

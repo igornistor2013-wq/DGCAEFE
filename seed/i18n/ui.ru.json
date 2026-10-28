@@ -389,6 +389,7 @@
  "Platforma de Management al Asistenței Externe (AMP)": "Платформа управления внешней помощью (AMP)",
  "Informațiile centralizate de platformă": "Информация, объединяемая платформой",
  "Site oficial ·": "Официальный сайт ·",
+ "Site oficial": "Официальный сайт",
  "Închide meniul": "Закрыть меню",
  "Autoritatea națională de coordonare a asistenței externe": "Национальный орган по координации внешней помощи",
  "Misiune și rol": "Миссия и роль",
@@ -404,6 +405,11 @@
  "Vezi mai mult": "Показать ещё",
  "Vezi mai puțin": "Показать меньше",
  "încă %1": "ещё %1",
- "Afișate %1 din %2": "Показано %1 из %2",
+ "%1 din %2 proiecte": "%1 из %2 проектов",
+ "%1 din %2 evenimente": "%1 из %2 мероприятий",
+ "%1 din %2 rapoarte": "%1 из %2 отчётов",
+ "%1 din %2 pași": "%1 из %2 шагов",
+ "%1 din %2 noutăți": "%1 из %2 новостей",
+ "%1 din %2 fotografii": "%1 из %2 фотографий",
  "Evenimente în ordine cronologică": "Мероприятия в хронологическом порядке"
 }

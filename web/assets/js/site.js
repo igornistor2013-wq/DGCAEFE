@@ -177,14 +177,14 @@
   // Fiecare listă arată întâi primele elemente (5; noutățile 6, fotografiile 12). Butonul de sub ea spune câte mai sunt, le adaugă pe următoarele
   // și, când s-au afișat toate, devine „Vezi mai puțin”. La orice căutare, filtru sau ordonare lista revine la primele elemente.
   var MORE = {
-    docs: { box: 'docMoreBox', list: '#docList > li', ctl: 'docList', head: 'h-doc', first: 5, step: 10, draw: function () { renderDocs(); } },
-    law: { box: 'lawMoreBox', list: '#lawBody > li', ctl: 'lawBody', head: 'h-legal', first: 5, step: 10, draw: function () { renderLegal(); } },
-    inv: { box: 'invMoreBox', list: '#invList > li', ctl: 'invList', head: 'h-plan', first: 5, step: 10, draw: function () { renderInvList(); } },
-    events: { box: 'evMoreBox', list: '#timeline .ev-body', ctl: 'timeline', head: 'h-ev', first: 5, step: 10, draw: function () { renderEvents(); } },
-    reports: { box: 'repMoreBox', list: '#reportGrid > .rep-wrap', ctl: 'reportGrid', head: 'h-rapoarte', first: 5, step: 10, draw: function () { renderReports(); } },
-    steps: { box: 'stepMoreBox', list: '#stepList > li', ctl: 'stepList', head: 'h-acord', first: 5, step: 10, draw: function () { renderSteps(); } },
-    news: { box: 'newsMoreBox', list: '#newsGrid > .news-card', ctl: 'newsGrid', head: 'h-noutati', first: 6, step: 6, draw: function () { renderNews(); } },
-    gal: { box: 'galMoreBox', list: '#galGrid > li', ctl: 'galGrid', head: 'h-gal', first: 12, step: 12, draw: function () { renderGallery(); } }
+    docs: { box: 'docMoreBox', list: '#docList > li', ctl: 'docList', head: 'h-doc', noun: '%1 din %2 documente', first: 5, step: 10, draw: function () { renderDocs(); } },
+    law: { box: 'lawMoreBox', list: '#lawBody > li', ctl: 'lawBody', head: 'h-legal', noun: '%1 din %2 acte', first: 5, step: 10, draw: function () { renderLegal(); } },
+    inv: { box: 'invMoreBox', list: '#invList > li', ctl: 'invList', head: 'h-plan', noun: '%1 din %2 proiecte', first: 5, step: 10, draw: function () { renderInvList(); } },
+    events: { box: 'evMoreBox', list: '#timeline .ev-body', ctl: 'timeline', head: 'h-ev', noun: '%1 din %2 evenimente', first: 5, step: 10, draw: function () { renderEvents(); } },
+    reports: { box: 'repMoreBox', list: '#reportGrid > .rep-wrap', ctl: 'reportGrid', head: 'h-rapoarte', noun: '%1 din %2 rapoarte', first: 5, step: 10, draw: function () { renderReports(); } },
+    steps: { box: 'stepMoreBox', list: '#stepList > li', ctl: 'stepList', head: 'h-acord', noun: '%1 din %2 pași', first: 5, step: 10, draw: function () { renderSteps(); } },
+    news: { box: 'newsMoreBox', list: '#newsGrid > .news-card', ctl: 'newsGrid', head: 'h-noutati', noun: '%1 din %2 noutăți', first: 6, step: 6, draw: function () { renderNews(); } },
+    gal: { box: 'galMoreBox', list: '#galGrid > li', ctl: 'galGrid', head: 'h-gal', noun: '%1 din %2 fotografii', first: 12, step: 12, draw: function () { renderGallery(); } }
   };
   var PRINT_ALL = ['docs', 'law', 'inv', 'events', 'reports', 'steps']; // listele care se tipăresc întregi
   var lim = {}; // câte elemente se văd din fiecare listă (lipsește = primele)
@@ -217,7 +217,7 @@
     var n = $('.more-n', box);
     n.textContent = all ? '' : T('încă %1', total - shown);
     n.hidden = all;
-    $('.more-info', box).textContent = T('Afișate %1 din %2', shown, total);
+    $('.more-info', box).textContent = T(c.noun, shown, total);
     box.hidden = false;
   }
   // după „Vezi mai mult” cursorul trece pe primul element nou (cititoarele de ecran continuă de acolo)
@@ -244,6 +244,18 @@
       if (!nb) return;
       var r = nb.getBoundingClientRect();
       if (r.top < 0 || r.bottom > window.innerHeight) nb.scrollIntoView({ block: 'center', behavior: reduceMotion() ? 'auto' : 'smooth' });
+    });
+  }
+
+  // Pe telefon filtrele stau pe un singur rând care alunecă pe orizontală; filtrul la care ajunge tastatura (sau un cititor de ecran) se vede întreg.
+  function setupChipRows() {
+    document.addEventListener('focusin', function (e) {
+      var el = e.target, row = el.closest && el.closest('.chips');
+      if (!row || row.scrollWidth <= row.clientWidth + 1) return;
+      var r = el.getBoundingClientRect(), rr = row.getBoundingClientRect(), pad = 16, d = 0;
+      if (r.left < rr.left + pad) d = r.left - rr.left - pad;
+      else if (r.right > rr.right - pad) d = r.right - rr.right + pad;
+      if (d) row.scrollBy({ left: d, behavior: reduceMotion() ? 'auto' : 'smooth' });
     });
   }
 
@@ -596,7 +608,7 @@
     var open = !!accState[key];
     var finHtml = !fin.short ? '' : fin.full ? '<abbr title="' + esc(fin.full) + '">' + esc(fin.short) + '</abbr>' : esc(fin.short);
     return '<li class="inv" id="proiect-' + esc(p.id) + '" data-open="' + open + '"><h3 class="inv-h">' +
-      '<button class="inv-btn' + (fin.short.length > 6 ? ' fl' : '') + '" type="button" id="invb-' + esc(p.id) + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="invp-' + esc(p.id) + '">' +
+      '<button class="inv-btn" type="button" id="invb-' + esc(p.id) + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="invp-' + esc(p.id) + '">' +
       '<span class="inv-no">' + (p.order || '') + '</span>' +
       '<span class="inv-main"><span class="inv-name">' + esc(p.name) + '</span><span class="inv-sub">' +
         (mk !== NO_MIN ? '<span class="inv-min">' + esc(mk) + '</span>' + (fullName(mk) ? '<span class="inv-minname">' + esc(fullName(mk)) + '</span>' : '') : '') + '</span></span>' +
@@ -768,7 +780,7 @@
     var money = (p.facts || []).filter(function (f) { return /€|eur|mil/i.test(f.b || ''); })[0];
     return '<article class="prog-card" id="prog-' + esc(p.id) + '">' +
       '<div class="pc-top"><span class="pc-ico">' + ico(LEVEL_ICON[levelOf(p)] || 'hub') + '</span>' + (money ? '<span class="pc-money">' + esc(money.b) + '</span>' : '') + '</div>' +
-      '<h4 class="pc-name" tabindex="-1">' + (p.site ? '<a class="pc-link" href="' + esc(p.site) + '" target="_blank" rel="noopener">' + esc(p.name) + '</a>' : esc(p.name)) + '</h4>' +
+      '<h3 class="pc-name" tabindex="-1">' + (p.site ? '<a class="pc-link" href="' + esc(p.site) + '" target="_blank" rel="noopener">' + esc(p.name) + '</a>' : esc(p.name)) + '</h3>' +
       (p.desc ? '<p class="prog-desc">' + esc(p.desc) + '</p>' : '') +
       (p.facts || []).map(function (f) { return '<div class="fact"><b>' + esc(f.b) + '</b> ' + esc(f.t) + '</div>'; }).join('') +
       '<div class="pc-foot"><span class="pc-strand">' + ico('flag') + '<span>' + esc(p.strand || '') + '</span></span>' +
@@ -803,7 +815,7 @@
     scrollToEl(card);
     card.classList.add('flash');
     setTimeout(function () { card.classList.remove('flash'); }, 1800);
-    setTimeout(function () { var t = $('h4', card); if (t) t.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
+    setTimeout(function () { var t = $('.pc-name', card); if (t) t.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
   }
 
   // „Documente (n)” de pe fișa unui program: biblioteca de documente, filtrată pe programul ales.
@@ -1656,6 +1668,7 @@
     setupChrome();
     setupEvents();
     setupMore();
+    setupChipRows();
     setupSearch();
     setupForm();
     renderAll();

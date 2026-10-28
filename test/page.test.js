@@ -100,11 +100,19 @@ test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documen
   const m = /var MORE = \{([\s\S]*?)\n  \};/.exec(site);
   assert.ok(m, 'MORE există în site.js');
   const cfg = {};
-  for (const r of m[1].matchAll(/(\w+): \{ box: '(\w+)', list: '([^']+)', ctl: '(\w+)', head: '([\w-]+)', first: (\d+), step: (\d+)/g)) {
-    cfg[r[1]] = { box: r[2], ctl: r[4], head: r[5], first: Number(r[6]), step: Number(r[7]) };
+  for (const r of m[1].matchAll(/(\w+): \{ box: '(\w+)', list: '([^']+)', ctl: '(\w+)', head: '([\w-]+)', noun: '([^']+)', first: (\d+), step: (\d+)/g)) {
+    cfg[r[1]] = { box: r[2], ctl: r[4], head: r[5], noun: r[6], first: Number(r[7]), step: Number(r[8]) };
   }
   assert.deepEqual(Object.keys(cfg).sort(), ['docs', 'events', 'gal', 'inv', 'law', 'news', 'reports', 'steps']);
   for (const k of ['docs', 'law', 'inv', 'events', 'reports', 'steps']) assert.equal(cfg[k].first, 5, `${k}: primele 5`);
+  // lângă buton, ca în design: „5 din 52 documente”, „5 din 19 proiecte”… (tradus în ru și en)
+  const ruUi = JSON.parse(fs.readFileSync(path.join(WEB, '..', 'seed', 'i18n', 'ui.ru.json'), 'utf8'));
+  const enUi = JSON.parse(fs.readFileSync(path.join(WEB, '..', 'seed', 'i18n', 'ui.en.json'), 'utf8'));
+  for (const [k, c] of Object.entries(cfg)) {
+    assert.match(c.noun, /^%1 din %2 \S+$/, `${k}: textul de lângă buton`);
+    assert.ok(ruUi[c.noun] && enUi[c.noun], `${k}: „${c.noun}” are traducere în ru și en`);
+  }
+  assert.doesNotMatch(site, /Afișate %1 din %2/);
   assert.equal(cfg.news.first, 6);
   assert.equal(cfg.gal.first, 12);
   for (const [k, c] of Object.entries(cfg)) {
@@ -470,4 +478,38 @@ test('contacte, cadrul legal, galerie: pictograme în casete, subiectul ca pasti
   assert.match(site, /class="law-ico"/);
   assert.match(site, /class="g-zoom"/);
   assert.match(css, /\.pill\[aria-checked="true"\]\{background:var\(--blue\)/);
+});
+
+// Aspectul din Claude Design (Main, Liste, Mobil…): dimensiunile și structura de pe computer și de pe telefon.
+test('aliniere la design: titluri, filtre-pastile, rânduri de listă și varianta de telefon', () => {
+  // titlurile secțiunilor: 40 px (evenimente 44 px), 32 px pe telefon; deasupra, eticheta de 12 px cu spațiere .12em
+  assert.match(css, /\.sec-head h2\{font-size:clamp\(2rem,1\.4rem \+ 1\.8vw,2\.5rem\)/);
+  assert.match(css, /#h-ev\{font-size:clamp\(2rem,1\.2rem \+ 2\.2vw,2\.75rem\)/);
+  assert.match(css, /\.sec-head \.eyebrow\{font-size:\.75rem;letter-spacing:\.12em/);
+  // secțiuni: 80 px sus, 88 px jos pe ecran mare
+  assert.match(css, /--sec-pt:clamp\(2\.5rem,[^;]*5rem\);\s*--sec-pb:clamp\(3\.5rem,[^;]*5\.5rem\)/);
+  // filtre: pastile de 44 px, chenar #c6cfe0, numărul din ele mai subțire
+  assert.match(css, /\.chip\{[^}]*min-height:2\.75rem[^}]*border:1px solid var\(--line-d\)[^}]*border-radius:999px/);
+  assert.match(css, /\.chip \.n\{font-weight:500;color:var\(--muted\)\}/);
+  // câmpurile de căutare: 48 px, colțuri de 10 px
+  assert.match(css, /\.input,\.select,[^{]*\{min-height:3rem;border-radius:\.625rem/);
+  // rândurile: document (48 px pictogramă), act normativ (4 coloane), proiect (5 coloane, 56 / 190 / 170 / 28 px)
+  assert.match(css, /--inv-cols:3\.5rem minmax\(0,1fr\) 11\.875rem 10\.625rem 1\.75rem/);
+  assert.match(css, /\.law-a\{[^}]*grid-template-columns:3rem 11\.5rem minmax\(0,1fr\) auto/);
+  // telefon: filtrele pe un singur rând care alunecă, până la marginea ecranului; pictograma actelor rămâne vizibilă
+  const mobile = /@media \(max-width:47\.99rem\)\{([\s\S]*?)\n\}\n@media \(max-width:30rem\)/.exec(css);
+  assert.ok(mobile, 'blocul pentru telefon există');
+  assert.match(mobile[1], /\.chips\{flex-wrap:nowrap;overflow-x:auto;margin:-\.375rem calc\(-1\*var\(--gutter\)\)/);
+  assert.match(mobile[1], /\.chips>\.chip\{flex:none\}/);
+  assert.match(mobile[1], /\.law-ico\{width:2\.5rem;height:2\.5rem/);
+  assert.doesNotMatch(mobile[1], /\.law-ico\{display:none/);
+  assert.doesNotMatch(css, /\.law-ico\{display:none/);
+  // filtrul focalizat cu tastatura alunecă în vedere
+  assert.match(site, /function setupChipRows\(\)/);
+  assert.match(site, /addEventListener\('focusin'/);
+  assert.match(site, /\n    setupChipRows\(\);/);
+  // accesibilitate: banda „Site oficial” e o regiune cu nume; fișele de program sunt titluri h3 (după h2)
+  assert.match(html, /<section class="topbar" aria-label="Site oficial">/);
+  assert.match(site, /<h3 class="pc-name"/);
+  assert.doesNotMatch(site, /<h4 class="pc-name"/);
 });
