@@ -25,8 +25,8 @@
 <meta name="DC.relation" content="https://gov.md/ro/coordonarea-asistentei-externe-si-fonduri-europene">
 <meta name="DC.rights" content="Conținut preluat de pe gov.md, disponibil sub licența CC BY-SA 4.0.">
 <link rel="icon" href="assets/img/gov-logo.svg" type="image/svg+xml">
-<link rel="preload" href="assets/fonts/golos-text-latin-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/source-serif-4-latin-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/onest-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/onest-latin-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/site.css">
 <noscript><style>.hn-arrow,.hn-bar,.hn-progress{display:none}</style></noscript>
 </head>
@@ -55,6 +55,24 @@
         <span class="brand-name" id="brandName">Direcția Generală Coordonare Asistență Externă și Fonduri Europene</span>
       </span>
     </a>
+    <div class="nav-ov" id="navOv" hidden></div>
+    <nav class="mainnav" id="mainnav" aria-label="Meniu principal">
+      <div class="mainnav-in">
+        <div class="nav-head"><strong>Meniu</strong><button class="icon-btn" id="navClose" type="button" aria-label="Închide meniul"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button></div>
+        <ul id="navList">
+          <li><a href="#despre">Despre</a></li>
+          <li><a href="#plan-crestere">Investiții</a></li>
+          <li><a href="#cadrul-legal">Cadrul legal</a></li>
+          <li><a href="#cooperare-externa">Cooperare</a></li>
+          <li><a href="#programe">Programe</a></li>
+          <li><a href="#documente">Documente</a></li>
+          <li><a href="#evenimente">Evenimente</a></li>
+          <li><a href="#noutati">Noutăți</a></li>
+          <li><a href="#galerie">Galerie</a></li>
+          <li><a href="#contacte">Contacte</a></li>
+        </ul>
+      </div>
+    </nav>
     <div class="masthead-act">
       <button class="search-open" id="openSearch" type="button" aria-haspopup="dialog" title="Căutare în pagină">
         <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">Căutare</span><kbd class="sr" id="kbdHint"></kbd>
@@ -62,24 +80,6 @@
       <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mainnav"><span>Meniu</span></button>
     </div>
   </div>
-  <div class="nav-ov" id="navOv" hidden></div>
-  <nav class="mainnav" id="mainnav" aria-label="Meniu principal">
-    <div class="wrap mainnav-in">
-      <div class="nav-head"><strong>Meniu</strong><button class="icon-btn" id="navClose" type="button" aria-label="Închide meniul"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button></div>
-      <ul id="navList">
-        <li><a href="#despre">Despre</a></li>
-        <li><a href="#plan-crestere">Investiții</a></li>
-        <li><a href="#cadrul-legal">Cadrul legal</a></li>
-        <li><a href="#cooperare-externa">Cooperare</a></li>
-        <li><a href="#programe">Programe</a></li>
-        <li><a href="#documente">Documente</a></li>
-        <li><a href="#evenimente">Evenimente</a></li>
-        <li><a href="#noutati">Noutăți</a></li>
-        <li><a href="#galerie">Galerie</a></li>
-        <li><a href="#contacte">Contacte</a></li>
-      </ul>
-    </div>
-  </nav>
 </header>
 
 <main id="main">
@@ -88,39 +88,45 @@
 
   <!-- PREZENTARE -->
   <section class="intro" id="top" aria-labelledby="introTitle">
-    <div class="wrap intro-in" id="introMain">
-      <div class="intro-text">
-        <p class="eyebrow">Autoritatea națională de coordonare a asistenței externe</p>
-        <h1 id="introTitle">Direcția Generală Coordonare Asistență Externă și <span class="h1-b">Fonduri Europene</span></h1>
-        <p class="lead" id="introLead">Asigurăm rolul Cancelariei de Stat în calitate de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare la Uniunea Europeană, precum și coordonarea proiectelor investiționale din Planul de creștere. Aici găsiți proiectele, actele normative, rapoartele, acordurile de finanțare și evenimentele pentru potențialii beneficiari.</p>
-        <form class="search-box" id="heroSearch" role="search">
-          <label class="sr" for="heroQ">Căutare în toate secțiunile paginii</label>
-          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
-          <input id="heroQ" type="search" placeholder="Ex.: URBACT, HG 377/2018, raport 2024" autocomplete="off">
-          <button class="btn btn-primary" type="submit">Caută</button>
-        </form>
+    <div class="wrap">
+      <div class="hero">
+        <div class="hero-text" id="introMain">
+          <p class="hero-pill">Autoritatea națională de coordonare a asistenței externe</p>
+          <h1 id="introTitle">Direcția Generală Coordonare Asistență Externă și <span class="h1-b">Fonduri Europene</span></h1>
+          <p class="lead" id="introLead">Asigurăm rolul Cancelariei de Stat în calitate de autoritate națională de coordonare a asistenței externe: planificarea, programarea, monitorizarea și evaluarea asistenței, inclusiv a celei de preaderare la Uniunea Europeană, precum și coordonarea proiectelor investiționale din Planul de creștere. Aici găsiți proiectele, actele normative, rapoartele, acordurile de finanțare și evenimentele pentru potențialii beneficiari.</p>
+          <form class="search-box" id="heroSearch" role="search">
+            <label class="sr" for="heroQ">Căutare în toate secțiunile paginii</label>
+            <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+            <input id="heroQ" type="search" placeholder="Ex.: URBACT, HG 377/2018, raport 2024" autocomplete="off">
+            <button class="btn btn-primary" type="submit">Caută</button>
+          </form>
+        </div>
+        <!-- Ultimele noutăți, pe fotografie, în dreapta cardului (scriptul hero-news.js). Ascuns până sunt noutăți. -->
+        <div class="hero-news" id="heroNews" role="region" aria-roledescription="carusel" aria-label="Ultimele noutăți" hidden>
+          <div class="hn-stage"><!--hero-news--></div>
+          <div class="hn-bar" role="group" aria-label="Derularea noutăților">
+            <button class="hn-arrow hn-prev" id="hnPrev" type="button" aria-label="Noutatea anterioară"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chev-l"/></svg></button>
+            <div class="hn-dots" id="hnDots"><!--hero-dots--></div>
+            <button class="hn-btn" id="hnPlay" type="button" aria-label="Oprește derularea automată"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pause"/></svg></button>
+            <button class="hn-arrow hn-next" id="hnNext" type="button" aria-label="Noutatea următoare"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chev-r"/></svg></button>
+          </div>
+          <div class="hn-progress" aria-hidden="true"><i></i></div>
+          <p class="sr" id="hnLive" aria-live="polite" aria-atomic="true"></p>
+        </div>
       </div>
-      <div class="quick">
-        <h2 class="quick-title">Acces rapid</h2>
+      <nav class="quick" aria-labelledby="quickTitle">
+        <h2 class="sr" id="quickTitle">Acces rapid</h2>
         <ul id="quickLinks"></ul>
-      </div>
-    </div>
-    <!-- Noutățile, pe fotografie mare, peste prezentare: se văd după ea, pe rând (scriptul hero-news.js). Ascuns până sunt noutăți. -->
-    <div class="hero-news is-intro" id="heroNews" role="region" aria-roledescription="carusel" aria-label="Ultimele noutăți" hidden>
-      <div class="hn-stage"><!--hero-news--></div>
-      <button class="hn-arrow hn-prev" id="hnPrev" type="button" aria-label="Noutatea anterioară"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chev-l"/></svg></button>
-      <button class="hn-arrow hn-next" id="hnNext" type="button" aria-label="Noutatea următoare"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chev-r"/></svg></button>
-      <div class="hn-bar" role="group" aria-label="Derularea noutăților">
-        <div class="hn-dots" id="hnDots"><!--hero-dots--></div>
-        <button class="hn-btn" id="hnPlay" type="button" aria-label="Oprește derularea automată"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pause"/></svg></button>
-      </div>
-      <div class="hn-progress" aria-hidden="true"><i></i></div>
-      <p class="sr" id="hnLive" aria-live="polite" aria-atomic="true"></p>
+      </nav>
+      <section class="latest" id="latest" aria-labelledby="latestTitle" hidden>
+        <h2 class="sr" id="latestTitle">Actualități</h2>
+        <div class="latest-grid" id="latestGrid"></div>
+      </section>
     </div>
   </section>
 
   <!-- DESPRE -->
-  <section class="sec sec-alt" id="despre" aria-labelledby="h-despre">
+  <section class="sec" id="despre" aria-labelledby="h-despre">
     <div class="wrap">
       <header class="sec-head about-head">
         <p class="eyebrow">Despre direcție</p>
@@ -132,11 +138,13 @@
         <div class="about-cta" id="aboutCta"></div>
       </div>
 
+      <div class="about-grid">
       <div class="tabs about-tabs" role="tablist" aria-label="Despre direcție" id="aboutTabs">
-        <button class="tab" type="button" role="tab" id="tab-functii" aria-controls="functii" aria-selected="true" data-tab="functii"><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg><span>Funcțiile de bază</span></button>
-        <button class="tab" type="button" role="tab" id="tab-structura" aria-controls="structura" aria-selected="false" tabindex="-1" data-tab="structura"><svg class="ico" aria-hidden="true"><use href="#i-tree"/></svg><span>Structura și efectivul</span></button>
-        <button class="tab" type="button" role="tab" id="tab-drepturi" aria-controls="drepturi-responsabilitati" aria-selected="false" tabindex="-1" data-tab="drepturi-responsabilitati"><svg class="ico" aria-hidden="true"><use href="#i-gavel"/></svg><span>Drepturi și responsabilități</span></button>
+        <button class="tab" type="button" role="tab" id="tab-functii" aria-controls="functii" aria-selected="true" data-tab="functii"><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg><span>Funcțiile de bază</span><svg class="ico tab-go" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
+        <button class="tab" type="button" role="tab" id="tab-structura" aria-controls="structura" aria-selected="false" tabindex="-1" data-tab="structura"><svg class="ico" aria-hidden="true"><use href="#i-tree"/></svg><span>Structura și efectivul</span><svg class="ico tab-go" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
+        <button class="tab" type="button" role="tab" id="tab-drepturi" aria-controls="drepturi-responsabilitati" aria-selected="false" tabindex="-1" data-tab="drepturi-responsabilitati"><svg class="ico" aria-hidden="true"><use href="#i-gavel"/></svg><span>Drepturi și responsabilități</span><svg class="ico tab-go" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
       </div>
+      <div class="about-panels">
       <div class="tab-panel" id="functii" role="tabpanel" aria-labelledby="tab-functii">
         <div class="panel-bar"><span id="fnCount" class="panel-note"></span><button class="btn btn-line btn-sm" type="button" id="fnToggle" aria-pressed="false">Deschide toate</button></div>
         <ol class="fn-list" id="dutiesList" aria-label="Funcțiile de bază"></ol>
@@ -147,6 +155,8 @@
       </div>
       <div class="tab-panel" id="drepturi-responsabilitati" role="tabpanel" aria-labelledby="tab-drepturi" hidden>
         <div class="acc-list" id="rolesList"></div>
+      </div>
+      </div>
       </div>
     </div>
   </section>
@@ -200,7 +210,7 @@
   </section>
 
   <!-- CADRUL LEGAL -->
-  <section class="sec sec-alt" id="cadrul-legal" aria-labelledby="h-legal">
+  <section class="sec" id="cadrul-legal" aria-labelledby="h-legal">
     <div class="wrap">
       <header class="sec-head">
         <p class="eyebrow">Acte normative</p>
@@ -239,7 +249,7 @@
         <h3 class="subhead-t" id="h-rapoarte">Rapoarte anuale privind asistența externă</h3>
         <p class="subhead-note">Alegeți anul pentru a deschide raportul.</p>
       </div>
-      <div class="rep-grid" id="reportGrid" aria-labelledby="h-rapoarte"></div>
+      <div class="rep-grid" id="reportGrid" role="group" aria-labelledby="h-rapoarte"></div>
       <div class="more-row" id="repMoreBox" hidden></div>
       <a class="amp" id="ampCard" href="https://amp.gov.md/portal/" target="_blank" rel="noopener">
         <span class="amp-logo"><img class="plat-logo" src="assets/img/amp-logo.png" alt="" width="61" height="60"></span>
@@ -255,7 +265,7 @@
   </section>
 
   <!-- PROGRAME -->
-  <section class="sec sec-alt" id="programe" aria-labelledby="h-prog">
+  <section class="sec" id="programe" aria-labelledby="h-prog">
     <div class="wrap">
       <header class="sec-head">
         <p class="eyebrow">Interreg 2021–2027</p>
@@ -274,31 +284,36 @@
         <p class="eyebrow">Publicații</p>
         <h2 id="h-doc">Documente și publicații</h2>
       </header>
-      <div class="toolbar toolbar-docs">
-        <div class="field-icon grow">
-          <label class="sr" for="docQ">Căutare în documente</label>
-          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
-          <input class="input" id="docQ" type="search" placeholder="Căutați după titlu, tip sau cuvânt-cheie" autocomplete="off">
+      <div class="doc-card">
+        <div class="doc-bar">
+          <div class="field-icon grow">
+            <label class="sr" for="docQ">Căutare în documente</label>
+            <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+            <input class="input" id="docQ" type="search" placeholder="Căutați după titlu, tip sau cuvânt-cheie" autocomplete="off">
+          </div>
+          <div class="chips doc-tabs" id="docTabs" role="group" aria-label="Secțiunea"></div>
+          <div class="tools">
+            <label class="sr" for="docProgram">Programul</label>
+            <select class="select" id="docProgram" hidden></select>
+            <label class="sr" for="docYear">Anul</label>
+            <select class="select" id="docYear"></select>
+          </div>
         </div>
-        <div class="tools">
-          <label class="sr" for="docProgram">Programul</label>
-          <select class="select" id="docProgram" hidden></select>
-          <label class="sr" for="docYear">Anul</label>
-          <select class="select" id="docYear"></select>
-        </div>
-      </div>
-      <div class="chips doc-tabs" id="docTabs" role="group" aria-label="Secțiunea"></div>
-      <p class="count" id="docCount" aria-live="polite"></p>
-      <ul class="doc-list" id="docList"></ul>
+        <p class="count" id="docCount" aria-live="polite"></p>
+        <ul class="doc-list" id="docList"></ul>
       <div class="more-row" id="docMoreBox" hidden></div>
+      </div>
     </div>
   </section>
 
   <!-- EVENIMENTE -->
-  <section class="sec sec-alt" id="evenimente" aria-labelledby="h-ev">
+  <section class="sec" id="evenimente" aria-labelledby="h-ev">
     <div class="wrap">
       <header class="sec-head sec-head-row">
-        <h2 id="h-ev">Evenimente</h2>
+        <div class="sec-title">
+          <p class="eyebrow">Evenimente</p>
+          <h2 id="h-ev">Evenimente</h2>
+        </div>
         <fieldset class="ev-year" id="evYearBox"><legend class="sr">Anul</legend><div class="chips" id="evYear"></div></fieldset>
       </header>
       <div class="ev-filters">
@@ -313,6 +328,7 @@
   <section class="sec" id="noutati" aria-labelledby="h-noutati">
     <div class="wrap">
       <header class="sec-head">
+        <p class="eyebrow">Noutăți</p>
         <h2 id="h-noutati">Noutăți</h2>
       </header>
       <div class="news-grid" id="newsGrid"></div>
@@ -321,9 +337,10 @@
   </section>
 
   <!-- GALERIE FOTO -->
-  <section class="sec sec-alt" id="galerie" aria-labelledby="h-gal">
+  <section class="sec" id="galerie" aria-labelledby="h-gal">
     <div class="wrap">
       <header class="sec-head">
+        <p class="eyebrow">Galerie foto</p>
         <h2 id="h-gal">Galerie foto</h2>
         <p>Fotografii de la evenimente, întâlniri și vizite de lucru.</p>
       </header>
@@ -339,6 +356,7 @@
       <div class="contact">
         <div class="contact-main">
           <header class="sec-head">
+            <p class="eyebrow">Contacte</p>
             <h2 id="h-contact">Contacte</h2>
           </header>
           <div class="cinfo" id="contactInfo"></div>

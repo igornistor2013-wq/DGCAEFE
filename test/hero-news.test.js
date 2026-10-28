@@ -1,6 +1,6 @@
 'use strict';
 // Caruselul din partea de sus a primei pagini (web/assets/js/hero-news.js): alegerea celor mai noi 5, textul
-// diapozitivelor și al punctelor, prezentarea ca prim diapozitiv, schimbarea la 10 secunde, săgețile, punctele, pauza, mouse-ul și tastatura, pagina ascunsă. Rulează fără browser,
+// diapozitivelor (fotografie + card sticlos) și al punctelor, schimbarea la 10 secunde, săgețile, punctele, pauza, mouse-ul și tastatura, pagina ascunsă. Rulează fără browser,
 // cu un DOM foarte mic și timp simulat. (Comportamentul s-a verificat și într-un browser real, cu timp simulat.) Rulează cu: npm test
 const fs = require('fs');
 const path = require('path');
@@ -66,14 +66,14 @@ class El {
   get innerHTML() { return this.html || ''; }
 }
 
-// pagina: blocul cu noutăți, textul lung de prezentare, prezentarea (titlu, căutare), săgețile, pauza, punctele, mesajul pentru cititoarele de ecran, bara de progres
+// pagina: blocul cu noutăți (cu fotografiile și cardurile), bara cu săgeți, puncte și pauză, mesajul pentru cititoarele de ecran, bara de progres;
+// textul de prezentare (titlul, căutarea) este în același card de sus, în afara blocului cu noutăți
 function makePage() {
   const box = new El('heroNews');
   const root = new El('top');
-  const main = new El('introMain');
-  const lead = new El('introLead');
   const search = new El('heroQ');
   const stage = new El();
+  const bar = new El();
   const dotsBox = new El('hnDots');
   const prev = new El('hnPrev');
   const play = new El('hnPlay');
@@ -84,12 +84,12 @@ function makePage() {
   play.refs.use = use;
   play.setAttribute('aria-label', 'Oprește derularea automată');
   const live = new El('hnLive');
-  const bar = new El();
-  Object.assign(box.refs, { '.hn-stage': stage, '#hnDots': dotsBox, '#hnPlay': play, '#hnLive': live, '.hn-progress': bar });
-  box.members = [stage, dotsBox, prev, play, next, live, bar, use];
-  root.members = [box, main, search, lead, ...box.members];
+  const progress = new El();
+  Object.assign(box.refs, { '.hn-stage': stage, '.hn-bar': bar, '#hnDots': dotsBox, '#hnPlay': play, '#hnLive': live, '.hn-progress': progress });
+  box.members = [stage, bar, dotsBox, prev, play, next, live, progress, use];
+  root.members = [box, search, ...box.members];
   const outside = new El('afara');
-  return { box, root, main, lead, search, stage, dotsBox, prev, play, next, use, live, bar, outside };
+  return { box, root, search, stage, bar, dotsBox, prev, play, next, use, live, progress, outside };
 }
 
 function setup(t, count) {
@@ -106,13 +106,13 @@ function setup(t, count) {
   const page = makePage();
   const H = fresh();
   const list = news(count);
-  const draw = l => H.render(page.box, page.lead, l || list, DG, page.main, page.root);
+  const draw = l => H.render(page.box, l || list, DG, page.root);
   draw();
   return {
     H, doc, list, ...page,
     tick: ms => mock.timers.tick(ms),
-    // poziția: 0 = prezentarea, 1…n = noutățile; -1 = nu există carusel
-    pos: () => (page.stage.children.length ? (page.box.classList.contains('is-intro') ? 0 : page.stage.children.findIndex(c => c.classList.contains('is-active')) + 1) : -1),
+    // poziția: 0…n-1 = noutatea afișată; -1 = nu există carusel
+    pos: () => (page.stage.children.length ? page.stage.children.findIndex(c => c.classList.contains('is-active')) : -1),
     dot: () => page.dotsBox.children.findIndex(c => c.classList.contains('is-active')),
     click: b => page.box.dispatch('click', { target: b }),
     hold: () => page.box.getAttribute('data-hold'),
@@ -120,6 +120,7 @@ function setup(t, count) {
     rerender: l => draw(l)
   };
 }
+
 
 test('pick: primele 5 în ordinea primită, fără listă nu se alege nimic', () => {
   const H = fresh();
@@ -133,22 +134,23 @@ test('pick: primele 5 în ordinea primită, fără listă nu se alege nimic', ()
   for (const x of [null, undefined, [], {}]) assert.deepEqual(H.pick(x), []);
 });
 
-test('diapozitivul: titlul duce la noutate, data este <time>, eticheta și rezumatul apar doar dacă există, fotografia mare e pe fundal, textele sunt scrise sigur', () => {
+
+test('diapozitivul: fotografia mare pe fundal, cardul cu eticheta, data și titlul care duce la noutate; elementele goale nu se scriu, textele sunt scrise sigur', () => {
   const H = fresh();
   const [a, b] = news(2);
   const html = H.slidesHtml([a, b], DG);
   const slides = html.split('<div class="hn-slide').slice(1);
   assert.equal(slides.length, 2);
-  assert.ok(slides.every(x => x.startsWith('"><div class="wrap hn-in"><div class="hn-text">')), 'niciunul nu e vizibil de la început: se vede prezentarea');
-  assert.match(slides[0], /<span class="hn-tag">Apel<\/span><time datetime="2026-03-28">28 martie 2026<\/time>/);
+  assert.ok(slides[0].startsWith(' is-active"><div class="hn-card">'), 'primul este cel afișat de la început');
+  assert.ok(slides[1].startsWith('"><div class="hn-card">'), 'celelalte sunt ascunse până le vine rândul');
+  assert.match(slides[0], /<p class="hn-meta"><span class="hn-tag">Apel<\/span><time datetime="2026-03-28">28 martie 2026<\/time><\/p>/);
   assert.match(slides[0], /<p class="hn-title"><a href="#stire\/n1">Noutatea 1<\/a><\/p>/);
-  assert.match(slides[0], /<p class="hn-sum">Rezumat 1<\/p>/);
-  assert.match(slides[0], /<a class="btn hn-go" href="#stire\/n1" tabindex="-1" aria-hidden="true">Citește mai departe /);
-  assert.doesNotMatch(slides[1], /hn-tag|hn-sum/, 'fără etichetă și fără rezumat nu se scriu elemente goale');
+  assert.match(slides[1], /<p class="hn-meta"><time datetime="2026-03-27">27 martie 2026<\/time><\/p>/, 'fără etichetă rămâne doar data');
   assert.doesNotMatch(html, /hn-bg/, 'fără fotografie nu există imagine de fundal');
+  assert.doesNotMatch(html, /hn-sum|hn-go|tabindex/, 'cardul din noul design are doar eticheta, data și titlul');
   // fotografia: cea mare; prima nu este amânată, celelalte se încarcă la nevoie
   const pic = H.slidesHtml([{ id: 'p', title: 'T', image: { path: 'uploads/img/a.jpg', thumb: 'uploads/img/a-t.jpg' } }, { id: 'q', title: 'U', image: { thumb: 'uploads/img/b-t.jpg' } }], DG);
-  assert.match(pic, /<div class="hn-slide has-pic"><img src="uploads\/img\/a\.jpg" class="hn-bg" alt="" width="1600" height="900" decoding="async">/);
+  assert.match(pic, /<div class="hn-slide has-pic is-active"><img src="uploads\/img\/a\.jpg" class="hn-bg" alt="" width="1600" height="900" decoding="async">/);
   assert.match(pic, /<img src="uploads\/img\/b-t\.jpg" class="hn-bg" alt="" width="1600" height="900" loading="lazy" decoding="async">/);
   // nimic din text nu devine cod
   const evil = H.slidesHtml([{ id: 'a"b', title: '<img src=x onerror=alert(1)>', tag: '<b>', summary: '</p><script>1</script>', date: '2026-01-02' }], DG);
@@ -158,80 +160,76 @@ test('diapozitivul: titlul duce la noutate, data este <time>, eticheta și rezum
   assert.equal(H.slidesHtml([], DG), '');
 });
 
-test('punctele: unul pentru prezentare și unul pentru fiecare noutate, cel curent este marcat; etichetele vin din dicționarul limbii', () => {
+test('punctele: unul pentru fiecare noutate, cel curent este marcat; etichetele vin din dicționarul limbii', () => {
   const H = fresh();
   const html = H.dotsHtml(news(2), DG, 1);
-  assert.equal(html, '<button type="button" class="hn-dot" data-i="0" aria-label="Prezentarea direcției"></button>' +
-    '<button type="button" class="hn-dot is-active" data-i="1" aria-label="Noutatea 1 din 2: Noutatea 1" aria-current="true"></button>' +
-    '<button type="button" class="hn-dot" data-i="2" aria-label="Noutatea 2 din 2: Noutatea 2"></button>');
+  assert.equal(html, '<button type="button" class="hn-dot" data-i="0" aria-label="Noutatea 1 din 2: Noutatea 1"></button>' +
+    '<button type="button" class="hn-dot is-active" data-i="1" aria-label="Noutatea 2 din 2: Noutatea 2" aria-current="true"></button>');
   assert.equal(H.dotsHtml([], DG), '');
-  assert.match(H.dotsHtml(news(1), { esc: DG.esc, dateText: DG.dateText, t: k => `[${k}]` }, 0), /aria-label="\[Prezentarea direcției\]"/);
+  assert.equal(H.dotsHtml(news(1), DG), '', 'cu o singură noutate nu sunt puncte');
+  assert.match(H.dotsHtml(news(2), { esc: DG.esc, dateText: DG.dateText, t: k => `[${k}]` }, 0), /aria-label="\[Noutatea %1 din %2: %3\]"/);
 });
 
-test('prezentarea e prima; din 12 noutăți se derulează 5, la 10 secunde fiecare, apoi se revine la prezentare; schimbările automate nu sunt anunțate', t => {
+test('din 12 noutăți se derulează 5, la 10 secunde fiecare, apoi se revine la prima; schimbările automate nu sunt anunțate', t => {
   const p = setup(t, 12);
   assert.equal(p.stage.children.length, 5);
-  assert.equal(p.dotsBox.children.length, 6);
-  assert.equal(p.pos(), 0, 'la început se vede prezentarea');
-  assert.equal(p.box.classList.contains('is-intro'), true);
+  assert.equal(p.dotsBox.children.length, 5);
+  assert.equal(p.pos(), 0, 'la început se vede ultima noutate');
   assert.equal(p.dot(), 0);
-  assert.equal(p.main.getAttribute('inert'), null, 'prezentarea se poate folosi (căutare, linkuri)');
-  assert.equal(p.lead.hidden, false, 'textul de sub titlu rămâne la vedere, în primul diapozitiv');
   assert.equal(p.box.hidden, false);
+  assert.equal(p.bar.hidden, false, 'cu mai multe noutăți: săgeți, puncte, pauză');
   assert.equal(p.run(), 'true');
   assert.equal(p.box.style.props['--hn-ms'], '10000ms');
   p.tick(9999);
-  assert.equal(p.pos(), 0, 'la 9,999 secunde încă prezentarea');
+  assert.equal(p.pos(), 0, 'la 9,999 secunde încă prima');
   p.tick(1);
-  assert.equal(p.pos(), 1, 'la 10 secunde prima noutate');
+  assert.equal(p.pos(), 1, 'la 10 secunde a doua');
   assert.equal(p.dot(), 1);
-  assert.equal(p.main.getAttribute('inert'), '', 'cât timp se vede o noutate, prezentarea din spate nu se mai atinge');
-  for (let i = 2; i <= 5; i++) {
+  for (let i = 2; i <= 4; i++) {
     p.tick(10000);
     assert.equal(p.pos(), i);
     assert.equal(p.dot(), i);
   }
   p.tick(10000);
-  assert.equal(p.pos(), 0, 'după a 5-a noutate, din nou prezentarea');
-  assert.equal(p.main.getAttribute('inert'), null);
+  assert.equal(p.pos(), 0, 'după a 5-a, din nou prima');
   assert.equal(p.live.textContent, '', 'cititoarele de ecran nu sunt întrerupte la fiecare 10 secunde');
-  assert.equal(p.bar.classList.contains('run'), true, 'bara de progres pornește de la zero la fiecare schimbare');
+  assert.equal(p.progress.classList.contains('run'), true, 'bara de progres pornește de la zero la fiecare schimbare');
 });
 
-test('săgețile trec în cerc (prezentarea face parte din cerc), anunță schimbarea și repornesc numărătoarea', t => {
+test('săgețile trec în cerc, anunță schimbarea și repornesc numărătoarea', t => {
   const p = setup(t, 3);
   p.click(p.prev);
-  assert.equal(p.pos(), 3, 'înapoi de la prezentare duce la ultima noutate');
+  assert.equal(p.pos(), 2, 'înapoi de la prima duce la ultima');
   assert.equal(p.live.textContent, 'Noutatea 3 din 3: Noutatea 3');
   p.click(p.next);
-  assert.equal(p.pos(), 0, 'înainte de la ultima duce la prezentare');
-  assert.equal(p.live.textContent, 'Prezentarea direcției');
+  assert.equal(p.pos(), 0, 'înainte de la ultima duce la prima');
+  assert.equal(p.live.textContent, 'Noutatea 1 din 3: Noutatea 1');
   p.click(p.next);
   assert.equal(p.pos(), 1);
-  assert.equal(p.live.textContent, 'Noutatea 1 din 3: Noutatea 1');
+  assert.equal(p.live.textContent, 'Noutatea 2 din 3: Noutatea 2');
   // după o schimbare făcută de vizitator, următoarea vine abia după alte 10 secunde
   p.tick(9000);
   p.click(p.next);
   p.tick(9999);
   assert.equal(p.pos(), 2);
   p.tick(1);
-  assert.equal(p.pos(), 3);
+  assert.equal(p.pos(), 0);
   // un clic pe altceva din bloc nu face nimic
   p.click(p.outside);
-  assert.equal(p.pos(), 3);
+  assert.equal(p.pos(), 0);
 });
 
-test('punctele duc direct la diapozitivul lor, inclusiv la prezentare', t => {
+test('punctele duc direct la noutatea lor', t => {
   const p = setup(t, 5);
-  p.click(p.dotsBox.children[4]);
-  assert.equal(p.pos(), 4);
-  assert.equal(p.dot(), 4);
+  p.click(p.dotsBox.children[3]);
+  assert.equal(p.pos(), 3);
+  assert.equal(p.dot(), 3);
   assert.equal(p.live.textContent, 'Noutatea 4 din 5: Noutatea 4');
-  assert.equal(p.dotsBox.children[4].getAttribute('aria-current'), 'true');
+  assert.equal(p.dotsBox.children[3].getAttribute('aria-current'), 'true');
   assert.equal(p.dotsBox.children[0].getAttribute('aria-current'), null);
   p.click(p.dotsBox.children[0]);
   assert.equal(p.pos(), 0);
-  assert.equal(p.live.textContent, 'Prezentarea direcției');
+  assert.equal(p.live.textContent, 'Noutatea 1 din 5: Noutatea 1');
   p.tick(9999);
   assert.equal(p.pos(), 0, 'după un clic, 10 secunde întregi');
   p.tick(1);
@@ -245,7 +243,7 @@ test('pauza: oprește pentru totdeauna, are etichetă și pictogramă potrivite,
   assert.equal(p.use.getAttribute('href'), '#i-play');
   assert.equal(p.live.textContent, 'Derularea automată a fost oprită.');
   assert.deepEqual([p.run(), p.hold()], ['false', 'pauză']);
-  assert.equal(p.bar.classList.contains('run'), false);
+  assert.equal(p.progress.classList.contains('run'), false);
   p.tick(5 * 60 * 1000);
   assert.equal(p.pos(), 0, 'în pauză nu se schimbă nimic, oricât ar trece');
   p.click(p.next);
@@ -335,69 +333,62 @@ test('cât timp pagina este ascunsă (altă filă) nu se schimbă nimic; la înt
   assert.equal(p.pos(), 1);
 });
 
-test('o singură noutate: prezentarea, apoi noutatea, apoi din nou prezentarea', t => {
+test('o singură noutate: se vede fotografia ei, fără săgeți, puncte, pauză sau derulare', t => {
   const one = setup(t, 1);
   assert.equal(one.stage.children.length, 1);
-  assert.equal(one.dotsBox.children.length, 2);
-  assert.equal(one.run(), 'true');
-  assert.equal(one.pos(), 0);
-  one.tick(10000);
-  assert.equal(one.pos(), 1);
-  one.tick(10000);
-  assert.equal(one.pos(), 0);
-  assert.equal(one.lead.hidden, false);
+  assert.equal(one.dotsBox.children.length, 0);
   assert.equal(one.box.hidden, false);
+  assert.equal(one.bar.hidden, true, 'bara de comenzi dispare');
+  assert.equal(one.run(), 'false', 'nu pornește nicio numărătoare');
+  assert.equal(one.pos(), 0);
+  one.tick(60000);
+  assert.equal(one.pos(), 0);
 });
 
-test('nicio noutate: rămâne doar prezentarea, fără carusel și fără numărătoare', t => {
+test('nicio noutate: blocul cu fotografii rămâne ascuns, fără carusel și fără numărătoare', t => {
   const none = setup(t, 0);
   assert.equal(none.box.hidden, true);
-  assert.equal(none.lead.hidden, false, 'fără noutăți se vede textul de prezentare');
   assert.equal(none.stage.children.length, 0);
   assert.equal(none.run(), null, 'nu pornește nicio numărătoare');
-  assert.equal(none.main.getAttribute('inert'), null);
   none.tick(60000);
   assert.equal(none.pos(), -1);
 });
 
-test('rescrierea paginii (după ce se află că cel care o vede este administrator) păstrează diapozitivul afișat și nu dublează ascultătorii', t => {
+test('rescrierea paginii (după ce se află că cel care o vede este administrator) păstrează noutatea afișată și nu dublează ascultătorii', t => {
   const p = setup(t, 3);
   p.click(p.next);
   p.click(p.next);
-  p.click(p.next);
-  assert.equal(p.pos(), 3);
+  assert.equal(p.pos(), 2);
   p.rerender();
-  assert.equal(p.pos(), 3, 'rămâne la același diapozitiv');
-  assert.equal(p.dot(), 3);
+  assert.equal(p.pos(), 2, 'rămâne la aceeași noutate');
+  assert.equal(p.dot(), 2);
   assert.equal(p.box.listeners.click.length, 1);
   assert.equal(p.root.listeners.pointerenter.length, 1);
   assert.equal(p.root.listeners.focusin.length, 1);
   assert.equal(p.doc.listeners.pointermove.length, 1);
   assert.equal(p.doc.listeners.visibilitychange.length, 1);
   p.tick(9999);
-  assert.equal(p.pos(), 3);
+  assert.equal(p.pos(), 2);
   p.tick(1);
-  assert.equal(p.pos(), 0, 'numărătoarea reîncepe o singură dată (un singur ceas); după ultima vine prezentarea');
+  assert.equal(p.pos(), 0, 'numărătoarea reîncepe o singură dată (un singur ceas); după ultima vine prima');
 
   // mai puține noutăți decât poziția curentă: se revine în limite
   p.click(p.prev);
-  assert.equal(p.pos(), 3);
+  assert.equal(p.pos(), 2);
   p.rerender(news(2));
   assert.equal(p.stage.children.length, 2);
-  assert.equal(p.dotsBox.children.length, 3);
-  assert.equal(p.pos(), 2);
-  // ultima noutate este ștearsă: rămâne doar prezentarea, iar ceasul se oprește
+  assert.equal(p.dotsBox.children.length, 2);
+  assert.equal(p.pos(), 1);
+  // ultima noutate este ștearsă: blocul se ascunde, iar ceasul se oprește
   p.rerender([]);
   assert.equal(p.box.hidden, true);
-  assert.equal(p.lead.hidden, false);
-  assert.equal(p.main.getAttribute('inert'), null, 'prezentarea nu rămâne blocată');
   const before = p.pos();
   p.tick(60000);
   assert.equal(p.pos(), before, 'ceasul s-a oprit: nimic nu se mai schimbă');
   // și revin
   p.rerender(news(2));
   assert.equal(p.box.hidden, false);
-  assert.equal(p.lead.hidden, false);
+  assert.equal(p.bar.hidden, false);
   assert.equal(p.stage.children.length, 2);
 });
 
@@ -422,9 +413,10 @@ test('browserul scrie diapozitivele și punctele cu aceleași funcții ca la con
   assert.equal(p.stage.innerHTML, p.H.slidesHtml(p.H.pick(p.list), DG));
   assert.equal(p.dotsBox.innerHTML, p.H.dotsHtml(p.H.pick(p.list), DG, 0));
   const built = require('../lib/prerender').fillIndex(fs.readFileSync(path.join(__dirname, '..', 'web', 'index.html'), 'utf8'), { news: p.list });
-  assert.equal(p.stage.innerHTML, built.match(/<div class="hn-stage">([\s\S]*?)<\/div>\s*<button class="hn-arrow hn-prev"/)[1]);
+  assert.equal(p.stage.innerHTML, built.match(/<div class="hn-stage">([\s\S]*?)<\/div>\s*<div class="hn-bar"/)[1]);
   assert.equal(p.dotsBox.innerHTML, built.match(/<div class="hn-dots" id="hnDots">([\s\S]*?)<\/div>/)[1]);
 });
+
 
 test('common.js se poate încărca și fără browser (pentru construirea paginii) și are pictogramele caruselului', () => {
   assert.equal(typeof DG.esc, 'function');

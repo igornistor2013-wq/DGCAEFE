@@ -293,14 +293,11 @@
     $('#introTitle').innerHTML = heroTitleHtml(s.heroTitle || s.orgName);
     $('#introLead').textContent = s.heroLead || '';
     // în locul textului de prezentare se derulează ultimele 10 noutăți (fără noutăți rămâne textul de prezentare)
-    if (window.HeroNews) window.HeroNews.render($('#heroNews'), $('#introLead'), D.news, DG, $('#introMain'), $('#top'));
+    if (window.HeroNews) window.HeroNews.render($('#heroNews'), D.news, DG, $('#top .hero'));
     document.title = s.orgName + ' | ' + s.parentName;
     var q = s.quickLinks || [];
     $('.quick').hidden = !q.length;
-    $('#quickLinks').innerHTML = q.map(function (l) {
-      var ext = isExternal(l.u);
-      return '<li><a href="' + esc(l.u) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + '><span>' + esc(l.t) + '</span>' + ico(ext ? 'ext' : 'arrow-r') + '</a></li>';
-    }).join('');
+    $('#quickLinks').innerHTML = q.map(DG.quickLinkHtml).join('');
   }
 
   var ALIAS = { drp: 'Dunărea Dunăre Danube', bsb: 'Marea Neagră Black Sea' }; // forme pe care le caută oamenii și care nu apar în nume
@@ -325,6 +322,31 @@
       (n.summary ? '<p>' + esc(n.summary) + '</p>' : '') +
       '<a class="more-link" href="' + href + '" data-news="' + esc(n.id) + '">Citește mai departe<span class="sr">: ' + esc(n.title) + '</span> ' + ico('arrow-r') + '</a>' +
       editLink('news', n.id) + '</div></article>';
+  }
+
+  // blocul de sub „Acces rapid”: ultima noutate, mare, și următoarele trei, mici
+  function latestMain(n) {
+    var href = '#stire/' + n.id;
+    var pic = n.image && (n.image.path || n.image.thumb);
+    return '<article class="lt-main">' +
+      (pic ? '<a class="lt-pic" href="' + href + '" data-news="' + esc(n.id) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(pic) + '" alt="" width="800" height="560" decoding="async"></a>' : '') +
+      '<div class="lt-body"><p class="lt-meta">' + (n.tag ? '<span class="lt-tag">' + esc(n.tag) + '</span>' : '') + '<time datetime="' + esc(n.date) + '">' + esc(DG.dateText(n)) + '</time></p>' +
+      '<h3><a href="' + href + '" data-news="' + esc(n.id) + '">' + esc(n.title) + '</a></h3>' +
+      (n.summary ? '<p class="lt-sum">' + esc(n.summary) + '</p>' : '') +
+      '<a class="lt-more" href="' + href + '" data-news="' + esc(n.id) + '">Citește mai departe<span class="sr">: ' + esc(n.title) + '</span> ' + ico('arrow-r') + '</a></div></article>';
+  }
+  function latestItem(n) {
+    var href = '#stire/' + n.id;
+    var thumb = n.image && (n.image.thumb || n.image.path);
+    return '<article class="lt-item">' +
+      (thumb ? '<a class="lt-thumb" href="' + href + '" data-news="' + esc(n.id) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(thumb) + '" alt="" width="208" height="208" loading="lazy"></a>' : '<span class="lt-thumb" aria-hidden="true"></span>') +
+      '<div><time datetime="' + esc(n.date) + '">' + esc(DG.dateText(n)) + '</time><h3><a href="' + href + '" data-news="' + esc(n.id) + '">' + esc(n.title) + '</a></h3></div></article>';
+  }
+  function renderLatest() {
+    var box = $('#latest');
+    var list = (D.news || []).slice(0, 4);
+    box.hidden = !list.length;
+    $('#latestGrid').innerHTML = list.length ? latestMain(list[0]) + (list.length > 1 ? '<div class="lt-side">' + list.slice(1).map(latestItem).join('') + '</div>' : '') : '';
   }
 
   function renderNews() {
@@ -827,13 +849,19 @@
     scrollToEl($('#documente'));
   }
 
+  // un document: pictograma tipului, titlul, etichete mici (secțiunea, data, tipul și mărimea fișierului) și butonul rotund de descărcare / deschidere
   function docItem(d, showSection) {
-    var sec = '';
+    var parts = [];
     if (showSection) {
       var p = d.section === 'program' ? progOf(d.program) : null;
-      sec = true;
+      parts.push(p ? shortName(p) : T(SECTION_LABEL[d.section] || ''));
     }
-    return '<li class="doc-item"><a class="doc"' + docAttrs(d) + '><span class="doc-ico" aria-hidden="true">' + ico(docIcon(d)) + '</span><span class="doc-body"><span class="doc-t">' + titleHtml(d) + '</span><small class="doc-m">' + esc([sec && (function () { var p = d.section === 'program' ? progOf(d.program) : null; return p ? shortName(p) : T(SECTION_LABEL[d.section] || ''); })(), docMeta(d)].filter(Boolean).join(' · ')) + '</small></span><span class="doc-go" aria-hidden="true">' + ico(d.file ? 'down' : 'ext') + '</span></a>' + editLink('documents', d.id) + '</li>';
+    parts.push(DG.dateText(d) || (d.section === 'rapoarte' && d.year ? String(d.year) : ''));
+    parts.push([d.kind, d.en ? T('în limba engleză') : '', d.file && d.file.size ? DG.formatSize(d.file.size) : ''].filter(Boolean).join(', '));
+    parts = parts.filter(Boolean);
+    return '<li class="doc-item"><a class="doc"' + docAttrs(d) + '><span class="doc-ico" aria-hidden="true">' + ico(docIcon(d)) + '</span><span class="doc-body"><span class="doc-t">' + titleHtml(d) + '</span>' +
+      (parts.length ? '<span class="doc-m">' + parts.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</span>' : '') +
+      '</span><span class="doc-go" aria-hidden="true">' + ico(d.file ? 'down' : 'ext') + '</span></a>' + editLink('documents', d.id) + '</li>';
   }
 
   /* ================= Biblioteca de documente ================= */
@@ -912,7 +940,7 @@
     }).sort(function (a, b) { return evDate(b).localeCompare(evDate(a)); });
   }
 
-  // un eveniment al cronologiei: data în stânga, pe linie punctul (culoarea lui arată starea), în dreapta cardul
+  // un eveniment: data într-un pătrat bleumarin, apoi programul, locul, titlul și rezumatul; cu detalii sau legături, săgeata din dreapta le deschide pe loc
   function eventItem(e) {
     var iso = evDate(e);
     var d = iso.split('-').map(Number);
@@ -920,15 +948,25 @@
     var range = e.end ? T('până la %1', DG.fmtDate(e.end)) : !e.start ? T('data publicării') : e.time ? T('ora %1', e.time) : '';
     var more = (e.details && e.details.length) || (e.links && e.links.length);
     var mon = (I18n.MONTHS[LANG][d[1] - 1] || '').slice(0, 3);
-    return '<li class="event ' + st[0].replace('st-', 'is-') + '" id="' + esc(e.id) + '">' +
+    var mid = 'evm-' + e.id;
+    return '<li class="event ' + st[0].replace('st-', 'is-') + '" id="' + esc(e.id) + '" data-open="false">' +
       '<time class="ev-date" datetime="' + esc(iso) + '"><span class="sr">' + esc(DG.fmtDate(iso)) + '</span><span class="d" aria-hidden="true">' + String(d[2]).padStart(2, '0') + '</span>' +
       '<span class="my" aria-hidden="true"><span class="m">' + esc(mon) + '</span> <span class="y">' + d[0] + '</span></span></time>' +
       '<div class="ev-body"><div class="ev-meta">' + (e.prog ? '<span class="prog">' + esc(e.prog) + '</span>' : '') + '<span class="status ' + st[0] + '">' + st[1] + '</span>' + (range ? '<span class="ev-range">' + esc(range) + '</span>' : '') + '</div>' +
       '<h3>' + esc(e.title) + '</h3>' + (e.place ? '<p class="ev-place">' + ico('pin') + '<span>' + esc(e.place) + '</span></p>' : '') + (e.summary ? '<p class="ev-sum">' + esc(e.summary) + '</p>' : '') +
-      (more ? '<details class="ev-more"><summary>Detalii</summary><div class="ev-extra">' +
+      (more ? '<div class="ev-more" id="' + esc(mid) + '" role="region" aria-label="' + esc(T('Detalii')) + ': ' + esc(e.title) + '"><div class="ev-extra">' +
         (e.details && e.details.length ? '<ul>' + e.details.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
-        (e.links && e.links.length ? '<div class="ev-links">' + e.links.map(function (l) { return '<a class="btn btn-line btn-sm" href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.t) + ' ' + ico('ext') + '</a>'; }).join('') + '</div>' : '') + '</div></details>' : '') +
-      editLink('events', e.id) + '</div></li>';
+        (e.links && e.links.length ? '<div class="ev-links">' + e.links.map(function (l) { return '<a class="btn btn-line btn-sm" href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.t) + ' ' + ico('ext') + '</a>'; }).join('') + '</div>' : '') + '</div></div>' : '') +
+      editLink('events', e.id) + '</div>' +
+      (more ? '<button class="ev-go" type="button" aria-expanded="false" aria-controls="' + esc(mid) + '" aria-label="' + esc(T('Detalii')) + ': ' + esc(e.title) + '">' + ico('arrow-r') + '</button>' : '') + '</li>';
+  }
+
+  function evToggle(li, force) {
+    var b = $('.ev-go', li);
+    if (!b) return;
+    var open = force === undefined ? li.getAttribute('data-open') !== 'true' : !!force;
+    li.setAttribute('data-open', String(open));
+    b.setAttribute('aria-expanded', String(open));
   }
 
   function renderEvents() {
@@ -941,7 +979,8 @@
     var yr = '';
     shown.forEach(function (e) {
       var y = evDate(e).slice(0, 4);
-      if (y !== yr) { yr = y; html += '<li class="tl-year" aria-hidden="true"><span class="tl-chip">' + esc(y) + '</span></li>'; }
+      // anii se despart între ei doar când sunt afișați toți; cu un an ales, anul se vede deja în filtru
+      if (y !== yr && evs.year === 'all') { yr = y; html += '<li class="tl-year" aria-hidden="true"><span class="tl-chip">' + esc(y) + '</span></li>'; }
       html += eventItem(e);
     });
     tl.innerHTML = html || '<li class="empty">' + (D.events.length ? 'Nu există evenimente pentru filtrele alese. <button class="btn btn-line btn-sm" type="button" id="evReset">Arată toate evenimentele</button>' : 'Nu există evenimente publicate.') + '</li>';
@@ -955,8 +994,7 @@
     renderEvents();
     var li = document.getElementById(id);
     if (!li) return;
-    var det = $('details', li);
-    if (det) det.open = true;
+    evToggle(li, true);
     scrollToEl(li);
     li.classList.add('flash');
     setTimeout(function () { li.classList.remove('flash'); }, 1800);
@@ -1402,11 +1440,13 @@
   /* ================= Evenimente de interfață ================= */
   function setupEvents() {
     // noutăți
-    $('#newsGrid').addEventListener('click', function (e) {
-      var a = e.target.closest('[data-news]');
-      if (!a) return;
-      e.preventDefault();
-      location.hash = '#stire/' + a.getAttribute('data-news');
+    ['#newsGrid', '#latestGrid'].forEach(function (sel) {
+      $(sel).addEventListener('click', function (e) {
+        var a = e.target.closest('[data-news]');
+        if (!a) return;
+        e.preventDefault();
+        location.hash = '#stire/' + a.getAttribute('data-news');
+      });
     });
     newsDlg = $('#newsDlg');
     newsDlg.addEventListener('click', function (e) {
@@ -1418,7 +1458,7 @@
     var newsBack = '#noutati';
     document.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('a[href^="#stire/"]');
-      if (a) newsBack = a.closest('#heroNews') ? '#top' : '#noutati';
+      if (a) newsBack = a.closest('#heroNews, #latest') ? '#top' : '#noutati';
     }, true);
     newsDlg.addEventListener('close', function () {
       if (location.hash.indexOf('#stire/') === 0) history.replaceState(null, '', location.pathname + location.search + newsBack);
@@ -1571,7 +1611,9 @@
       if (again) again.focus();
     });
     $('#timeline').addEventListener('click', function (e) {
-      if (e.target.id === 'evReset') { evs.year = 'all'; evs.prog = 'all'; limReset('events'); renderEvents(); }
+      if (e.target.id === 'evReset') { evs.year = 'all'; evs.prog = 'all'; limReset('events'); renderEvents(); return; }
+      var g = e.target.closest('.ev-go');
+      if (g) evToggle(g.closest('.event'));
     });
 
     // galerie
@@ -1625,6 +1667,7 @@
   /* ================= Pornire ================= */
   function renderAll() {
     renderIntro();
+    renderLatest();
     renderNews();
     renderInvestments();
     renderAbout();

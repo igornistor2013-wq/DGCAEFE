@@ -171,12 +171,12 @@ test('pagina statică are trei versiuni, cu limba, canonicul și legăturile hre
 test('fonturile: pagina în rusă cere din timp și literele chirilice; română și engleză, numai pe cele latine', () => {
   const files = new Map(staticSite.entries(reader(), cfg.SEED_DIR, { siteUrl: 'https://exemplu.github.io/depozit/' }).map(e => [e.name, e]));
   const pre = f => [...textOf(files.get(f)).matchAll(/<link rel="preload" href="([^"]+)" as="font" type="font\/woff2" crossorigin>/g)].map(m => m[1]);
-  const latin = ['assets/fonts/golos-text-latin-400.woff2', 'assets/fonts/source-serif-4-latin-600.woff2'];
+  const latin = ['assets/fonts/onest-latin-400.woff2', 'assets/fonts/onest-latin-700.woff2'];
   assert.deepEqual(pre('index.html'), latin);
   assert.deepEqual(pre('en.html'), latin);
-  assert.deepEqual(pre('ru.html'), ['assets/fonts/golos-text-latin-400.woff2', 'assets/fonts/golos-text-cyrillic-400.woff2', 'assets/fonts/source-serif-4-latin-600.woff2', 'assets/fonts/source-serif-4-cyrillic-600.woff2']);
-  for (const n of ['golos-text-latin-400', 'golos-text-cyrillic-400', 'source-serif-4-latin-600', 'source-serif-4-cyrillic-600']) assert.ok(files.has(`assets/fonts/${n}.woff2`), `lipsește ${n}.woff2 din pagina statică`);
-  assert.ok(![...files.keys()].some(n => /sourceserif|robotocondensed|raleway/i.test(n)), 'niciun font vechi în pagina statică');
+  assert.deepEqual(pre('ru.html'), ['assets/fonts/onest-latin-400.woff2', 'assets/fonts/onest-cyrillic-400.woff2', 'assets/fonts/onest-latin-700.woff2', 'assets/fonts/onest-cyrillic-700.woff2']);
+  for (const n of ['onest-latin-400', 'onest-latin-700', 'onest-cyrillic-400', 'onest-cyrillic-700', 'jetbrains-mono-latin-500', 'jetbrains-mono-cyrillic-500']) assert.ok(files.has(`assets/fonts/${n}.woff2`), `lipsește ${n}.woff2 din pagina statică`);
+  assert.ok(![...files.keys()].some(n => /sourceserif|source-serif|robotocondensed|raleway/i.test(n)), 'niciun font vechi în pagina statică');
 });
 
 test('serverul: /, /ru și /en (cu și fără .html) și /api/public?lang=', async () => {

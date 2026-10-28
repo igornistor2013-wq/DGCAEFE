@@ -39,7 +39,7 @@ test('programele de cooperare: file pe niveluri (transfrontalier, transnațional
   assert.match(site, /data-prog-docs/, 'fișa duce la documentele programului');
   assert.match(site, /function showProgramDocs\(/);
   assert.match(site, /progLevel = levelOf\(pr\)/, 'legăturile directe către un program deschid fila lui');
-  assert.match(css, /\.seg\{[^}]*background:#e7ebf3/);
+  assert.match(css, /\.seg\{[^}]*background:#fff[^}]*border-radius:999px/, 'filele sunt un grup de pastile albe');
   assert.match(css, /\.prog-grid\{display:grid;grid-template-columns:repeat\(auto-fit,minmax\(min\(100%,21\.25rem\)/);
 });
 
@@ -66,33 +66,30 @@ test('„Asistență externă”: carduri pentru rapoartele anuale (ultimul evid
   assert.match(coop, /<a class="amp" id="ampCard" href="https:\/\/amp\.gov\.md\/portal\/"/);
   assert.doesNotMatch(html, /id="years"|id="reportPanel"/);
   assert.match(site, /rep-card' \+ \(isNew \? ' is-new' : ''\)/);
-  assert.match(css, /\.rep-grid\{display:grid;grid-template-columns:repeat\(auto-fill,minmax\(min\(100%,10\.625rem\)/);
+  assert.match(css, /\.rep-grid\{display:grid;grid-template-columns:repeat\(auto-fit,minmax\(min\(100%,10\.5rem\)/);
   assert.match(css, /\.amp\{display:grid;grid-template-columns:auto minmax\(0,1fr\) auto/);
 });
 
-test('documente: listă cu pictograme și buton de descărcare; evenimente: linie cronologică (data, punct pe linie, card)', () => {
+test('documente: listă cu pictograme, etichete și buton de descărcare; evenimente: rânduri cu pătrat de dată și săgeată pentru detalii', () => {
   assert.match(site, /class="doc-ico"[^;]*docIcon\(d\)/);
   assert.match(site, /class="doc-go"/);
-  assert.match(css, /\.doc\{display:grid;grid-template-columns:3rem minmax\(0,1fr\) auto/);
-  assert.match(css, /\.doc-list\{display:block;background:#fff;border:1px solid var\(--line\)/);
+  assert.match(css, /\.doc\{display:grid;grid-template-columns:3\.25rem minmax\(0,1fr\) auto/);
+  assert.match(css, /\.doc-card\{[^}]*background:#fff[^}]*border-radius:1\.75rem/, 'documentele sunt într-un card alb cu căutare și filtre');
+  assert.match(css, /\.doc-go\{[^}]*border-radius:50%[^}]*background:var\(--blue\)/, 'butonul rotund de descărcare');
   const ev = sectionOf('evenimente');
   assert.match(ev, /<fieldset class="ev-year" id="evYearBox">/, 'filtrul de an este lângă titlu');
   assert.match(ev, /<ol class="events" id="timeline" aria-label="Evenimente în ordine cronologică">/);
-  // trei coloane: data, linia cu punctul, cardul; linia este un segment între puncte, iar punctul își schimbă culoarea după stare
-  assert.match(css, /\.event\{display:grid;grid-template-columns:6\.5rem 3rem minmax\(0,1fr\)/);
-  assert.match(css, /\.events>li::before\{content:"";position:absolute;left:calc\(8rem - 1px\)/);
-  assert.match(css, /\.event::after\{content:"";position:absolute;left:7\.5rem/);
-  assert.match(css, /\.event\.is-now::after\{background:var\(--yellow\)/);
-  assert.match(css, /\.event\.is-next::after\{background:var\(--blue\)/);
-  assert.match(css, /\.events\[data-more="true"\]>li:last-child::before\{[^}]*dashed/, 'dacă mai sunt evenimente, linia continuă punctat spre buton');
-  assert.match(css, /\.tl-chip\{[^}]*background:var\(--navy\)/, 'anul este o pastilă pe linie');
-  assert.match(css, /\.ev-date \.d\{[^}]*color:var\(--blue\)/);
-  assert.match(css, /@media \(prefers-reduced-motion:no-preference\)\{\.event\.is-now::after\{animation:/, 'pulsul punctului galben se oprește pentru cine a cerut mai puține mișcări');
-  // construirea: un marcaj de an la fiecare schimbare de an, stare pe fiecare eveniment, data într-un element <time>
-  assert.match(site, /class="tl-year" aria-hidden="true"><span class="tl-chip">/);
+  // fiecare eveniment: pătrat închis la culoare cu ziua și luna, titlul, locul și o săgeată care deschide detaliile
+  assert.match(css, /\.event\{display:grid;grid-template-columns:5\.25rem minmax\(0,1fr\) auto/);
+  assert.match(css, /\.ev-date\{[^}]*width:5\.25rem;height:5\.25rem[^}]*background:var\(--navy\)/);
+  assert.match(css, /\.event\[data-open="false"\] \.ev-more\{display:none\}/, 'detaliile sunt ascunse până se apasă săgeata');
+  assert.match(css, /\.ev-go\{/);
+  // construirea: starea pe fiecare eveniment, data într-un element <time>, detaliile într-o regiune cu denumire legată de buton
   assert.match(site, /'<li class="event ' \+ st\[0\]\.replace\('st-', 'is-'\)/);
   assert.match(site, /<time class="ev-date" datetime="/);
-  assert.match(site, /tl\.setAttribute\('data-more'/);
+  assert.match(site, /<button class="ev-go" type="button" aria-expanded="false" aria-controls="/);
+  assert.match(site, /<div class="ev-more" id="[^"]*" role="region" aria-label="/);
+  assert.match(site, /function evToggle\(/);
 });
 
 // Sub listele lungi se văd întâi primele elemente (5), iar butonul „Vezi mai mult” le adaugă pe următoarele.
@@ -223,39 +220,40 @@ test('scripturile paginii nu declară de două ori aceeași funcție la nivelul 
 
 const stripTags = h => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
 
-test('fonturile: Golos Text pentru texte și Source Serif 4 pentru titluri, găzduite local, cu licențele alăturate; panoul de administrare folosește aceleași fonturi', () => {
+test('fonturile: Onest pentru tot textul (cel cerut de HG 728/2023, pct. 26) și JetBrains Mono doar pentru etichetele mici, găzduite local, cu licențele alăturate; panoul de administrare rămâne cu Golos Text', () => {
   const FONTS = path.join(WEB, 'assets', 'fonts');
   const adm = read('assets', 'css', 'admin.css');
-  // pagina publică: Golos Text 400/500/600/700 și Source Serif 4 600, fiecare cu litere latine (română) și chirilice (rusă)
+  // pagina publică: Onest 400/500/600/700 și JetBrains Mono 500, fiecare cu litere latine (română) și chirilice (rusă)
   const faces = [...css.matchAll(/@font-face\{font-family:"([^"]+)";src:url\("\.\.\/fonts\/([\w.-]+\.woff2)"\) format\("woff2"\);font-weight:(\d+);font-style:normal;font-display:swap;unicode-range:[^}]+\}/g)];
   assert.equal((css.match(/@font-face/g) || []).length, faces.length, 'toate regulile @font-face au forma așteptată');
   assert.deepEqual(faces.map(m => `${m[1]} ${m[2]}`), [
-    ...[400, 500, 600, 700].map(w => `Golos Text golos-text-latin-${w}.woff2`),
-    ...[400, 500, 600, 700].map(w => `Golos Text golos-text-cyrillic-${w}.woff2`),
-    'Source Serif 4 source-serif-4-latin-600.woff2', 'Source Serif 4 source-serif-4-cyrillic-600.woff2'
+    ...[400, 500, 600, 700].map(w => `Onest onest-latin-${w}.woff2`),
+    ...[400, 500, 600, 700].map(w => `Onest onest-cyrillic-${w}.woff2`),
+    'JetBrains Mono jetbrains-mono-latin-500.woff2', 'JetBrains Mono jetbrains-mono-cyrillic-500.woff2'
   ]);
-  assert.match(css, /--sans:"Golos Text",system-ui/);
-  assert.match(css, /--serif:"Source Serif 4",Georgia/);
-  assert.doesNotMatch(css, /Raleway|Onest|fonts\.googleapis|fonts\.gstatic/i, 'fără alte fonturi');
+  assert.match(css, /--sans:"Onest",system-ui/);
+  assert.match(css, /--mono:"JetBrains Mono","Courier New",Courier,monospace/, 'etichetele mici au rezervă Courier (permis de HG 728/2023, pct. 33)');
+  assert.doesNotMatch(css, /Golos|Source Serif|Raleway|fonts\.googleapis|fonts\.gstatic/i, 'fără alte fonturi');
   assert.doesNotMatch(css, /url\(["']?https?:/i, 'fără adrese externe');
-  const other = [...css.matchAll(/font-family:\s*([^;}]+)/g)].map(m => m[1].trim()).filter(v => !/^(?:"Golos Text"|"Source Serif 4"|var\(--(?:sans|serif)\)|inherit)$/.test(v));
+  const other = [...css.matchAll(/font-family:\s*([^;}]+)/g)].map(m => m[1].trim()).filter(v => !/^(?:"Onest"|"JetBrains Mono"|var\(--(?:sans|mono)\)|inherit)$/.test(v));
   assert.deepEqual(other, [], 'orice text din pagina publică folosește unul din cele două fonturi');
-  assert.match(css, /body\{margin:0;font-family:var\(--sans\)/, 'textul paginii este în Golos Text');
-  assert.match(css, /h1,h2\{font-family:var\(--serif\)/, 'titlurile mari sunt în Source Serif 4');
-  // fișierele și licențele (SIL Open Font License) alăturate; Onest rămâne pentru panoul de administrare
+  assert.match(css, /body\{margin:0;font-family:var\(--sans\)/, 'textul paginii este în Onest');
+  assert.match(css, /h1,h2,h3,h4\{font-family:var\(--sans\)/, 'titlurile sunt tot în Onest, fără cursive (HG 728/2023, pct. 33)');
+  assert.doesNotMatch(css, /font-style:\s*italic/, 'fără cursive în titluri');
+  // fișierele și licențele (SIL Open Font License) alăturate; Golos Text rămâne pentru panoul de administrare
   for (const f of faces.map(m => m[2])) {
     const b = fs.readFileSync(path.join(FONTS, f));
     assert.equal(b.subarray(0, 4).toString('latin1'), 'wOF2', `${f}: fișier woff2`);
     assert.ok(b.length > 5000 && b.length < 40000, `${f}: dimensiune rezonabilă`);
   }
-  assert.deepEqual(fs.readdirSync(FONTS).sort(), [...new Set(faces.map(m => m[2])), 'LICENSE-golos-text.txt', 'LICENSE-source-serif-4.txt'].sort(), 'în dosarul fonturilor sunt numai fișierele folosite');
-  for (const l of ['golos-text', 'source-serif-4']) assert.match(fs.readFileSync(path.join(FONTS, `LICENSE-${l}.txt`), 'utf8'), /SIL OPEN FONT LICENSE/i);
+  const golos = [...adm.matchAll(/golos-text-[\w-]+\.woff2/g)].map(m => m[0]);
+  assert.deepEqual(fs.readdirSync(FONTS).sort(), [...new Set([...faces.map(m => m[2]), ...golos]), 'LICENSE-golos-text.txt', 'LICENSE-jetbrains-mono.txt', 'LICENSE-onest.txt'].sort(), 'în dosarul fonturilor sunt numai fișierele folosite');
+  for (const l of ['golos-text', 'jetbrains-mono', 'onest']) assert.match(fs.readFileSync(path.join(FONTS, `LICENSE-${l}.txt`), 'utf8'), /SIL OPEN FONT LICENSE/i);
   assert.equal((adm.match(/@font-face/g) || []).length, 8, 'administrare: Golos Text latin și chirilic, 4 greutăți');
   assert.match(adm, /--sans:"Golos Text",system-ui/);
-  assert.doesNotMatch(adm, /Onest/);
   // doar fișierele cu litere latine se cer din timp; cele chirilice se cer numai pe pagina în rusă (vezi i18n.test.js)
-  assert.match(html, /<link rel="preload" href="assets\/fonts\/golos-text-latin-400\.woff2" as="font" type="font\/woff2" crossorigin>/);
-  assert.match(html, /<link rel="preload" href="assets\/fonts\/source-serif-4-latin-600\.woff2" as="font" type="font\/woff2" crossorigin>/);
+  assert.match(html, /<link rel="preload" href="assets\/fonts\/onest-latin-400\.woff2" as="font" type="font\/woff2" crossorigin>/);
+  assert.match(html, /<link rel="preload" href="assets\/fonts\/onest-latin-700\.woff2" as="font" type="font\/woff2" crossorigin>/);
   assert.equal((html.match(/rel="preload"[^>]*as="font"/g) || []).length, 2, 'două încărcări anticipate de font');
 });
 
@@ -290,7 +288,8 @@ test('structura: legătură „Salt la conținut”, repere (antet, meniu, conț
   assert.match(html, /<nav class="mainnav" id="mainnav" aria-label="Meniu principal">/);
   assert.match(html, /<footer class="foot">/);
   // fiecare „nav” are o denumire, ca să se deosebească între ele
-  for (const m of html.matchAll(/<nav\b([^>]*)>/g)) assert.match(m[1], /aria-label=/, `nav fără denumire: ${m[0]}`);
+  for (const m of html.matchAll(/<nav\b([^>]*)>/g)) assert.match(m[1], /aria-label=|aria-labelledby=/, `nav fără denumire: ${m[0]}`);
+  assert.match(html, /<nav class="quick" aria-labelledby="quickTitle">\s*<h2 class="sr" id="quickTitle">/, 'accesul rapid are un titlu pentru cititoarele de ecran');
   // identificatori unici
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]);
   const dup = ids.filter((x, i) => ids.indexOf(x) !== i);
@@ -360,8 +359,8 @@ test('rubrica „Noutăți” vine imediat înainte de „Galerie foto”: în p
   const main = [...html.matchAll(/<section class="(sec[^"]*)" id="([^"]+)"/g)];
   // „Platforma AMP” este o bandă albastră de sine stătătoare, imediat după proiectele investiționale; nu e în meniu
   assert.deepEqual(main.map(m => m[2]), order, 'ordinea secțiunilor în pagină');
-  // fundalurile se alternează (fără două secțiuni alăturate la fel), deci rubrica adăugată nu strică ritmul paginii
-  main.forEach((m, i) => assert.ok(i === 0 || /\bsec-alt\b/.test(m[1]) !== /\bsec-alt\b/.test(main[i - 1][1]), `fundalul secțiunii #${m[2]} se alternează`));
+  // în noul design toate secțiunile stau pe același fond gri-albăstrui (fără benzi alternante); fiecare are eticheta numerotată
+  main.forEach(m => assert.doesNotMatch(m[1], /\bsec-alt\b/, `secțiunea #${m[2]} nu mai are fond propriu`));
   const nav = /<ul id="navList">([\s\S]*?)<\/ul>/.exec(html)[1];
   assert.deepEqual([...nav.matchAll(/href="#([^"]+)"/g)].map(m => m[1]), order, 'meniul principal');
   const foot = /<h2 class="foot-h">Pe această pagină<\/h2>\s*<ul>([\s\S]*?)<\/ul>/.exec(html)[1];
@@ -374,14 +373,15 @@ test('rubrica „Noutăți” vine imediat înainte de „Galerie foto”: în p
   assert.deepEqual(nf, order, 'pagina „404”');
 });
 
-test('partea de sus: carusel cu prezentarea pe primul loc și ultimele noutăți după ea, cu săgeți, puncte și anunț pentru cititoarele de ecran', () => {
-  const hero = /<div class="hero-news[^"]*" id="heroNews"[\s\S]*?<p class="sr" id="hnLive"[^>]*><\/p>\s*<\/div>/.exec(html);
+test('partea de sus: card bleumarin cu prezentarea în stânga și fotografia ultimei noutăți în dreapta, cu un card sticlos peste ea; carusel cu săgeți, puncte și anunț pentru cititoarele de ecran', () => {
+  const hero = /<div class="hero-news" id="heroNews"[\s\S]*?<p class="sr" id="hnLive"[^>]*><\/p>\s*<\/div>/.exec(html);
   assert.ok(hero, 'blocul cu noutăți există');
   const h = hero[0];
-  assert.ok(html.indexOf('id="introMain"') < html.indexOf('id="heroNews"'), 'noutățile sunt un strat peste prezentare, care rămâne primul diapozitiv');
-  assert.match(h, /^<div class="hero-news is-intro" id="heroNews" role="region" aria-roledescription="carusel" aria-label="Ultimele noutăți" hidden>/, 'ascuns până sunt noutăți; la început se vede prezentarea');
+  assert.ok(html.indexOf('id="introMain"') < html.indexOf('id="heroNews"'), 'prezentarea rămâne mereu la vedere, înaintea fotografiei');
+  assert.match(h, /^<div class="hero-news" id="heroNews" role="region" aria-roledescription="carusel" aria-label="Ultimele noutăți" hidden>/, 'ascuns până sunt noutăți');
   assert.match(h, /<!--hero-news-->/, 'locul diapozitivelor, completat la construirea paginii și în browser');
   assert.match(h, /<!--hero-dots-->/, 'locul punctelor');
+  assert.match(h, /<div class="hn-bar" role="group" aria-label="[^"]{8,}">/, 'săgețile, punctele și pauza sunt un grup cu denumire');
   // butoanele au denumiri; pictogramele sunt ascunse cititoarelor de ecran
   for (const [id, cls] of [['hnPrev', 'hn-arrow hn-prev'], ['hnNext', 'hn-arrow hn-next'], ['hnPlay', 'hn-btn']]) assert.match(h, new RegExp(`<button class="${cls}" id="${id}" type="button" aria-label="[^"]{8,}"><svg class="ico" aria-hidden="true"`), id);
   assert.match(h, /id="hnLive" aria-live="polite" aria-atomic="true"/);
@@ -394,9 +394,9 @@ test('partea de sus: carusel cu prezentarea pe primul loc și ultimele noutăți
   // scriptul se încarcă înaintea celui principal, iar acesta îl cheamă cu noutățile publice (deja ordonate: cele mai noi primele)
   assert.ok(html.indexOf('assets/js/hero-news.js') > html.indexOf('assets/js/common.js') && html.indexOf('assets/js/hero-news.js') < html.indexOf('assets/js/site.js'));
   assert.match(html, /<script src="assets\/js\/hero-news\.js" defer><\/script>/);
-  assert.match(site, /window\.HeroNews\.render\(\$\('#heroNews'\), \$\('#introLead'\), D\.news, DG, \$\('#introMain'\), \$\('#top'\)\)/);
-  // o știre deschisă din partea de sus: la închidere adresa revine sus (#top), nu la rubrica Noutăți
-  assert.match(site, /newsBack = a\.closest\('#heroNews'\) \? '#top' : '#noutati'/);
+  assert.match(site, /window\.HeroNews\.render\(\$\('#heroNews'\), D\.news, DG, \$\('#top \.hero'\)\)/);
+  // o știre deschisă din partea de sus sau din „Ultimele noutăți”: la închidere adresa revine sus (#top), nu la rubrica Noutăți
+  assert.match(site, /newsBack = a\.closest\('#heroNews, #latest'\) \? '#top' : '#noutati'/);
   assert.match(site, /location\.search \+ newsBack\)/);
   assert.match(html, /<section class="intro" id="top"/);
   // stiluri: schimbare lină, dar fără animații pentru cine a cerut mișcare redusă; contrast ridicat și tipărire tratate
@@ -405,39 +405,33 @@ test('partea de sus: carusel cu prezentarea pe primul loc și ultimele noutăți
   assert.match(css, /@media \(forced-colors:active\)/);
 });
 
-test('caruselul se potrivește ecranului: banda crește cu fereastra, titlul din ea crește odată cu ea, tableta și telefonul rămân neschimbate', () => {
-  // blocul de la sfârșitul secțiunii „Prezentare”: numai pentru ecrane de cel puțin 64 rem (computer)
-  const at = css.indexOf('/* Pe ecrane mari banda crește odată cu fereastra');
-  assert.ok(at > 0, 'blocul există');
-  const block = /@media screen and \(min-width:64rem\)\{\s*\.intro:has\(\.hero-news:not\(\[hidden\]\)\)\{([^}]*)\}\s*\}/.exec(css.slice(at));
-  assert.ok(block, 'o singură regulă, numai pe computer');
-  assert.match(css, /\.intro:has\(\.hero-news:not\(\[hidden\]\)\)\{display:flex;flex-direction:column;justify-content:center;min-height:clamp\(28rem,50vh,40rem\)\}/, 'regula veche rămâne pentru tabletă și telefon');
-  const body = block[1];
-  const t = /--hn-t:(clamp\(3rem,2\.2vw \+ 1rem,4\.4rem\));min-height:clamp\(28rem,min\(34vw,66vh\),62rem\)/.exec(body);
-  assert.ok(t, 'formulele așteptate');
-  assert.match(css, /\.hn-title\{[^}]*font-size:clamp\(1\.65rem,1rem \+ 2\.4vw,var\(--hn-t,3rem\)\)/, 'titlul urmează variabila, cu valoare de rezervă');
-  assert.match(css, /\.hn-text\{max-width:calc\(var\(--hn-t,3rem\)\*15\.5\);text-align:left\}/, 'coloana de text crește odată cu litera');
-  // formulele, calculate pentru o fereastră (litera rădăcină urmează regula „html”: 16 px până la 1920 px, apoi crește ușor, cel mult 22 px)
+test('ultimele noutăți de sub accesul rapid: una mare și trei mici, scrise în pagină ascunse până sunt noutăți', () => {
+  assert.match(html, /<section class="latest" id="latest" aria-labelledby="latestTitle" hidden>/);
+  assert.match(html, /<div class="latest-grid" id="latestGrid">/);
+  assert.match(site, /function renderLatest\(/);
+  assert.match(site, /\(D\.news \|\| \[\]\)\.slice\(0, 4\)/);
+  assert.match(css, /\.latest-grid\{display:grid/);
+  assert.match(css, /\.lt-item\{display:grid;grid-template-columns:6\.5rem minmax\(0,1fr\)/);
+});
+
+test('partea de sus se potrivește ecranului: pe computer prezentarea și fotografia stau alături, pe tabletă și telefon fotografia vine sub text; înălțimea și literele cresc cu fereastra', () => {
+  // telefon și tabletă: fotografia sub text, cu înălțime proporțională cu lățimea
+  assert.match(css, /\.hero-news\{position:relative;z-index:1;min-height:clamp\(16rem,58vw,22rem\)/);
+  // computer (de la 64 rem): text 56 %, fotografie 52 % (se suprapun puțin, cu degrade), înălțime între 30 și 39 rem după lățime
+  const at = css.indexOf('@media (min-width:64rem){\n  .hero:has(.hero-news:not([hidden]))');
+  assert.ok(at > 0, 'blocul pentru computer există');
+  const block = css.slice(at, css.indexOf('\n}\n', at));
+  assert.match(block, /\.hero:has\(\.hero-news:not\(\[hidden\]\)\)\{min-height:clamp\(30rem,40vw,39rem\)\}/);
+  assert.match(block, /\.hero-text\{width:56%/);
+  assert.match(block, /\.hero-news\{position:absolute;top:0;right:0;bottom:0;width:52%/);
+  assert.match(css, /\.hero h1\{[^}]*font-size:clamp\(2rem,\.9rem \+ 2\.7vw,3\.25rem\)/, 'titlul crește odată cu ecranul');
+  // literele cresc ușor abia peste 1920 px (cel mult 22 px), deci tot ce este în rem crește odată cu ele
   assert.match(css, /html\{font-size:clamp\(100%,calc\(100% \+ \(100vw - 120rem\)\*\.003125\),1\.375rem\)/);
-  const ev = (w, h) => {
-    const root = Math.min(22, Math.max(16, 16 + 0.003125 * (w - 1920)));
-    const band = Math.max(28 * root, Math.min(0.34 * w, 0.66 * h, Infinity), 0);
-    const bandClamped = Math.min(62 * root, band);
-    const title = Math.max(3 * root, Math.min(0.022 * w + root, 4.4 * root));
-    return { root, band: bandClamped, title };
-  };
-  const old = (w, h) => Math.max(28 * ev(w, h).root, Math.min(h * 0.5, 40 * ev(w, h).root));
-  for (const [w, h] of [[1366, 643], [1440, 760], [1536, 730], [1680, 900], [1905, 943], [1920, 1080], [2304, 1200], [2560, 1300], [1024, 700]]) {
-    assert.ok(ev(w, h).band >= old(w, h) - 0.5, `${w}×${h}: banda nu e mai joasă decât înainte`);
-  }
-  assert.ok(ev(1905, 943).band >= 600, 'pe 1905×943 banda are cel puțin 600 px (înainte 471)');
-  assert.equal(ev(1905, 943).root, 16, 'pe 1905 px literele nu mai cresc: 16 px');
-  assert.ok(ev(2560, 1300).band >= 800, 'pe 2560×1300 banda are cel puțin 800 px (înainte 602)');
-  for (const [w, h] of [[1536, 730], [1905, 943], [1920, 945], [2304, 1200], [2560, 1300]]) {
-    assert.ok(ev(w, h).band / h <= 0.67, `${w}×${h}: sub bandă se vede începutul paginii`);
-    assert.ok(w / ev(w, h).band <= 3.4, `${w}×${h}: banda nu mai e o fâșie lată`);
-  }
-  assert.ok(ev(1905, 943).title > 3 * ev(1905, 943).root, 'titlul crește pe ecran mare');
+  const root = w => Math.min(22, Math.max(16, 16 + 0.003125 * (w - 1920)));
+  const height = w => Math.min(39 * root(w), Math.max(30 * root(w), 0.4 * w));
+  assert.equal(root(1905), 16);
+  assert.ok(height(1440) >= 480 && height(1440) <= 624, 'pe 1440 px cardul are între 480 și 624 px');
+  assert.ok(height(2560) > height(1920), 'pe ecran foarte mare cardul crește');
 });
 
 test('fără ferestre de dialog ale browserului', () => {
@@ -478,22 +472,23 @@ test('contacte, cadrul legal, galerie: pictograme în casete, subiectul ca pasti
   assert.match(site, /class="ci-ico"/);
   assert.match(site, /class="law-ico"/);
   assert.match(site, /class="g-zoom"/);
-  assert.match(css, /\.pill\[aria-checked="true"\]\{background:var\(--blue\)/);
+  assert.match(css, /\.pill\[aria-checked="true"\]\{background:var\(--ink\)/);
 });
 
-// Aspectul din Claude Design (Main, Liste, Mobil…): dimensiunile și structura de pe computer și de pe telefon.
+// Aspectul din Claude Design (propunerea a doua): dimensiunile și structura de pe computer și de pe telefon.
 test('aliniere la design: titluri, filtre-pastile, rânduri de listă și varianta de telefon', () => {
-  // titlurile secțiunilor: 40 px (evenimente 44 px), 32 px pe telefon; deasupra, eticheta de 12 px cu spațiere .12em
-  assert.match(css, /\.sec-head h2\{font-size:clamp\(2rem,1\.4rem \+ 1\.8vw,2\.5rem\)/);
-  assert.match(css, /#h-ev\{font-size:clamp\(2rem,1\.2rem \+ 2\.2vw,2\.75rem\)/);
-  assert.match(css, /\.sec-head \.eyebrow\{font-size:\.75rem;letter-spacing:\.12em/);
-  // secțiuni: 80 px sus, 88 px jos pe ecran mare
-  assert.match(css, /--sec-pt:clamp\(2\.5rem,[^;]*5rem\);\s*--sec-pb:clamp\(3\.5rem,[^;]*5\.5rem\)/);
-  // filtre: pastile de 44 px, chenar #c6cfe0, numărul din ele mai subțire
-  assert.match(css, /\.chip\{[^}]*min-height:2\.75rem[^}]*border:1px solid var\(--line-d\)[^}]*border-radius:999px/);
+  // titlurile secțiunilor groase și strânse; deasupra, eticheta numerotată în font monospațiat („01 · DESPRE DIRECȚIE”)
+  assert.match(css, /\.sec-head h2\{font-size:clamp\(2rem,1\.1rem \+ 2\.4vw,2\.875rem\)/);
+  assert.match(css, /\.eyebrow\{[^}]*border-radius:999px[^}]*background:var\(--tint\)[^}]*font-family:var\(--mono\)/);
+  assert.match(css, /\.sec \.eyebrow::before\{content:counter\(sec,decimal-leading-zero\) " · "\}/, 'numărul secțiunii vine din CSS');
+  // secțiuni: spațiu mare deasupra, mic dedesubt (fondul este același, fără benzi)
+  assert.match(css, /--sec-pt:clamp\(2\.5rem,[^;]*5rem\)/);
+  // filtre: pastile de 44 px, fără chenar, cea aleasă este neagră; numărul din ele mai subțire
+  assert.match(css, /\.chip\{[^}]*min-height:2\.75rem[^}]*border-radius:999px/);
+  assert.match(css, /\.chip\[aria-pressed="true"\]\{background:var\(--ink\)/);
   assert.match(css, /\.chip \.n\{font-weight:500;color:var\(--muted\)\}/);
-  // câmpurile de căutare: 48 px, colțuri de 10 px
-  assert.match(css, /\.input,\.select,[^{]*\{min-height:3rem;border-radius:\.625rem/);
+  // câmpurile de căutare: 52 px, colțuri rotunjite
+  assert.match(css, /\.input,\.select,[^{]*\{[^}]*min-height:3\.25rem[^}]*border-radius:1rem/);
   // rândurile: document (48 px pictogramă), act normativ (4 coloane), proiect (5 coloane, 56 / 190 / 170 / 28 px)
   assert.match(css, /--inv-cols:3\.5rem minmax\(0,1fr\) 11\.875rem 10\.625rem 1\.75rem/);
   assert.match(css, /\.law-a\{[^}]*grid-template-columns:3rem 11\.5rem minmax\(0,1fr\) auto/);

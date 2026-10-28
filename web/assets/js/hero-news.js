@@ -1,22 +1,23 @@
-/* Caruselul din partea de sus a primei pagini.
-   Primul diapozitiv este întotdeauna prezentarea (titlul direcției, căutarea și accesul rapid). După 10 secunde urmează, pe rând,
-   ultimele 5 noutăți (cele mai noi, în ordinea din rubrica „Noutăți”), fiecare pe fotografia ei, câte 10 secunde; după ultima se
-   revine la prezentare. Derularea se oprește:
+/* Caruselul din cardul de sus al primei pagini.
+   În dreapta cardului bleumarin se vede fotografia ultimei noutăți, cu un card sticlos pe ea (eticheta, data și titlul). Textul de prezentare
+   (titlul direcției, căutarea) rămâne mereu la vedere, în stânga. După 10 secunde urmează, pe rând, cele mai noi 5 noutăți (în ordinea din
+   rubrica „Noutăți”); după ultima se revine la prima. Derularea se oprește:
      - cu butonul de pauză (rămâne oprită până se apasă din nou);
-     - cât timp cursorul mouse-ului este deasupra, sau cât timp cursorul tastaturii (focusul) este în partea de sus a paginii;
+     - cât timp cursorul mouse-ului este deasupra cardului, sau cât timp cursorul tastaturii (focusul) este în el;
      - cât timp pagina este ascunsă (altă filă).
-   Cu săgețile și cu punctele se trece oricând la alt diapozitiv. Cititoarele de ecran sunt anunțate de schimbare numai atunci,
+   Cu săgețile și cu punctele se trece oricând la altă noutate. Cititoarele de ecran sunt anunțate de schimbare numai atunci,
    nu la fiecare 10 secunde.
-   Diapozitivele noutăților și punctele le scrie aceeași funcție în HTML, la construirea paginii (lib/prerender.js), și în browser,
-   deci prima afișare este identică și pagina nu „sare”. Fără noutăți rămâne la vedere doar prezentarea, fără carusel. */
+   Diapozitivele și punctele le scrie aceeași funcție în HTML, la construirea paginii (lib/prerender.js), și în browser,
+   deci prima afișare este identică și pagina nu „sare”. Fără noutăți, cardul rămâne doar cu textul de prezentare. Cu o singură noutate
+   nu există săgeți, puncte sau derulare. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.HeroNews = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  var MAX = 5; // câte noutăți se derulează (după prezentare)
-  var SECONDS = 10; // cât stă fiecare diapozitiv pe ecran
+  var MAX = 5; // câte noutăți se derulează
+  var SECONDS = 10; // cât stă fiecare noutate pe ecran
 
   // `h` = funcțiile de scriere din common.js: esc (text sigur), dateText (data unei noutăți), t (text din interfață, în limba paginii).
   function pick(news) {
@@ -33,32 +34,30 @@
     return key.replace(/%(\d)/g, function (m, i) { return a[Number(i) - 1] === undefined ? m : a[Number(i) - 1]; });
   }
 
-  // Un diapozitiv de noutate: fotografia pe tot fundalul (dacă există), peste ea eticheta, data, titlul, rezumatul și butonul.
+  // O noutate: fotografia mare pe fundal (dacă există), iar peste ea cardul sticlos cu eticheta, data și titlul (titlul duce la noutate).
   function slideHtml(n, i, h) {
     var date = h.dateText(n);
     var meta = (n.tag ? '<span class="hn-tag">' + h.esc(n.tag) + '</span>' : '') +
       (date ? '<time datetime="' + h.esc(n.date) + '">' + h.esc(date) + '</time>' : '');
     var src = n.image && (n.image.path || n.image.thumb); // fotografia mare; este decorativă, titlul duce la aceeași noutate
     var bg = src ? '<img src="' + h.esc(src) + '" class="hn-bg" alt="" width="1600" height="900"' + (i === 0 ? '' : ' loading="lazy"') + ' decoding="async">' : '';
-    return '<div class="hn-slide' + (src ? ' has-pic' : '') + '">' + bg + '<div class="wrap hn-in"><div class="hn-text">' +
+    return '<div class="hn-slide' + (src ? ' has-pic' : '') + (i === 0 ? ' is-active' : '') + '">' + bg + '<div class="hn-card">' +
       (meta ? '<p class="hn-meta">' + meta + '</p>' : '') +
       '<p class="hn-title"><a href="' + h.esc(href(n)) + '">' + h.esc(n.title) + '</a></p>' +
-      (n.summary ? '<p class="hn-sum">' + h.esc(n.summary) + '</p>' : '') +
-      '<a class="btn hn-go" href="' + h.esc(href(n)) + '" tabindex="-1" aria-hidden="true">' + h.esc(tx(h, 'Citește mai departe')) + ' ' + (h.icon ? h.icon('arrow-r') : '') + '</a>' +
-      '</div></div></div>';
+      '</div></div>';
   }
 
   function slidesHtml(list, h) {
     return list.map(function (n, i) { return slideHtml(n, i, h); }).join('');
   }
 
-  // Punctele de sub carusel: unul pentru prezentare și câte unul pentru fiecare noutate; cel curent este marcat cu aria-current.
+  // Punctele de sub carusel: câte unul pentru fiecare noutate; cel curent este marcat cu aria-current.
   function dotsHtml(list, h, current) {
-    if (!list.length) return '';
+    if (list.length < 2) return '';
     current = current || 0;
     var out = [];
-    for (var k = 0; k <= list.length; k++) {
-      var label = k === 0 ? tx(h, 'Prezentarea direcției') : tx(h, 'Noutatea %1 din %2: %3', k, list.length, list[k - 1].title);
+    for (var k = 0; k < list.length; k++) {
+      var label = tx(h, 'Noutatea %1 din %2: %3', k + 1, list.length, list[k].title);
       out.push('<button type="button" class="hn-dot' + (k === current ? ' is-active' : '') + '" data-i="' + k + '" aria-label="' + h.esc(label) + '"' + (k === current ? ' aria-current="true"' : '') + '></button>');
     }
     return out.join('');
@@ -76,12 +75,12 @@
     try { return el.matches(':focus-visible'); } catch (e) { return true; }
   }
 
-  // Pornește (sau oprește) numărătoarea până la următorul diapozitiv și pune butonul și bara de progres în starea potrivită.
+  // Pornește (sau oprește) numărătoarea până la următoarea noutate și pune butonul și bara de progres în starea potrivită.
   function sync() {
     var s = S;
     clearTimeout(s.timer);
     s.timer = 0;
-    var run = s.n > 0 && !s.user && !s.hover && !s.focus && !document.hidden;
+    var run = s.n > 1 && !s.user && !s.hover && !s.focus && !document.hidden;
     s.bar.classList.remove('run');
     if (run) {
       void s.bar.offsetWidth; // repornește bara de progres de la zero
@@ -99,21 +98,18 @@
     s.box.setAttribute('data-hold', [s.user && 'pauză', s.hover && 'mouse', s.focus && 'tastatură', document.hidden && 'ascunsă'].filter(Boolean).join(' '));
   }
 
-  // Poziția 0 este prezentarea; pozițiile 1…n sunt noutățile. `announce`: cititoarele de ecran sunt anunțate (numai la schimbările cerute de vizitator).
+  // Pozițiile sunt 0…n-1 (noutățile, cele mai noi primele). `announce`: cititoarele de ecran sunt anunțate (numai la schimbările cerute de vizitator).
   function show(i, announce) {
     var s = S;
-    var total = s.n + 1;
+    var total = s.n;
     i = ((i % total) + total) % total;
     s.i = i;
-    s.slides.forEach(function (el, k) { el.classList.toggle('is-active', k === i - 1); });
-    s.box.classList.toggle('is-intro', i === 0);
-    // cât timp se vede o noutate, prezentarea din spatele ei nu se mai poate atinge nici cu tastatura
-    if (s.main) { if (i === 0) s.main.removeAttribute('inert'); else s.main.setAttribute('inert', ''); }
+    s.slides.forEach(function (el, k) { el.classList.toggle('is-active', k === i); });
     s.dots.forEach(function (d, k) {
       d.classList.toggle('is-active', k === i);
       if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
     });
-    if (announce) s.live.textContent = i === 0 ? tr('Prezentarea direcției') : tr('Noutatea %1 din %2: %3', i, s.n, s.titles[i - 1]);
+    if (announce) s.live.textContent = tr('Noutatea %1 din %2: %3', i + 1, s.n, s.titles[i]);
     sync();
   }
 
@@ -147,10 +143,9 @@
     document.addEventListener('visibilitychange', function () { if (S && S.n) sync(); });
   }
 
-  // `box` = #heroNews (diapozitivele noutăților și butoanele), `lead` = textul de sub titlu (rămâne la vedere, în primul diapozitiv),
-  // `news` = noutățile publice (cele mai noi primele), `h` = funcțiile din common.js, `main` = prezentarea (titlul, căutarea, accesul rapid),
-  // `rootEl` = tot blocul de sus al paginii (mouse-ul și tastatura din el opresc derularea); fără ele, doar blocul noutăților.
-  function render(box, lead, news, h, main, rootEl) {
+  // `box` = #heroNews (noutățile și butoanele), `news` = noutățile publice (cele mai noi primele), `h` = funcțiile din common.js,
+  // `rootEl` = tot cardul de sus (mouse-ul și tastatura din el opresc derularea); fără el, doar blocul noutăților.
+  function render(box, news, h, rootEl) {
     var list = pick(news);
     if (!S) S = { i: 0, user: false, hover: false, focus: false, timer: 0, wired: false, n: 0 };
     var s = S;
@@ -158,14 +153,10 @@
     s.timer = 0;
     s.box = box;
     s.h = h;
-    s.main = main || null;
     s.root = rootEl || box;
     s.n = list.length;
     box.hidden = !s.n;
-    if (!s.n) {
-      if (s.main) s.main.removeAttribute('inert');
-      return;
-    }
+    if (!s.n) return;
     var stage = box.querySelector('.hn-stage');
     stage.innerHTML = slidesHtml(list, h);
     s.slides = Array.prototype.slice.call(stage.children);
@@ -173,8 +164,9 @@
     s.play = box.querySelector('#hnPlay');
     s.live = box.querySelector('#hnLive');
     s.bar = box.querySelector('.hn-progress');
+    box.querySelector('.hn-bar').hidden = s.n < 2; // o singură noutate: fără săgeți, puncte și pauză
     var dotsBox = box.querySelector('#hnDots');
-    s.i = Math.min(s.i, s.n);
+    s.i = Math.min(s.i, s.n - 1);
     dotsBox.innerHTML = dotsHtml(list, h, s.i);
     s.dots = Array.prototype.slice.call(dotsBox.children);
     box.style.setProperty('--hn-ms', SECONDS * 1000 + 'ms');

@@ -148,6 +148,23 @@
     return { label: 'LINK', cls: 'web' };
   }
 
+  /* ---------- „Acces rapid”: cardurile de sub prezentare (aceleași în browser și la construirea paginii) ---------- */
+  // pictograma unui card: după ce spune legătura (raport, platformă, plan, program, act normativ); altfel, după poziție
+  var QUICK_ICONS = ['file', 'chart', 'trend', 'globe', 'gavel'];
+  function quickIcon(l, i) {
+    var t = (String(l.t || '') + ' ' + String(l.u || '')).toLowerCase();
+    if (/rapor|report|отчет|отчёт/.test(t)) return 'file';
+    if (/platform|amp\b|платформ/.test(t)) return 'chart';
+    if (/plan|invest|crestere|creștere|рост|инвест/.test(t)) return 'trend';
+    if (/interreg|program|cooper|программ/.test(t)) return 'globe';
+    if (/legal|normativ|hot[ăa]r|закон|нормат/.test(t)) return 'gavel';
+    return QUICK_ICONS[i % QUICK_ICONS.length];
+  }
+  function quickLinkHtml(l, i) {
+    var ext = /^https?:/i.test(l.u);
+    return '<li><a href="' + esc(l.u) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + '><span class="quick-top"><span class="quick-ico" aria-hidden="true">' + icon(quickIcon(l, i)) + '</span><span class="quick-go" aria-hidden="true">' + icon(ext ? 'ext' : 'arrow-r') + '</span></span><span class="quick-t">' + esc(l.t) + '</span></a></li>';
+  }
+
   /* ---------- pictograme ---------- */
   var PATHS = {
     zoom: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/>',
@@ -199,6 +216,7 @@
     history: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
     home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
     lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    trend: '<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
     chart: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
     orbit: '<rect x="2.5" y="2.5" width="19" height="19" rx="2.5"/><rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/><rect x="10.5" y="10.5" width="3" height="3" rx=".5"/>',
     audit: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
@@ -304,7 +322,7 @@
     return a.length > 1 ? out.replace(/%(\d)/g, function (m, i) { return a[Number(i)] === undefined ? m : a[Number(i)]; }) : out;
   }
 
-  var api = { t: t, lang: PAGE_LANG, MONTHS: MONTHS, esc: esc, norm: norm, terms: terms, matches: matches, fmtDate: fmtDate, dateText: dateText, today: today, formatSize: formatSize, rich: rich, fileKind: fileKind, icon: icon, sprite: sprite, toast: toast, copyText: copyText, debounce: debounce };
+  var api = { t: t, lang: PAGE_LANG, MONTHS: MONTHS, esc: esc, norm: norm, terms: terms, matches: matches, fmtDate: fmtDate, dateText: dateText, today: today, formatSize: formatSize, rich: rich, fileKind: fileKind, quickIcon: quickIcon, quickLinkHtml: quickLinkHtml, icon: icon, sprite: sprite, toast: toast, copyText: copyText, debounce: debounce };
   // În Node (construirea paginii) se folosesc doar funcțiile care scriu text: aceleași reguli ca în browser, fără să atingă o pagină.
   if (typeof module === 'object' && module.exports) {
     module.exports = api;
