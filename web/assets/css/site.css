@@ -107,6 +107,20 @@ abbr[title]{text-decoration:none;cursor:help}
   .nav-ov{display:block;position:fixed;inset:0;z-index:80;background:rgba(2,12,42,.55)}
   .nav-ov[hidden]{display:none}
 }
+/* Laptopuri (1280–1599 px, adesea cu scalare Windows): meniul se strânge puțin, ca numele direcției să încapă pe două rânduri */
+@media (min-width:80rem) and (max-width:99.99rem){
+  .mainnav a{padding-inline:.5rem;font-size:.8125rem}
+  .mainnav ul{gap:0}
+  .brand-text{max-width:21rem}
+}
+/* Ecrane scunde (laptop): partea de sus a paginii se compactează, ca prezentarea să încapă mai bine în ecran */
+@media (min-width:64rem) and (max-height:50rem){
+  html .hero h1{font-size:clamp(2rem,1rem + 2.2vw,2.75rem)}
+  html .hero-text{gap:1rem}
+  html .hero-text .lead{font-size:1rem;line-height:1.55}
+  html .hero:has(.hero-news:not([hidden])){min-height:clamp(26rem,36vw,34rem)}
+  html .hero:has(.hero-news:not([hidden])) .hero-text{width:58%;padding-block:clamp(1.75rem,1rem + 1.5vw,2.5rem)}
+}
 /* Rusă: cuvintele meniului sunt mai lungi, deci rândul se strânge puțin, ca să nu se suprapună cu numele direcției */
 @media (min-width:80rem) and (max-width:119.99rem){
   html[lang="ru"] .mainnav a{padding-inline:.4rem;font-size:.8125rem}
