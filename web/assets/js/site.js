@@ -52,47 +52,6 @@
     Altele: { chip: 'Alte acte', one: 'Act normativ', name: 'Actul' }
   };
 
-  // Proiecte investiționale: ministerele (prescurtare → denumire completă) și abrevierile folosite în texte.
-  var MINISTRY = {
-    MEC: 'Ministerul Educației și Cercetării',
-    MAIA: 'Ministerul Agriculturii și Industriei Alimentare',
-    MIDR: 'Ministerul Infrastructurii și Dezvoltării Regionale',
-    MDED: 'Ministerul Dezvoltării Economice și Digitalizării',
-    MS: 'Ministerul Sănătății',
-    MEN: 'Ministerul Energiei',
-    MM: 'Ministerul Mediului',
-    MC: 'Ministerul Culturii',
-    MF: 'Ministerul Finanțelor',
-    MJ: 'Ministerul Justiției'
-  };
-  // Pe cardurile din secțiunea „Proiecte investiționale” ministerul apare doar cu domeniul lui („Ministerul Energiei” → „Energie”).
-  var MINISTRY_SHORT = {
-    MEC: 'Educație',
-    MAIA: 'Agricultură',
-    MIDR: 'Infrastructură',
-    MDED: 'Economie',
-    MS: 'Sănătate',
-    MEN: 'Energie',
-    MM: 'Mediu',
-    MC: 'Cultură',
-    MF: 'Finanțe',
-    MJ: 'Justiție'
-  };
-  // Abrevieri explicate sub lista de proiecte; se afișează numai cele care apar în textele proiectelor publicate (plus ministerele folosite).
-  var ABBR = [
-    ['AFD', 'Agenția Franceză de Dezvoltare'], ['AND', 'Administrația Națională a Drumurilor'], ['BEI', 'Banca Europeană de Investiții'],
-    ['BERD', 'Banca Europeană pentru Reconstrucție și Dezvoltare'], ['CEB', 'Banca de Dezvoltare a Consiliului Europei'],
-    ['CEF', 'Mecanismul pentru Interconectarea Europei'], ['EFSD+', 'Fondul european pentru dezvoltare durabilă Plus'], ['EUR', 'euro'],
-    ['GEF', 'Fondul Global pentru Mediu'], ['IFAD', 'Fondul Internațional pentru Dezvoltare Agricolă'], ['MDL', 'leul moldovenesc'],
-    ['MW', 'megawatt'], ['NIP', 'Platforma de Investiții pentru Vecinătate'],
-    ['ONDIMP', 'Oficiul Național pentru Dezvoltarea Infrastructurii „Moldova-Proiect”'], ['PEEB', 'Programul Eficiența Energetică în Clădiri'],
-    ['SACET', 'sistemul de alimentare centralizată cu energie termică'], ['TEN-T', 'rețeaua transeuropeană de transport'],
-    ['TIC', 'tehnologia informației și comunicațiilor'], ['TVA', 'taxa pe valoarea adăugată'],
-    ['UCIMPRSVV', 'Unitatea Consolidată pentru Implementarea și Monitorizarea Programului de Restructurare a Sectorului Vitivinicol'],
-    ['UE', 'Uniunea Europeană'], ['USD', 'dolarul american'], ['USMF', 'Universitatea de Stat de Medicină și Farmacie „Nicolae Testemițanu”'],
-    ['UTA', 'unitatea teritorială autonomă'], ['UTM', 'Universitatea Tehnică a Moldovei'], ['ÎPT', 'învățământul profesional tehnic']
-  ];
-
   /* ---------- funcții de ajutor ---------- */
   function isExternal(h) { return /^https?:/i.test(h); }
   function docHref(d) { return (d.file && d.file.path) || d.url || '#'; }
@@ -179,14 +138,13 @@
   var MORE = {
     docs: { box: 'docMoreBox', list: '#docList > li', ctl: 'docList', head: 'h-doc', noun: '%1 din %2 documente', first: 5, step: 10, draw: function () { renderDocs(); } },
     law: { box: 'lawMoreBox', list: '#lawBody > li', ctl: 'lawBody', head: 'h-legal', noun: '%1 din %2 acte', first: 5, step: 10, draw: function () { renderLegal(); } },
-    inv: { box: 'invMoreBox', list: '#invList > li', ctl: 'invList', head: 'h-plan', noun: '%1 din %2 proiecte', first: 5, step: 10, draw: function () { renderInvList(); } },
     events: { box: 'evMoreBox', list: '#timeline .ev-body', ctl: 'timeline', head: 'h-ev', noun: '%1 din %2 evenimente', first: 5, step: 10, draw: function () { renderEvents(); } },
     reports: { box: 'repMoreBox', list: '#reportGrid > .rep-wrap', ctl: 'reportGrid', head: 'h-rapoarte', noun: '%1 din %2 rapoarte', first: 5, step: 10, draw: function () { renderReports(); } },
     steps: { box: 'stepMoreBox', list: '#stepList > li', ctl: 'stepList', head: 'h-acord', noun: '%1 din %2 pași', first: 5, step: 10, draw: function () { renderSteps(); } },
     news: { box: 'newsMoreBox', list: '#newsGrid > .news-card', ctl: 'newsGrid', head: 'h-noutati', noun: '%1 din %2 noutăți', first: 6, step: 6, draw: function () { renderNews(); } },
     gal: { box: 'galMoreBox', list: '#galGrid > li', ctl: 'galGrid', head: 'h-gal', noun: '%1 din %2 fotografii', first: 12, step: 12, draw: function () { renderGallery(); } }
   };
-  var PRINT_ALL = ['docs', 'law', 'inv', 'events', 'reports', 'steps']; // listele care se tipăresc întregi
+  var PRINT_ALL = ['docs', 'law', 'events', 'reports', 'steps']; // listele care se tipăresc întregi
   var lim = {}; // câte elemente se văd din fiecare listă (lipsește = primele)
   var limTotal = {}; // câte elemente are fiecare listă după filtre
   function limOf(k) { return lim[k] || MORE[k].first; }
@@ -507,227 +465,8 @@
   }
 
   /* ================= Proiecte investiționale ================= */
-  // Proiectele din Planul de creștere, cu datele lor generale: ministerul responsabil, partenerul de finanțare, valoarea, perioada,
-  // localizarea, obiectivul și rezultatele. Proiectele se grupează după ministerele care le promovează (un clic pe un minister
-  // filtrează lista); numerele de sinteză se calculează din proiectele publicate, nu se scriu de mână.
-  var inv = { min: 'all', q: '', sort: 'nr' };
-  var NO_MIN = '-'; // grupa proiectelor fără minister
-
-  function hasOwn(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
-  var MINISTRY_LC = Object.create(null);
-  Object.keys(MINISTRY).forEach(function (k) { MINISTRY_LC[k.toLowerCase()] = k; MINISTRY_LC[MINISTRY[k].toLowerCase()] = k; });
-  // Ministerul unui proiect, în forma din lista cunoscută (MIDR, chiar dacă s-a scris „midr” sau denumirea întreagă); unul necunoscut rămâne cum a fost scris.
-  function minKey(p) {
-    var m = String(p.ministry || '').trim().replace(/\s+/g, ' ');
-    return m ? MINISTRY_LC[m.toLowerCase()] || m : NO_MIN;
-  }
-  function fullName(k) { return hasOwn(MINISTRY, k) ? MINISTRY[k] : ''; }
-  function ministryShort(k) { return hasOwn(MINISTRY_SHORT, k) ? MINISTRY_SHORT[k] : ''; }
-  // Numele de pe card: cel scurt („Energie”); un minister care nu este în listă rămâne așa cum a fost scris.
-  function minName(k) { return k === NO_MIN ? 'Minister nespecificat' : ministryShort(k) || fullName(k) || k; }
-  // Ministerele care promovează proiecte, cu numărul de proiecte al fiecăruia: cele cu mai multe proiecte primele.
-  function ministries() {
-    var by = Object.create(null);
-    var out = [];
-    D.investments.forEach(function (p) {
-      var k = minKey(p);
-      if (!by[k]) { by[k] = { k: k, name: minName(k), n: 0 }; out.push(by[k]); }
-      by[k].n++;
-    });
-    return out.sort(function (a, b) { return (a.k === NO_MIN) - (b.k === NO_MIN) || b.n - a.n || a.name.localeCompare(b.name, LANG); });
-  }
-  function moneyParts(p) {
-    if (p.amount === null || p.amount === undefined || p.amount === '') return null;
-    return { qual: T(p.amountQual || ''), num: numRo(p.amount), unit: T('mil.') + ' ' + (p.currency || 'EUR') };
-  }
-  function moneyText(p) {
-    var m = moneyParts(p);
-    return m ? [m.qual, m.num, m.unit].filter(Boolean).join(' ') : '';
-  }
-  // „Banca Europeană de Investiții (BEI)” apare în listă ca „BEI”, cu denumirea întreagă în titlu; un text fără abreviere rămâne întreg.
-  function finParts(f) {
-    f = String(f || '').trim();
-    var m = /^(.*\S)\s*\(([^()]{2,12})\)$/.exec(f);
-    return m ? { short: m[2], full: m[1] } : { short: f, full: '' };
-  }
-  function invCmpOrder(a, b) { return (a.order || 0) - (b.order || 0) || String(a.name).localeCompare(String(b.name), LANG); }
-
-  // Ministerele care promovează proiectele: câte proiecte are fiecare, iar un clic le filtrează în listă.
-  function renderGpOverview() {
-    var total = D.investments.length;
-    var box = $('#gpOverview');
-    var groups = ministries();
-    if (inv.min !== 'all' && !groups.some(function (g) { return g.k === inv.min; })) inv.min = 'all';
-    var pill = function (key, n, name, full) {
-      return '<button class="chip" type="button" data-min="' + esc(key) + '"' + (full ? ' title="' + esc(full) + '"' : '') + ' aria-pressed="' + (inv.min === key) + '">' + esc(name) + '<span class="n">' + n + '</span></button>';
-    };
-    box.hidden = !total;
-    box.innerHTML = !total ? '' : pill('all', total, T('Toate'), '') + groups.map(function (g) { return pill(g.k, g.n, g.name, fullName(g.k)); }).join('');
-  }
-
-  // „Deschide toate detaliile” / „Închide toate detaliile”, după starea proiectelor afișate acum.
-  function syncInvToggle() {
-    var btns = $$('#invList .inv-btn');
-    var all = btns.length > 0 && btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
-    var t = $('#invToggle');
-    t.hidden = !btns.length;
-    t.textContent = all ? T('Închide toate detaliile') : T('Deschide toate detaliile');
-    t.setAttribute('aria-pressed', String(all));
-  }
-
-  function invMatches(p) {
-    var mk = minKey(p);
-    if (inv.min !== 'all' && mk !== inv.min) return false;
-    return DG.matches([p.name, p.ministry, fullName(mk), ministryShort(mk), p.financier, p.implementer, p.location].join(' '), inv.q);
-  }
-
-  function invSorted(items) {
-    var out = items.slice();
-    var amt = function (p) { return typeof p.amount === 'number' ? p.amount : -1; };
-    if (inv.sort === 'valoare') out.sort(function (a, b) { return amt(b) - amt(a) || invCmpOrder(a, b); });
-    else if (inv.sort === 'minister') {
-      // în aceeași ordine ca în cardurile de deasupra listei
-      var rank = Object.create(null);
-      ministries().forEach(function (g, i) { rank[g.k] = i; });
-      out.sort(function (a, b) { return rank[minKey(a)] - rank[minKey(b)] || invCmpOrder(a, b); });
-    } else out.sort(invCmpOrder);
-    return out;
-  }
-
-  function invBlock(title, text) {
-    return text ? '<section class="inv-col"><h4>' + esc(title) + '</h4><div class="prose">' + DG.rich(text) + '</div></section>' : '';
-  }
-
-  function invPanel(p) {
-    var mk = minKey(p);
-    var money = moneyText(p);
-    var facts = [];
-    if (mk !== NO_MIN) facts.push(['Ministerul responsabil', fullName(mk) ? esc(T(fullName(mk))) + ' (' + esc(mk) + ')' : esc(mk)]);
-    if (p.implementer) facts.push(['Instituția de implementare', esc(p.implementer)]);
-    if (p.financier) facts.push(['Partenerul de finanțare', esc(p.financier)]);
-    if (money) facts.push(['Valoarea indicativă', esc(money)]);
-    if (p.period) facts.push(['Perioada de implementare', esc(p.period)]);
-    if (p.location) facts.push(['Localizarea', esc(p.location)]);
-    if (p.beneficiaries) facts.push(['Beneficiarii', esc(p.beneficiaries)]);
-    var res = (p.results || []).filter(Boolean);
-    var text = invBlock('Obiectivul și descrierea proiectului', p.text) +
-      (res.length ? '<section class="inv-col"><h4>Rezultate preconizate</h4><ul class="inv-res">' + res.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul></section>' : '') +
-      invBlock('Structura finanțării', p.financing);
-    var links = (p.links || []).map(function (l) { return '<a class="btn btn-line btn-sm" href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.t) + ' ' + ico('ext') + '</a>'; }).join('');
-    return '<div class="inv-panel" id="invp-' + esc(p.id) + '" role="region" aria-labelledby="invb-' + esc(p.id) + '">' +
-      (text || facts.length ? '<div class="inv-body' + (text && facts.length ? '' : ' inv-solo') + '">' +
-        (text ? '<div class="inv-text">' + text + '</div>' : '') +
-        (facts.length ? '<dl class="inv-facts">' + facts.map(function (f) { return '<div><dt>' + f[0] + '</dt><dd>' + f[1] + '</dd></div>'; }).join('') + '</dl>' : '') +
-      '</div>' : '') +
-      '<div class="inv-act"><button class="btn btn-line btn-sm" type="button" data-copy-inv="' + esc(p.id) + '">' + ico('link') + ' Copiază adresa proiectului</button>' + links + editLink('investments', p.id) + '</div></div>';
-  }
-
-  function invItem(p) {
-    var mk = minKey(p);
-    var fin = finParts(p.financier);
-    var m = moneyParts(p);
-    var key = 'inv:' + p.id;
-    var open = !!accState[key];
-    var finHtml = !fin.short ? '' : fin.full ? '<abbr title="' + esc(fin.full) + '">' + esc(fin.short) + '</abbr>' : esc(fin.short);
-    return '<li class="inv" id="proiect-' + esc(p.id) + '" data-open="' + open + '"><h3 class="inv-h">' +
-      '<button class="inv-btn" type="button" id="invb-' + esc(p.id) + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="invp-' + esc(p.id) + '">' +
-      '<span class="inv-no">' + (p.order || '') + '</span>' +
-      '<span class="inv-main"><span class="inv-name">' + esc(p.name) + '</span><span class="inv-sub">' +
-        (mk !== NO_MIN ? '<span class="inv-min">' + esc(mk) + '</span>' + (fullName(mk) ? '<span class="inv-minname">' + esc(fullName(mk)) + '</span>' : '') : '') + '</span></span>' +
-      '<span class="inv-fin">' + (finHtml ? '<span class="lbl">Partener: </span>' + finHtml : '') + '</span>' +
-      '<span class="inv-val">' + (m ? '<span class="sr">Valoare: </span>' + (m.qual ? '<small>' + esc(m.qual) + '</small> ' : '') + '<b>' + esc(m.num) + '</b> <small>' + esc(m.unit) + '</small>' : '') + '</span>' +
-      '<span class="inv-chev">' + ico('chev-d') + '</span></button></h3>' + invPanel(p) + '</li>';
-  }
-
-  function renderInvList() {
-    var all = D.investments;
-    var items = invSorted(all.filter(invMatches));
-    $('#invCount').textContent = items.length === all.length ? all.length + ' ' + plural(all.length, 'proiect', 'proiecte') : T('%1 din %2', items.length, all.length) + ' ' + plural(all.length, 'proiect', 'proiecte');
-    $('#invHead').hidden = !items.length;
-    // cifrele de sinteză urmăresc lista afișată; suma cuprinde proiectele cu valoare în euro
-    var sum = 0;
-    items.forEach(function (p) { if ((p.currency || 'EUR') === 'EUR' && typeof p.amount === 'number') sum += p.amount; });
-    $('#invStatN').textContent = String(items.length);
-    $('#invStatSum').innerHTML = esc(numRo(Math.round(sum * 10) / 10)) + ' <small>' + esc(T('mil.')) + ' EUR</small>';
-    var shown = moreSlice('inv', items);
-    $('#invList').innerHTML = shown.length ? shown.map(invItem).join('') :
-      '<li class="empty">' + (all.length ? 'Niciun proiect nu corespunde filtrelor alese. <button class="btn btn-line btn-sm" type="button" id="invReset">Arată toate proiectele</button>' :
-        'Nu există proiecte publicate.' + (admin.on ? ' <a href="' + ADMIN + '#/investments/new">Adăugați primul proiect</a>.' : '')) + '</li>';
-    moreBox('inv');
-    syncInvToggle();
-  }
-
-  // Cuvântul întreg (abrevierile se scriu cu majuscule): „AND” nu se caută în „CANDID”.
-  function hasWord(text, w) {
-    var letter = /[0-9A-Za-z\u0400-\u04FFĂÂÎȘȚŞŢăâîșțşţ]/;
-    var i = text.indexOf(w);
-    while (i >= 0) {
-      if (!letter.test(i === 0 ? '' : text.charAt(i - 1)) && !letter.test(text.charAt(i + w.length))) return true;
-      i = text.indexOf(w, i + 1);
-    }
-    return false;
-  }
-  function abbrList() {
-    var text = D.investments.map(function (p) {
-      return [p.name, p.implementer, p.financier, p.financing, p.period, p.location, p.beneficiaries, p.text].concat(p.results || []).join(' \n ');
-    }).join(' \n ');
-    var list = ABBR.map(function (a) { return [T(a[0]), T(a[1])]; }).filter(function (a) { return hasWord(text, a[0]); });
-    Object.keys(MINISTRY).forEach(function (m) {
-      if (D.investments.some(function (p) { return minKey(p) === m; })) list.push([T(m), T(MINISTRY[m])]);
-    });
-    return list.sort(function (a, b) { return a[0].localeCompare(b[0], LANG); });
-  }
-
-  function renderGpFoot() {
-    var g = D.settings.growth || {};
-    var src = (g.sources || []).filter(function (x) { return x && x.u; });
-    var abbr = abbrList();
-    $('#gpFoot').innerHTML =
-      (g.note ? '<div class="gp-note">' + ico('info') + '<p>' + esc(g.note) + '</p></div>' : '') +
-      (src.length ? '<p class="gp-src">Surse: ' + src.map(function (x) { return '<a href="' + esc(x.u) + '" target="_blank" rel="noopener">' + esc(x.t || x.u) + '</a>'; }).join(', ') + '</p>' : '') +
-      (abbr.length ? '<details class="fold"><summary>Abrevieri folosite în descrierile proiectelor</summary><dl class="abbr-list">' + abbr.map(function (a) {
-        return '<div><dt>' + esc(a[0]) + '</dt><dd>' + esc(a[1]) + '</dd></div>';
-      }).join('') + '</dl></details>' : '');
-  }
-
-  function renderInvestments() {
-    var show = D.investments.length > 0 || admin.on;
-    $('#plan-crestere').hidden = !show;
-    $$('a[href="#plan-crestere"]', $('#navList')).concat($$('.foot a[href="#plan-crestere"]')).forEach(function (a) { if (a.parentNode.tagName === 'LI') a.parentNode.hidden = !show; });
-    if (!show) return;
-    var g = D.settings.growth || {};
-    $('#growthAsOf').textContent = g.asOf ? T('Date actualizate la %1.', DG.fmtDate(g.asOf)) : '';
-    $('#growthAsOf').hidden = !g.asOf;
-    $('#growthIntro').textContent = g.intro || '';
-    $('#growthIntro').hidden = !g.intro;
-    $('#invQ').value = inv.q;
-    $('#invSort').value = inv.sort;
-    renderGpOverview();
-    renderInvList();
-    renderGpFoot();
-  }
-
-  // Filtrul se schimbă fără a redesena tot: se actualizează butoanele și lista.
-  function refreshInv() {
-    renderGpOverview();
-    renderInvList();
-  }
-
-  function goInvestment(id) {
-    var p = byId(D.investments, id);
-    if (!p) return;
-    if (!invMatches(p)) { inv.min = 'all'; inv.q = ''; $('#invQ').value = ''; }
-    limShow('inv', invSorted(D.investments.filter(invMatches)).indexOf(p));
-    accState['inv:' + id] = true;
-    refreshInv();
-    var li = document.getElementById('proiect-' + id);
-    if (!li) return;
-    scrollToEl(li);
-    li.classList.add('flash');
-    setTimeout(function () { li.classList.remove('flash'); }, 1800);
-    var b = $('.inv-btn', li);
-    if (b) setTimeout(function () { b.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
-  }
+  // Rubrica este un card care duce la site-ul separat cu proiectele (nu mai există listă în această pagină).
+  function renderInvestments() {}
 
   /* ================= Cooperare externă ================= */
 
@@ -1165,10 +904,6 @@
       idx.push({ cat: SECTION_LABEL[d.section] || 'Documente', t: d.title, s: [p ? p.name : '', docMeta(d)].filter(Boolean).join(', '), k: (d.description || '') + ' ' + (d.kind || ''), u: docHref(d) });
     });
     D.programs.forEach(function (p) { idx.push({ cat: 'Programe de cooperare', t: p.name, s: T((LEVELS[p.level] || LEVELS.inter).name) + ', ' + (p.strand || '') + '. ' + T('Deschide pagina programului'), k: 'interreg program ' + (p.desc || '') + ' ' + (ALIAS[p.id] || ''), go: function () { goProgram(p.id); } }); });
-    D.investments.forEach(function (p) {
-      var mk = minKey(p);
-      idx.push({ cat: 'Investiții', t: p.name, s: [mk !== NO_MIN && mk, moneyText(p), finParts(p.financier).short].filter(Boolean).join(' · '), k: [fullName(mk), ministryShort(mk), p.financier, p.implementer, p.location, p.text, (p.results || []).join(' ')].join(' '), go: function () { goInvestment(p.id); } });
-    });
     (D.settings.duties || []).forEach(function (d, i) {
       if (d.text || (d.items && d.items.length)) idx.push({ cat: 'Despre direcție', t: d.title, s: T('Funcție de bază. Deschide atribuțiile'), k: (d.text || '') + ' ' + (d.items || []).join(' '), go: function () { goFunction(i); } });
     });
@@ -1470,7 +1205,6 @@
       if (!b) return;
       accToggle(b);
       if (b.classList.contains('fn-btn')) syncFnToggle();
-      if (b.classList.contains('inv-btn')) syncInvToggle();
     });
     $('#aboutTabs').addEventListener('click', function (e) {
       var t = e.target.closest('[data-tab]');
@@ -1491,36 +1225,6 @@
       var open = !btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
       btns.forEach(function (b) { accToggle(b, open); });
       syncFnToggle();
-    });
-
-    // investiții: proiectele din Planul de creștere
-    $('#invToggle').addEventListener('click', function () {
-      var btns = $$('#invList .inv-btn');
-      var open = !btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
-      btns.forEach(function (b) { accToggle(b, open); });
-      syncInvToggle();
-    });
-    $('#gpOverview').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-min]');
-      if (!b) return;
-      var v = b.getAttribute('data-min');
-      inv.min = inv.min === v ? 'all' : v;
-      limReset('inv');
-      refreshInv();
-      var again = $$('#gpOverview [data-min]').filter(function (x) { return x.getAttribute('data-min') === v; })[0];
-      if (again) again.focus();
-    });
-    $('#invQ').addEventListener('input', DG.debounce(function (e) { inv.q = e.target.value; limReset('inv'); renderInvList(); }, 80));
-    $('#invSort').addEventListener('change', function (e) { inv.sort = e.target.value; limReset('inv'); renderInvList(); });
-    $('#invList').addEventListener('click', function (e) {
-      var c = e.target.closest('[data-copy-inv]');
-      if (c) DG.copyText(location.href.split('#')[0] + '#proiect/' + c.getAttribute('data-copy-inv'), T('Adresa proiectului a fost copiată'));
-      if (e.target.id === 'invReset') {
-        inv.min = 'all'; inv.q = ''; $('#invQ').value = '';
-        limReset('inv');
-        refreshInv();
-        $('#invQ').focus();
-      }
     });
 
     // acte
@@ -1660,8 +1364,6 @@
     if (m) goEvent(m[1]);
     m = /^#program\/([\w-]+)$/.exec(h);
     if (m) goProgram(m[1]);
-    m = /^#proiect\/([\w-]+)$/.exec(h);
-    if (m) goInvestment(m[1]);
   }
 
   /* ================= Pornire ================= */

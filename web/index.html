@@ -164,48 +164,18 @@
   <!-- INVESTIȚII: PROIECTELE DIN PLANUL DE CREȘTERE -->
   <section class="sec" id="plan-crestere" aria-labelledby="h-plan">
     <div class="wrap">
-      <header class="sec-head sec-head-inv">
-        <div class="inv-intro">
-          <p class="eyebrow">Planul de creștere</p>
-          <h2 id="h-plan">Proiecte investiționale</h2>
-          <p class="sec-lead" id="growthIntro" hidden></p>
-          <p class="src" id="growthAsOf"></p>
-        </div>
-        <dl class="tiles" id="invTiles">
-          <div class="tile"><dt>Proiecte în listă</dt><dd id="invStatN"></dd></div>
-          <div class="tile"><dt>Valoare indicativă</dt><dd id="invStatSum"></dd></div>
-        </dl>
+      <header class="sec-head">
+        <p class="eyebrow">Planul de creștere</p>
+        <h2 id="h-plan">Proiecte investiționale</h2>
       </header>
-      <div class="inv-ctl" id="invCtl">
-        <div class="field-icon inv-search">
-          <label class="sr" for="invQ">Căutare în proiecte</label>
-          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
-          <input class="input" id="invQ" type="search" placeholder="Proiect, minister sau partener" autocomplete="off">
-        </div>
-        <div class="inv-sort">
-          <label class="sr" for="invSort">Ordonarea proiectelor</label>
-          <select class="select" id="invSort">
-            <option value="nr">Ordinea din listă</option>
-            <option value="valoare">Valoarea, descrescător</option>
-            <option value="minister">După minister</option>
-          </select>
-        </div>
-      </div>
-      <div class="inv-fp" id="invFilters">
-        <div class="chips" id="gpOverview" role="group" aria-labelledby="h-plan"></div>
-      </div>
-      <div class="inv-meta">
-        <p class="count" id="invCount" aria-live="polite"></p>
-        <button class="btn btn-line btn-sm" type="button" id="invToggle" aria-pressed="false" hidden>Deschide toate detaliile</button>
-      </div>
-      <div class="inv-table">
-        <div class="inv-head" id="invHead" aria-hidden="true">
-          <span class="h-no">Nr.</span><span>Proiect</span><span>Partener de finanțare</span><span class="h-val">Valoare indicativă</span><span></span>
-        </div>
-        <ol class="inv-list" id="invList" aria-label="Lista proiectelor investiționale"></ol>
-      </div>
-      <div class="more-row" id="invMoreBox" hidden></div>
-      <div class="gp-foot" id="gpFoot"></div>
+      <a class="amp ext-card" id="projectsCard" href="https://proiecte.pages.dev/" target="_blank" rel="noopener">
+        <span class="quick-ico" aria-hidden="true"><svg class="ico"><use href="#i-trend"/></svg></span>
+        <span class="amp-main">
+          <span class="amp-t">Proiectele investiționale din Planul de creștere</span>
+          <span class="amp-desc">Lista proiectelor, ministerele responsabile, partenerii de finanțare și valorile se află pe site-ul dedicat.</span>
+        </span>
+        <span class="amp-go" aria-hidden="true"><svg class="ico"><use href="#i-ext"/></svg></span>
+      </a>
     </div>
   </section>
 

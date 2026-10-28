@@ -93,15 +93,15 @@ test('documente: listă cu pictograme, etichete și buton de descărcare; evenim
 });
 
 // Sub listele lungi se văd întâi primele elemente (5), iar butonul „Vezi mai mult” le adaugă pe următoarele.
-test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documente, acte, proiecte, evenimente, rapoarte, acord); noutăți și fotografii păstrează 6 / 12', () => {
+test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documente, acte, evenimente, rapoarte, acord); noutăți și fotografii păstrează 6 / 12', () => {
   const m = /var MORE = \{([\s\S]*?)\n  \};/.exec(site);
   assert.ok(m, 'MORE există în site.js');
   const cfg = {};
   for (const r of m[1].matchAll(/(\w+): \{ box: '(\w+)', list: '([^']+)', ctl: '(\w+)', head: '([\w-]+)', noun: '([^']+)', first: (\d+), step: (\d+)/g)) {
     cfg[r[1]] = { box: r[2], ctl: r[4], head: r[5], noun: r[6], first: Number(r[7]), step: Number(r[8]) };
   }
-  assert.deepEqual(Object.keys(cfg).sort(), ['docs', 'events', 'gal', 'inv', 'law', 'news', 'reports', 'steps']);
-  for (const k of ['docs', 'law', 'inv', 'events', 'reports', 'steps']) assert.equal(cfg[k].first, 5, `${k}: primele 5`);
+  assert.deepEqual(Object.keys(cfg).sort(), ['docs', 'events', 'gal', 'law', 'news', 'reports', 'steps']);
+  for (const k of ['docs', 'law', 'events', 'reports', 'steps']) assert.equal(cfg[k].first, 5, `${k}: primele 5`);
   // lângă buton, ca în design: „5 din 52 documente”, „5 din 19 proiecte”… (tradus în ru și en)
   const ruUi = JSON.parse(fs.readFileSync(path.join(WEB, '..', 'seed', 'i18n', 'ui.ru.json'), 'utf8'));
   const enUi = JSON.parse(fs.readFileSync(path.join(WEB, '..', 'seed', 'i18n', 'ui.en.json'), 'utf8'));
@@ -132,61 +132,19 @@ test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documen
   assert.match(site, /btn\.setAttribute\('aria-expanded', String\(all\)\)/);
   assert.match(css, /\.more-btn\{[^}]*min-height:3\.25rem[^}]*border-radius:999px/);
   // orice căutare, filtru sau ordonare readuce lista la primele elemente
-  for (const k of ['docs', 'law', 'inv', 'events', 'gal']) assert.match(site, new RegExp(`limReset\\('${k}'\\)`), `${k}: limReset`);
+  for (const k of ['docs', 'law', 'events', 'gal']) assert.match(site, new RegExp(`limReset\\('${k}'\\)`), `${k}: limReset`);
   // căutarea din pagină și adresele #eveniment/…, #proiect/… arată elementul căutat chiar dacă era după primele 5
   assert.match(site, /limShow\('events', eventList\(\)/);
-  assert.match(site, /limShow\('inv', invSorted\(D\.investments\.filter\(invMatches\)\)\.indexOf\(p\)\)/);
   assert.match(site, /limShow\('gal', i\)/);
   // la tipărire se scot limitele
   assert.match(site, /addEventListener\('beforeprint'[\s\S]*PRINT_ALL\.forEach[\s\S]*addEventListener\('afterprint'/);
 });
 
-test('proiectele investiționale: grupate după minister, fără obiective economice și fără lista „Beneficiari finali”', () => {
+test('proiectele investiționale: doar un card către site-ul dedicat, fără listă în pagină', () => {
   const plan = sectionOf('plan-crestere');
-  assert.match(plan, /id="gpOverview"/);
-  assert.doesNotMatch(html, /planBox/, 'lista „Beneficiari finali” a fost scoasă de sub proiecte');
-  assert.doesNotMatch(site, /planBox/);
-  assert.doesNotMatch(css, /#planBox/);
-  assert.doesNotMatch(plan, /Obiectiv|obiectiv/);
-  assert.match(plan, /<option value="minister">/, 'ordonare după minister');
-  assert.doesNotMatch(plan, /value="obiectiv"|value="tema"|value="theme"/);
-  // codul paginii nu mai cunoaște obiectivele economice
-  assert.doesNotMatch(site, /THEMES|\.theme\b|data-theme|Obiectivul economic|Obiective economice/);
-  assert.doesNotMatch(css, /--t-|\.tm-|\.inv-theme/);
-  // ministerele sunt etichete rotunjite (cu numărul de proiecte), iar deasupra listei sunt două cifre de sinteză
-  assert.match(site, /data-min=/);
-  assert.match(plan, /id="invStatN"/);
-  assert.match(plan, /id="invStatSum"/);
-  assert.doesNotMatch(site, /grupate după ministerele care le promovează/, "propoziția de sub titlu a fost scoasă");
-  assert.match(css, /\.tiles\{display:grid/);
-});
-
-// Obiectele cu ministere din site.js (prescurtare → denumire), citite din cod fără să pornească pagina.
-function objectFrom(name) {
-  const m = new RegExp(`var ${name} = (\\{[^}]*\\});`).exec(site);
-  assert.ok(m, `${name} există în site.js`);
-  return new Function(`return ${m[1]}`)(); // eslint-disable-line no-new-func
-}
-
-test('etichetele ministerelor: rubrici dintr-un cuvânt („Energie”, „Sănătate”), iar prima este „Toate”', () => {
-  const full = objectFrom('MINISTRY');
-  const short = objectFrom('MINISTRY_SHORT');
-  assert.deepEqual(Object.keys(short).sort(), Object.keys(full).sort(), 'fiecare minister are și denumirea scurtă');
-  assert.deepEqual([short.MEN, short.MM, short.MS, short.MEC, short.MIDR, short.MAIA, short.MDED], ['Energie', 'Mediu', 'Sănătate', 'Educație', 'Infrastructură', 'Agricultură', 'Economie']);
-  for (const [k, v] of Object.entries(short)) {
-    assert.ok(v && !/^Ministerul\b/.test(v), `${k}: denumirea scurtă nu începe cu „Ministerul”`);
-    assert.doesNotMatch(v, /\s/, `${k}: denumirea scurtă este un singur cuvânt, ca o rubrică („${v}”)`);
-    assert.ok(v.length < full[k].length, `${k}: denumirea scurtă este mai scurtă decât cea întreagă`);
-  }
-  // toate ministerele proiectelor livrate au denumire scurtă
-  const seed = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'seed', 'content', 'investments.json'), 'utf8'));
-  for (const p of seed) assert.ok(short[p.ministry], `proiectul ${p.order}: ministerul „${p.ministry}” are denumire scurtă`);
-  // prima etichetă este „Toate”, iar cele ale ministerelor arată denumirea scurtă
-  assert.match(site, /pill\('all', total, T\('Toate'\)/);
-  assert.doesNotMatch(site, /Toate ministerele/);
-  assert.match(site, /ministryShort\(k\) \|\| fullName\(k\) \|\| k/);
-  // căutarea găsește proiectele și după denumirea scurtă („sănătate” nu este în „Ministerul Sănătății”)
-  assert.match(site, /fullName\(mk\), ministryShort\(mk\)/);
+  assert.match(plan, /<a class="amp ext-card" id="projectsCard" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">/);
+  assert.doesNotMatch(plan, /invList|invQ|gpOverview|invStat/);
+  assert.doesNotMatch(site, /invList|gpOverview|renderInvList|#proiect\//);
 });
 
 test('textul nu mai este strâns în partea stângă: nicio limită de lățime pe textele secțiunilor', () => {
