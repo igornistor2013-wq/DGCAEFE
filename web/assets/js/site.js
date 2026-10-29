@@ -484,13 +484,15 @@
   // Rubrica este un card care duce la site-ul separat cu proiectele (nu mai există listă în această pagină).
   function renderInvestments() {}
 
-  // Bannerul animat de sub card: pornește doar dacă vizitatorul nu a cerut mai puțină mișcare, se oprește cât timp nu se vede
-  // și are buton de pauză (animațiile automate mai lungi de 5 secunde trebuie să poată fi oprite).
+  // Bannerele animate de sub card: fiecare pornește doar dacă vizitatorul nu a cerut mai puțină mișcare, se oprește cât timp nu se vede
+  // și are buton de pauză propriu (animațiile automate mai lungi de 5 secunde trebuie să poată fi oprite).
   function setupProjectsFilm() {
-    var box = document.getElementById('projectsFilm');
-    var v = document.getElementById('projectsFilmVideo');
-    var btn = document.getElementById('projectsFilmPlay');
-    if (!box || !v || !btn || typeof v.play !== 'function') return;
+    $$('.inv-film').forEach(setupFilm);
+  }
+  function setupFilm(box) {
+    var v = box.querySelector('.inv-film-v');
+    var btn = box.querySelector('.inv-film-btn');
+    if (!v || !btn || typeof v.play !== 'function') return;
     var user = reduceMotion(); // true = oprit (de vizitator sau de setarea sistemului)
     var seen = true;
     function sync() {
