@@ -353,15 +353,6 @@
     return t;
   }
 
-  function syncFnToggle() {
-    var btns = $$('#dutiesList .fn-btn');
-    var all = btns.length > 0 && btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
-    var t = $('#fnToggle');
-    t.hidden = !btns.length;
-    t.textContent = all ? T('Închide toate') : T('Deschide toate');
-    t.setAttribute('aria-pressed', String(all));
-  }
-
   function renderAbout() {
     var s = D.settings;
     var duties = s.duties || [];
@@ -375,23 +366,17 @@
     $('#aboutPrinc').hidden = !pr.length;
     $('#aboutPrinc').innerHTML = pr.length ? '<h3 id="h-princ">Principii de activitate</h3><ul class="pills">' + pr.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '';
 
-    // funcțiile de bază: fiecare se deschide și arată textul funcției și atribuțiile (a, b, c …) prin care se realizează
+    // funcțiile de bază: carduri numerotate; fiecare se deschide într-o fereastră (ca știrile), cu textul funcției și atribuțiile (a, b, c …)
     $('#fnCount').textContent = duties.length ? countRo(duties.length, 'funcție', 'funcții') : '';
     $('#dutiesList').innerHTML = duties.map(function (d, i) {
       var items = d.items || [];
-      var key = 'fn:' + i;
-      var open = !!accState[key];
       var has = !!(d.text || items.length);
       var head = '<span class="fn-no" aria-hidden="true">' + (i < 9 ? '0' : '') + (i + 1) + '</span><span class="fn-t">' + esc(d.title) + '</span>' +
         '<span class="fn-n">' + (items.length ? countRo(items.length, 'atribuție', 'atribuții') : '') + '</span>';
-      return '<li class="fn" data-open="' + open + '"><h4 class="fn-h">' + (has ?
-          '<button class="fn-btn" type="button" id="fn-b-' + i + '" data-acc="' + key + '" aria-expanded="' + open + '" aria-controls="fn-p-' + i + '">' + head + '<span class="fn-chev">' + ico('chev-d') + '</span></button>' :
-          '<span class="fn-btn fn-static">' + head + '<span></span></span>') + '</h4>' +
-        (has ? '<div class="fn-panel" id="fn-p-' + i + '" role="region" aria-labelledby="fn-b-' + i + '">' +
-          (d.text ? '<p class="fn-text">' + esc(d.text) + '</p>' : '') +
-          (items.length ? '<p class="fn-sub">Atribuții</p><ol class="fn-items">' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' : '') + '</div>' : '') + '</li>';
+      return '<li class="fn">' + (has ?
+        '<a class="fn-btn" href="#functie/' + (i + 1) + '">' + head + '<span class="fn-go" aria-hidden="true">' + ico('arrow-r') + '</span></a>' :
+        '<span class="fn-btn fn-static">' + head + '</span>') + '</li>';
     }).join('');
-    syncFnToggle();
 
     // structura: unitățile din statul de personal și numărul de posturi
     $('#orgTotal').textContent = total ? countRo(total, 'unitate', 'unități') : '';
@@ -432,12 +417,32 @@
 
   function goFunction(i) {
     aboutTab('functii');
-    var b = document.getElementById('fn-b-' + i);
-    if (!b) return;
-    accToggle(b, true);
-    syncFnToggle();
-    scrollToEl(b.closest('.fn'));
-    setTimeout(function () { b.focus({ preventScroll: true }); }, reduceMotion() ? 0 : 450);
+    location.hash = '#functie/' + (i + 1);
+  }
+
+  // fereastra unei funcții (ca la știri): numărul, titlul, textul și atribuțiile; săgețile duc la funcția de dinainte / de după
+  var fnDlg;
+  function openFn(n) {
+    var duties = D.settings.duties || [];
+    var i = n - 1;
+    var d = duties[i];
+    if (!d || !(d.text || (d.items && d.items.length))) return false;
+    var items = d.items || [];
+    var prev = i > 0 ? i : 0;
+    var next = i < duties.length - 1 ? i + 2 : 0;
+    fnDlg.innerHTML =
+      '<div class="dlg-head"><p class="card-meta"><span class="tag">Funcție de bază</span></p>' +
+      '<span><button class="icon-btn" type="button" data-close aria-label="Închide fereastra">' + ico('close') + '</button></span></div>' +
+      '<article><p class="fn-dno" aria-hidden="true">' + (i < 9 ? '0' : '') + (i + 1) + '</p><h2 id="fnDlgTitle">' + esc(d.title) + '</h2>' +
+      (d.text ? '<p class="fn-text">' + esc(d.text) + '</p>' : '') +
+      (items.length ? '<h3 class="fn-sub">Atribuții</h3><ol class="fn-items">' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' : '') +
+      '<div class="news-actions">' +
+      (prev ? '<a class="btn btn-line" href="#functie/' + prev + '">' + ico('arrow-l') + ' Funcția anterioară</a>' : '') +
+      (next ? '<a class="btn btn-line" href="#functie/' + next + '">Funcția următoare ' + ico('arrow-r') + '</a>' : '') +
+      '</div></article>';
+    if (!fnDlg.open) fnDlg.showModal();
+    fnDlg.scrollTop = 0;
+    return true;
   }
 
   /* ================= Cadrul legal ================= */
@@ -1209,13 +1214,19 @@
     newsDlg.addEventListener('close', function () {
       if (location.hash.indexOf('#stire/') === 0) history.replaceState(null, '', location.pathname + location.search + newsBack);
     });
+    fnDlg = $('#fnDlg');
+    fnDlg.addEventListener('click', function (e) {
+      if (isBackdropClick(fnDlg, e) || e.target.closest('[data-close]')) fnDlg.close();
+    });
+    fnDlg.addEventListener('close', function () {
+      if (location.hash.indexOf('#functie/') === 0) history.replaceState(null, '', location.pathname + location.search + '#despre');
+    });
 
     // secțiuni care se deschid: funcții, drepturi și responsabilități, proiecte
     $('#main').addEventListener('click', function (e) {
       var b = e.target.closest('button[data-acc]');
       if (!b) return;
       accToggle(b);
-      if (b.classList.contains('fn-btn')) syncFnToggle();
     });
     $('#aboutTabs').addEventListener('click', function (e) {
       var t = e.target.closest('[data-tab]');
@@ -1231,13 +1242,6 @@
       i = k === 'Home' ? 0 : k === 'End' ? tabs.length - 1 : (i + (k === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
       aboutTab(tabs[i].getAttribute('data-tab'), true);
     });
-    $('#fnToggle').addEventListener('click', function () {
-      var btns = $$('#dutiesList .fn-btn');
-      var open = !btns.every(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
-      btns.forEach(function (b) { accToggle(b, open); });
-      syncFnToggle();
-    });
-
     // acte
     $('#lawChips').addEventListener('click', function (e) {
       var b = e.target.closest('.chip');
@@ -1371,6 +1375,9 @@
     var m = /^#stire\/([\w-]+)$/.exec(h);
     if (m) { openNews(m[1]); return; }
     if (newsDlg && newsDlg.open) newsDlg.close();
+    m = /^#functie\/(\d+)$/.exec(h);
+    if (m) { openFn(parseInt(m[1], 10)); return; }
+    if (fnDlg && fnDlg.open) fnDlg.close();
     m = /^#eveniment\/([\w-]+)$/.exec(h);
     if (m) goEvent(m[1]);
     m = /^#program\/([\w-]+)$/.exec(h);

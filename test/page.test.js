@@ -495,3 +495,14 @@ test('la reîncărcare (F5) pagina revine la început; linkurile directe rămân
   assert.match(site, /navEntry\.type === 'reload'/);
   assert.match(site, /window\.scrollTo\(0, 0\)/);
 });
+
+test('funcțiile de bază: carduri-legături care deschid o fereastră (#functie/N), fără deschidere pe loc; filele stau pe un rând', () => {
+  assert.match(html, /<dialog class="dlg news-dlg fn-dlg" id="fnDlg" aria-labelledby="fnDlgTitle"><\/dialog>/);
+  assert.doesNotMatch(html, /id="fnToggle"/);
+  assert.match(site, /href="#functie\/' \+ \(i \+ 1\)/);
+  assert.match(site, /function openFn\(n\)/);
+  assert.match(site, /\^#functie\\\/\(\\d\+\)\$/);
+  assert.doesNotMatch(site, /syncFnToggle/);
+  assert.match(css, /\.tabs\{display:flex;flex-direction:row;flex-wrap:wrap/);
+  assert.doesNotMatch(css, /\.about-grid\{[^}]*5fr/);
+});

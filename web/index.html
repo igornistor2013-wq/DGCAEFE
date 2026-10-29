@@ -135,13 +135,13 @@
 
       <div class="about-grid">
       <div class="tabs about-tabs" role="tablist" aria-label="Despre direcție" id="aboutTabs">
-        <button class="tab" type="button" role="tab" id="tab-functii" aria-controls="functii" aria-selected="true" data-tab="functii"><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg><span>Funcțiile de bază</span><svg class="ico tab-go" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
-        <button class="tab" type="button" role="tab" id="tab-structura" aria-controls="structura" aria-selected="false" tabindex="-1" data-tab="structura"><svg class="ico" aria-hidden="true"><use href="#i-tree"/></svg><span>Structura și efectivul</span><svg class="ico tab-go" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
-        <button class="tab" type="button" role="tab" id="tab-drepturi" aria-controls="drepturi-responsabilitati" aria-selected="false" tabindex="-1" data-tab="drepturi-responsabilitati"><svg class="ico" aria-hidden="true"><use href="#i-gavel"/></svg><span>Drepturi și responsabilități</span><svg class="ico tab-go" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
+        <button class="tab" type="button" role="tab" id="tab-functii" aria-controls="functii" aria-selected="true" data-tab="functii"><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg><span>Funcțiile de bază</span></button>
+        <button class="tab" type="button" role="tab" id="tab-structura" aria-controls="structura" aria-selected="false" tabindex="-1" data-tab="structura"><svg class="ico" aria-hidden="true"><use href="#i-tree"/></svg><span>Structura și efectivul</span></button>
+        <button class="tab" type="button" role="tab" id="tab-drepturi" aria-controls="drepturi-responsabilitati" aria-selected="false" tabindex="-1" data-tab="drepturi-responsabilitati"><svg class="ico" aria-hidden="true"><use href="#i-gavel"/></svg><span>Drepturi și responsabilități</span></button>
       </div>
       <div class="about-panels">
       <div class="tab-panel" id="functii" role="tabpanel" aria-labelledby="tab-functii">
-        <div class="panel-bar"><span id="fnCount" class="panel-note"></span><button class="btn btn-line btn-sm" type="button" id="fnToggle" aria-pressed="false">Deschide toate</button></div>
+        <div class="panel-bar"><span id="fnCount" class="panel-note"></span></div>
         <ol class="fn-list" id="dutiesList" aria-label="Funcțiile de bază"></ol>
       </div>
       <div class="tab-panel" id="structura" role="tabpanel" aria-labelledby="tab-structura" hidden>
@@ -410,6 +410,8 @@
 <button class="totop" id="toTop" type="button" aria-label="Înapoi sus"><svg class="ico" aria-hidden="true"><use href="#i-arrow-u"/></svg></button>
 
 <dialog class="dlg news-dlg" id="newsDlg" aria-labelledby="newsDlgTitle"></dialog>
+
+<dialog class="dlg news-dlg fn-dlg" id="fnDlg" aria-labelledby="fnDlgTitle"></dialog>
 
 <dialog class="lightbox" id="lightbox" aria-label="Vizualizare fotografie"></dialog>
 
