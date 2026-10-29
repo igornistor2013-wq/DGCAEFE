@@ -40,7 +40,7 @@
     var meta = (n.tag ? '<span class="hn-tag">' + h.esc(n.tag) + '</span>' : '') +
       (date ? '<time datetime="' + h.esc(n.date) + '">' + h.esc(date) + '</time>' : '');
     var src = n.image && (n.image.path || n.image.thumb); // fotografia mare; este decorativă, titlul duce la aceeași noutate
-    var bg = src ? '<img src="' + h.esc(src) + '" class="hn-bg" alt="" width="1600" height="900"' + (i === 0 ? '' : ' loading="lazy"') + ' decoding="async">' : '';
+    var bg = src ? '<img src="' + h.esc(src) + '" class="hn-bg" alt="" width="1600" height="900"' + (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') + ' decoding="async">' : '';
     return '<div class="hn-slide' + (src ? ' has-pic' : '') + (i === 0 ? ' is-active' : '') + '">' + bg + '<div class="hn-card">' +
       (meta ? '<p class="hn-meta">' + meta + '</p>' : '') +
       '<p class="hn-title"><a href="' + h.esc(href(n)) + '">' + h.esc(n.title) + '</a></p>' +

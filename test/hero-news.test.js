@@ -150,7 +150,7 @@ test('diapozitivul: fotografia mare pe fundal, cardul cu eticheta, data și titl
   assert.doesNotMatch(html, /hn-sum|hn-go|tabindex/, 'cardul din noul design are doar eticheta, data și titlul');
   // fotografia: cea mare; prima nu este amânată, celelalte se încarcă la nevoie
   const pic = H.slidesHtml([{ id: 'p', title: 'T', image: { path: 'uploads/img/a.jpg', thumb: 'uploads/img/a-t.jpg' } }, { id: 'q', title: 'U', image: { thumb: 'uploads/img/b-t.jpg' } }], DG);
-  assert.match(pic, /<div class="hn-slide has-pic is-active"><img src="uploads\/img\/a\.jpg" class="hn-bg" alt="" width="1600" height="900" decoding="async">/);
+  assert.match(pic, /<div class="hn-slide has-pic is-active"><img src="uploads\/img\/a\.jpg" class="hn-bg" alt="" width="1600" height="900" fetchpriority="high" decoding="async">/);
   assert.match(pic, /<img src="uploads\/img\/b-t\.jpg" class="hn-bg" alt="" width="1600" height="900" loading="lazy" decoding="async">/);
   // nimic din text nu devine cod
   const evil = H.slidesHtml([{ id: 'a"b', title: '<img src=x onerror=alert(1)>', tag: '<b>', summary: '</p><script>1</script>', date: '2026-01-02' }], DG);

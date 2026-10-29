@@ -358,7 +358,7 @@ test('noutățile din partea de sus: ultimele 5 se scriu în HTML exact ca în b
 
 test('noutățile din partea de sus: fotografia mare pe fundal, o singură noutate fără comenzi, nicio noutate lasă blocul ascuns, textele nu pot deveni cod', () => {
   const one = prerender.fillIndex(template, { news: [{ id: 'f1', title: 'Cu poză', date: '2026-03-04', image: { path: '/uploads/img/a.jpg', thumb: '/uploads/img/a-t.jpg' } }] });
-  assert.match(heroStage(one), /<img src="\/uploads\/img\/a\.jpg" class="hn-bg" alt="" width="1600" height="900" decoding="async">/, 'fotografia mare, nu miniatura; prima nu este amânată');
+  assert.match(heroStage(one), /<img src="\/uploads\/img\/a\.jpg" class="hn-bg" alt="" width="1600" height="900" fetchpriority="high" decoding="async">/, 'fotografia mare, nu miniatura; prima nu este amânată');
   assert.match(heroStage(one), /class="hn-slide has-pic is-active"/);
   assert.match(one, /<div class="hn-bar" hidden role="group"/, 'cu o singură noutate: fără săgeți, puncte și pauză');
   assert.equal(heroDots(one), '', 'și fără puncte');

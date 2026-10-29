@@ -489,3 +489,9 @@ test('text pe toată lățimea: „Despre direcție” pe o coloană, introducer
   assert.match(css, /@media \(min-width:48rem\) and \(max-width:63\.99rem\)\{[^@]*--inv-cols:2\.5rem minmax\(0,1fr\) 6\.5rem 8rem 1\.5rem/);
   assert.match(css, /@media \(min-width:48rem\) and \(max-width:63\.99rem\)\{[^@]*\.toolbar>\.tools\{flex:1 1 100%\}/);
 });
+
+test('la reîncărcare (F5) pagina revine la început; linkurile directe rămân neschimbate', () => {
+  assert.match(site, /history\.scrollRestoration = 'manual'/);
+  assert.match(site, /navEntry\.type === 'reload'/);
+  assert.match(site, /window\.scrollTo\(0, 0\)/);
+});

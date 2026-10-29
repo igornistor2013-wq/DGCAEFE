@@ -2,6 +2,16 @@
 (function () {
   'use strict';
 
+  // La reîncărcarea paginii (F5) se revine mereu la început, oriunde ai fi fost; linkurile directe (de ex. către o știre) rămân neschimbate.
+  try {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    var navEntry = window.performance && performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (navEntry && navEntry.type === 'reload') {
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+      window.scrollTo(0, 0);
+    }
+  } catch (e) { /* fără această funcție pagina merge la fel */ }
+
   var DG = window.DG;
   var I18n = window.I18n;
   var LANG = DG.lang; // limba paginii: ro, ru sau en (vezi i18n.js)
@@ -287,7 +297,7 @@
     var href = '#stire/' + n.id;
     var pic = n.image && (n.image.path || n.image.thumb);
     return '<article class="lt-main">' +
-      (pic ? '<a class="lt-pic" href="' + href + '" data-news="' + esc(n.id) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(pic) + '" alt="" width="800" height="560" decoding="async"></a>' : '') +
+      (pic ? '<a class="lt-pic" href="' + href + '" data-news="' + esc(n.id) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(pic) + '" alt="" width="800" height="560" loading="lazy" decoding="async"></a>' : '') +
       '<div class="lt-body"><p class="lt-meta">' + (n.tag ? '<span class="lt-tag">' + esc(n.tag) + '</span>' : '') + '<time datetime="' + esc(n.date) + '">' + esc(DG.dateText(n)) + '</time></p>' +
       '<h3><a href="' + href + '" data-news="' + esc(n.id) + '">' + esc(n.title) + '</a></h3>' +
       (n.summary ? '<p class="lt-sum">' + esc(n.summary) + '</p>' : '') +
