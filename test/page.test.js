@@ -147,6 +147,17 @@ test('proiectele investiționale: doar un card către site-ul dedicat, fără li
   assert.doesNotMatch(site, /invList|gpOverview|renderInvList|#proiect\//);
 });
 
+test('proiectele investiționale: bannerul animat are titlul ca legătură către site-ul dedicat și buton de pauză', () => {
+  const plan = sectionOf('plan-crestere');
+  assert.match(plan, /<video class="inv-film-v"[^>]*\bmuted\b[^>]*\bplaysinline\b[^>]*aria-hidden="true"/);
+  assert.match(plan, /<source src="assets\/video\/proiecte-investitionale\.mp4" type="video\/mp4">/);
+  assert.match(plan, /<a class="inv-film-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-film-t">Proiecte investiționale<\/span>/);
+  assert.match(plan, /<button class="inv-film-btn" id="projectsFilmPlay" type="button" aria-label="Oprește animația"/);
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'video', 'proiecte-investitionale.mp4')));
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'img', 'proiecte-investitionale.jpg')));
+  assert.match(site, /function setupProjectsFilm\(\)[\s\S]*reduceMotion\(\)[\s\S]*IntersectionObserver/);
+});
+
 test('textul nu mai este strâns în partea stângă: nicio limită de lățime pe textele secțiunilor', () => {
   for (const sel of ['.sec-head p', '.prose', '.about-sub', '.fn-text', '.fn-items', '.num-list', '#growthIntro', '.gp-note p', '.callout p', '.prog-desc', '.event h3', '.event p']) {
     const esc = sel.replace(/[.#]/g, c => '\\' + c);

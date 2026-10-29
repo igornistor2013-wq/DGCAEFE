@@ -484,6 +484,34 @@
   // Rubrica este un card care duce la site-ul separat cu proiectele (nu mai există listă în această pagină).
   function renderInvestments() {}
 
+  // Bannerul animat de sub card: pornește doar dacă vizitatorul nu a cerut mai puțină mișcare, se oprește cât timp nu se vede
+  // și are buton de pauză (animațiile automate mai lungi de 5 secunde trebuie să poată fi oprite).
+  function setupProjectsFilm() {
+    var box = document.getElementById('projectsFilm');
+    var v = document.getElementById('projectsFilmVideo');
+    var btn = document.getElementById('projectsFilmPlay');
+    if (!box || !v || !btn || typeof v.play !== 'function') return;
+    var user = reduceMotion(); // true = oprit (de vizitator sau de setarea sistemului)
+    var seen = true;
+    function sync() {
+      var label = user ? T('Pornește animația') : T('Oprește animația');
+      if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
+      var use = btn.querySelector('use');
+      var icon = user ? '#i-play' : '#i-pause';
+      if (use && use.getAttribute('href') !== icon) use.setAttribute('href', icon);
+      if (!user && seen && !document.hidden) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      else v.pause();
+    }
+    btn.hidden = false;
+    btn.addEventListener('click', function () { user = !user; sync(); });
+    v.addEventListener('error', function () { btn.hidden = true; }, true);
+    document.addEventListener('visibilitychange', sync);
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { rootMargin: '200px 0px' }).observe(box);
+    }
+    sync();
+  }
+
   /* ================= Cooperare externă ================= */
 
   // un card pentru fiecare raport, cel mai recent evidențiat; cardul duce direct la document
@@ -1445,6 +1473,7 @@
   }
 
   // Înainte de date există doar structura; panourile de filtrare nu au sens fără conținut.
+  setupProjectsFilm();
   loadData().then(init).catch(function (err) {
     if (window.console) console.error(err);
     showError();

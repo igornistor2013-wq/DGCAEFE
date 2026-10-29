@@ -409,5 +409,8 @@
  "Lista proiectelor, ministerele responsabile, partenerii de finanțare și valorile se află pe site-ul dedicat.": "The list of projects, responsible ministries, funding partners and amounts is available on the dedicated website.",
  "Funcție de bază": "Core function",
  "Funcția anterioară": "Previous function",
- "Funcția următoare": "Next function"
+ "Funcția următoare": "Next function",
+ "Oprește animația": "Pause animation",
+ "Pornește animația": "Play animation",
+ "(se deschide site-ul cu proiectele într-o filă nouă)": "(opens the projects website in a new tab)"
 }
