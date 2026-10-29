@@ -150,11 +150,15 @@ test('proiectele investiționale: doar un card către site-ul dedicat, fără li
 test('proiectele investiționale: bannerul animat are titlul ca legătură către site-ul dedicat și buton de pauză', () => {
   const plan = sectionOf('plan-crestere');
   assert.match(plan, /<video class="inv-film-v"[^>]*\bmuted\b[^>]*\bplaysinline\b[^>]*aria-hidden="true"/);
-  assert.match(plan, /<source src="assets\/video\/proiecte-investitionale\.mp4" type="video\/mp4">/);
+  // numele fișierelor conțin o amprentă a conținutului: o versiune nouă are alt nume, deci browserul nu arată copia veche (assets se păstrează 7 zile)
+  const vid = /<source src="assets\/video\/(proiecte-investitionale-[0-9a-f]{8}\.mp4)" type="video\/mp4">/.exec(plan);
+  const img = /poster="assets\/img\/(proiecte-investitionale-[0-9a-f]{8}\.jpg)"/.exec(plan);
+  assert.ok(vid && img, 'video și imagine cu amprentă în nume');
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8'), new RegExp('url\\("\\.\\./img/' + img[1].replace('.', '\\.') + '"\\)'));
   assert.match(plan, /<a class="inv-film-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-film-t">Proiecte investiționale<\/span>/);
   assert.match(plan, /<button class="inv-film-btn" id="projectsFilmPlay" type="button" aria-label="Oprește animația"/);
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'video', 'proiecte-investitionale.mp4')));
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'img', 'proiecte-investitionale.jpg')));
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'video', vid[1])));
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'img', img[1])));
   assert.match(site, /function setupProjectsFilm\(\)[\s\S]*reduceMotion\(\)[\s\S]*IntersectionObserver/);
 });
 

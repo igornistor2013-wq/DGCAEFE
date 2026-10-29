@@ -463,7 +463,7 @@ a.law-a:hover{background:var(--row);color:var(--ink);text-decoration:none}
 .amp-go{display:grid;place-items:center;width:3rem;height:3rem;border-radius:50%;background:#fff;color:var(--navy)}
 .amp-go .ico{width:1.25rem;height:1.25rem}
 /* Proiecte investiționale: bannerul animat (video fără text; titlul este text HTML și duce la site-ul cu proiectele) */
-.inv-film{position:relative;isolation:isolate;aspect-ratio:1920/420;min-height:12rem;border-radius:1.75rem;overflow:hidden;background:var(--navy) url("../img/proiecte-investitionale.jpg") center/cover no-repeat}
+.inv-film{position:relative;isolation:isolate;aspect-ratio:1920/420;min-height:12rem;border-radius:1.75rem;overflow:hidden;background:var(--navy) url("../img/proiecte-investitionale-0cc852c9.jpg") center/cover no-repeat}
 .inv-film-v{position:absolute;inset:0;z-index:-1;width:100%;height:100%;object-fit:cover;object-position:60% 50%;display:block}
 .inv-film-a{position:absolute;left:clamp(1.25rem,5%,6rem);top:50%;transform:translateY(-50%);display:inline-grid;grid-template-columns:auto auto;align-items:center;column-gap:1.25rem;row-gap:clamp(.75rem,1.2vw,1.25rem);padding:.75rem 1rem;margin:-.75rem -1rem;border-radius:1rem;color:#fff;text-decoration:none;transition:background-color .15s}
 .inv-film-bar{grid-column:1/-1;width:4rem;height:.375rem;border-radius:.1875rem;background:var(--yellow)}
