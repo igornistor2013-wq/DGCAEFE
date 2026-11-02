@@ -377,14 +377,17 @@ Când o versiune nouă a paginii aduce conținut nou (de exemplu proiectele din 
 - Parolele se păstrează criptat (bcrypt), niciodată în clar. Mesajul de eroare la autentificare nu arată dacă utilizatorul există.
 - După 8 încercări greșite în 15 minute, autentificarea este blocată temporar pentru acea adresă.
 - Sesiunea este un cookie semnat, `HttpOnly`, `SameSite=Strict` (și `Secure` pe HTTPS), valabil 8 ore. Schimbarea parolei închide toate celelalte sesiuni.
+- „Ieșire” închide sesiunea și pe server: cookie-ul ei nu mai deschide panoul, nici dacă a fost copiat înainte. Lista sesiunilor închise este în `storage/private/revoked.json` și păstrează doar sesiunile care nu au expirat încă.
 - Orice modificare cere un jeton CSRF și o origine corectă a cererii.
 - Fișierele încărcate sunt verificate după conținut (nu doar după extensie), primesc nume aleatorii și sunt acceptate doar tipurile din lista de mai sus. **Fișierele SVG nu sunt acceptate** (pot conține cod).
-- Antete de securitate (Content-Security-Policy fără JavaScript inline, `nosniff`, `frame-ancestors` etc.) prin `helmet`; pagina `/admin/` nu este indexată de motoarele de căutare.
+- Antete de securitate (Content-Security-Policy fără JavaScript inline, `nosniff`, `frame-ancestors` etc.) prin `helmet`, plus `Permissions-Policy`, care închide camera, microfonul, localizarea, plățile și celelalte funcții sensibile ale browserului; pagina `/admin/` nu este indexată de motoarele de căutare.
+- Pagina publică și datele ei (`/api/public`) se construiesc o singură dată pentru fiecare limbă și se păstrează în memorie până la următoarea salvare din panou (`lib/page-cache.js`), deci un val de vizitatori nu ocupă procesorul serverului.
 - Textul introdus în panou este curățat la afișare: se acceptă doar formatarea simplă (paragrafe, liste, titluri, text aldin, legături). HTML-ul nu este interpretat, deci nu poate executa cod în pagină.
-- Orice acțiune de administrare se înregistrează în jurnalul de activitate (pe GitHub Pages: în istoricul depozitului).
+- Orice acțiune de administrare se înregistrează în jurnalul de activitate (pe GitHub Pages: în istoricul depozitului). Jurnalul (`storage/private/audit.log`) se mută în `audit.log.1` când trece de 5 MB; se păstrează cel mult patru fișiere vechi.
+- Publicarea pe GitHub Pages instalează uneltele de comprimare (`sharp`, `esbuild`) în versiuni fixe (`.github/workflows/pages.yml`), ca o versiune nouă sau compromisă să nu ajungă singură în pagină.
 - Pe GitHub Pages panoul rulează cu o politică de securitate proprie (scripturi doar din pagină, conexiuni doar către `api.github.com`), se ascunde singur dacă este încadrat în altă pagină și păstrează jetonul doar în browser (vezi 5.3).
 
-Bune practici: schimbați parola generată, folosiți o parolă lungă și unică, serviți pagina doar prin HTTPS, faceți copii de siguranță și țineți Node.js și dependențele actualizate (`npm audit`, `npm update`).
+Bune practici: dacă serverul și-a generat singur parola la prima pornire, ea apare în jurnalul serverului (de exemplu `docker compose logs`): schimbați-o după prima autentificare sau setați `ADMIN_PASSWORD` înainte de pornire. Pe GitHub Pages folosiți un domeniu propriu și un jeton cu acces doar la acest depozit (vezi 5.3), fără „Ține-mă minte” pe calculatoare comune. Schimbați parola generată, folosiți o parolă lungă și unică, serviți pagina doar prin HTTPS, faceți copii de siguranță și țineți Node.js și dependențele actualizate (`npm audit`, `npm update`).
 
 ---
 

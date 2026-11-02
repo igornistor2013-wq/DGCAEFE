@@ -11,6 +11,7 @@ const { buildApi } = require('./lib/api');
 const { trustProxySetting } = require('./lib/proxy');
 const { buildPublic } = require('./lib/public');
 const prerender = require('./lib/prerender');
+const pageCache = require('./lib/page-cache');
 const I18n = require('./web/assets/js/i18n.js');
 
 const NOT_FOUND = `<!doctype html><html lang="ro"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagina nu a fost găsită</title>
@@ -49,6 +50,12 @@ function createApp() {
       }
     })
   );
+  // Pagina nu folosește camera, microfonul, localizarea, plățile și celelalte funcții sensibile ale browserului: le închidem de tot,
+  // ca nici un script străin (sau o hartă încorporată) să nu le poată cere vizitatorului.
+  app.use((req, res, next) => {
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), magnetometer=(), gyroscope=(), accelerometer=(), browsing-topics=(), interest-cohort=()');
+    next();
+  });
   app.use(compression());
 
   app.get('/healthz', (req, res) => res.type('text/plain').send('ok'));
@@ -69,8 +76,10 @@ function createApp() {
     express.static(path.join(cfg.WEB_DIR, 'admin'), { index: 'index.html' })
   );
   // Prima pagină în fiecare limbă: / (română), /ru și /en; ru.html, en.html și index.html sunt aceleași pagini (legăturile din comutatorul de limbă).
+  // Pagina construită se păstrează în memorie până la următoarea salvare din panou (vezi lib/page-cache.js).
+  const tpl = name => path.join(cfg.WEB_DIR, name);
   const homePage = lang => (req, res) => {
-    const html = prerender.fillIndex(readWeb('index.html'), buildPublic(store.list, lang), { siteUrl, lang });
+    const html = pageCache.get(`home:${lang}`, [tpl('index.html')], () => prerender.fillIndex(readWeb('index.html'), buildPublic(store.list, lang), { siteUrl, lang }));
     res.set('Cache-Control', 'no-cache').type('html').send(html);
   };
   for (const lang of I18n.LANGS) {
@@ -82,7 +91,7 @@ function createApp() {
   app.use((req, res) => {
     let html;
     try {
-      html = prerender.fillNotFound(readWeb('404.html'), buildPublic(store.list), '/');
+      html = pageCache.get('404', [tpl('404.html')], () => prerender.fillNotFound(readWeb('404.html'), buildPublic(store.list), '/'));
     } catch (e) {
       html = NOT_FOUND; // dacă șablonul lipsește sau nu poate fi citit, răspunsul simplu de mai sus
     }

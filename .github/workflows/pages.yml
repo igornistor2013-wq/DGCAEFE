@@ -35,8 +35,10 @@ jobs:
       - id: pages
         uses: actions/configure-pages@v5
       # Pachete folosite doar la construire, pentru a comprima fotografiile (sharp) și scripturile/stilurile (esbuild). Dacă lipsesc, pagina se publică necomprimată.
+      # Versiunile sunt fixe: o versiune nouă (sau compromisă) a unui pachet nu ajunge singură în pagina publicată.
+      # Pentru actualizare: alegeți o versiune publicată de cel puțin câteva săptămâni, schimbați numerele de mai jos și verificați publicarea.
       - name: Instalează uneltele de comprimare
-        run: npm install --no-save --no-audit --no-fund sharp esbuild || echo "comprimarea este sărită"
+        run: npm install --no-save --no-audit --no-fund --save-exact sharp@0.35.5 esbuild@0.28.2 || echo "comprimarea este sărită"
       - name: Construiește pagina (cu panoul de administrare pentru acest depozit)
         run: >-
           node scripts/build-static.js --out dist

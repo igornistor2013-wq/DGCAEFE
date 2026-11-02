@@ -101,13 +101,14 @@ test('buildPublic: aceleași date, în fiecare limbă; câmpurile de logică ră
   const ro = buildPublic(reader());
   const ru = buildPublic(reader(), 'ru');
   const en = buildPublic(reader(), 'en');
-  assert.equal(ro.investments.length, ru.investments.length);
+  assert.equal(ro.programs.length, ru.programs.length);
   assert.equal(ro.news.length, en.news.length);
   assert.notEqual(ru.settings.orgName, ro.settings.orgName);
   assert.match(ru.settings.orgName, /[А-Яа-я]/);
   assert.match(en.settings.orgName, /^General Directorate/);
-  assert.deepEqual(ru.investments.map(p => p.id), ro.investments.map(p => p.id));
-  assert.deepEqual(ru.investments.map(p => p.ministry), ro.investments.map(p => p.ministry));
+  assert.deepEqual(ru.programs.map(p => p.id), ro.programs.map(p => p.id));
+  assert.deepEqual(ru.settings.projects.url, ro.settings.projects.url);
+  assert.deepEqual([ru.settings.projects.video, ru.settings.projects.pano], [ro.settings.projects.video, ro.settings.projects.pano]);
   assert.deepEqual(en.documents.map(d => d.section), ro.documents.map(d => d.section));
   assert.deepEqual(ru.news.map(n => n.date), ro.news.map(n => n.date));
 });

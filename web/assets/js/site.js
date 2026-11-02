@@ -1476,7 +1476,6 @@
     watchTranslations();
     syncLangLinks();
     window.addEventListener('hashchange', syncLangLinks);
-    D.investments = D.investments || [];
     setupChrome();
     setupEvents();
     setupMore();
