@@ -140,7 +140,7 @@ test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documen
   assert.match(site, /addEventListener\('beforeprint'[\s\S]*PRINT_ALL\.forEach[\s\S]*addEventListener\('afterprint'/);
 });
 
-test('proiectele investiționale: doar bannerele către site-ul dedicat, fără card și fără listă în pagină', () => {
+test('proiectele investiționale: doar bannerul către site-ul dedicat, fără card și fără listă în pagină', () => {
   const plan = sectionOf('plan-crestere');
   assert.doesNotMatch(plan, /projectsCard|class="amp /);
   assert.match(plan, /<\/header>\s*<div class="inv-film" id="projectsFilm">/);
@@ -163,20 +163,19 @@ test('proiectele investiționale: bannerul animat are titlul ca legătură cătr
   assert.match(site, /function setupProjectsFilm\(\)[\s\S]*\.inv-film[\s\S]*reduceMotion\(\)[\s\S]*IntersectionObserver/);
 });
 
-test('proiectele investiționale: al doilea banner, sub primul, cu filmarea lui, același titlu, aceeași legătură și buton de pauză propriu', () => {
+test('proiectele investiționale: un singur banner, înalt (1920×768), ca să se vadă și autostrada, și clădirile întregi', () => {
   const plan = sectionOf('plan-crestere');
-  const films = plan.split('<div class="inv-film').slice(1);
-  assert.equal(films.length, 2);
-  const b = films[1];
-  assert.match(b, /^ inv-film--b" id="projectsFilm2">/);
-  const vid = /<source src="assets\/video\/(proiecte-investitionale-b-[0-9a-f]{8}\.mp4)" type="video\/mp4">/.exec(b);
-  const img = /poster="assets\/img\/(proiecte-investitionale-b-[0-9a-f]{8}\.jpg)"/.exec(b);
-  assert.ok(vid && img);
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'video', vid[1])));
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'img', img[1])));
-  assert.match(fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8'), new RegExp('\\.inv-film--b\\{aspect-ratio:1920/768;background-image:url\\("\\.\\./img/' + img[1].replace('.', '\\.') + '"\\)\\}'));
-  assert.match(b, /<a class="inv-film-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-film-t">Proiecte investiționale<\/span>/);
-  assert.match(b, /<button class="inv-film-btn" id="projectsFilm2Play" type="button" aria-label="Oprește animația"/);
+  assert.equal(plan.split('<div class="inv-film').length - 1, 1);
+  assert.doesNotMatch(plan, /projectsFilm2|inv-film--b/);
+  const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
+  assert.match(css, /\.inv-film\{[^}]*aspect-ratio:1920\/768;/);
+  assert.doesNotMatch(css, /inv-film--b/);
+  // în folder rămân doar fișierele bannerului afișat
+  const vids = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'video')).filter(f => f.startsWith('proiecte-investitionale'));
+  const imgs = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'img')).filter(f => f.startsWith('proiecte-investitionale'));
+  assert.equal(vids.length, 1);
+  assert.equal(imgs.length, 1);
+  assert.ok(plan.includes('assets/video/' + vids[0]) && plan.includes('assets/img/' + imgs[0]));
 });
 
 test('textul nu mai este strâns în partea stângă: nicio limită de lățime pe textele secțiunilor', () => {
