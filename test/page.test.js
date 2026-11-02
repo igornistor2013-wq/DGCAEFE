@@ -140,9 +140,10 @@ test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documen
   assert.match(site, /addEventListener\('beforeprint'[\s\S]*PRINT_ALL\.forEach[\s\S]*addEventListener\('afterprint'/);
 });
 
-test('proiectele investiționale: doar un card către site-ul dedicat, fără listă în pagină', () => {
+test('proiectele investiționale: doar bannerele către site-ul dedicat, fără card și fără listă în pagină', () => {
   const plan = sectionOf('plan-crestere');
-  assert.match(plan, /<a class="amp ext-card" id="projectsCard" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">/);
+  assert.doesNotMatch(plan, /projectsCard|class="amp /);
+  assert.match(plan, /<\/header>\s*<div class="inv-film" id="projectsFilm">/);
   assert.doesNotMatch(plan, /invList|invQ|gpOverview|invStat/);
   assert.doesNotMatch(site, /invList|gpOverview|renderInvList|#proiect\//);
 });
