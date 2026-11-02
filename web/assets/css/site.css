@@ -466,7 +466,8 @@ a.law-a:hover{background:var(--row);color:var(--ink);text-decoration:none}
 .inv-film{position:relative;isolation:isolate;width:100%;aspect-ratio:1920/768;min-height:12rem;border-radius:1.75rem;overflow:hidden;background:var(--navy) url("../img/proiecte-investitionale-38ad95aa.jpg") center/cover no-repeat}
 /* umbra din spatele titlului: doar în colțul din stânga jos, în pagină (nu în video), ca restul filmării să rămână curat */
 .inv-film::after{content:"";position:absolute;left:0;bottom:0;width:min(38rem,70%);height:min(15rem,55%);z-index:-1;pointer-events:none;background:radial-gradient(farthest-side at 0 100%,rgba(6,28,92,.66) 0,rgba(6,28,92,.42) 42%,rgba(6,28,92,.14) 75%,rgba(6,28,92,0) 100%)}
-.inv-film+.inv-film{margin-top:1.25rem}
+.inv-film[hidden]{display:none}
+.inv-film:not([hidden])+.inv-film{margin-top:1.25rem}
 /* panorama (imagine statică): toate proiectele de-a lungul autostrăzii; pe telefon panoul e 2:1 și imaginea se plimbă lent stânga-dreapta */
 .inv-film--pano{aspect-ratio:3840/679;background-image:none}
 .inv-film--pano picture{display:contents}

@@ -1,4 +1,4 @@
-/* Panou de administrare — panoul de control, textele paginii, jurnalul, contul și publicarea. */
+/* Panou de administrare — panoul de control, textele paginii, secțiunea „Proiecte investiționale”, jurnalul, contul și publicarea. */
 (function () {
   'use strict';
 
@@ -43,14 +43,16 @@
   pages[''] = {
     title: 'Panou de control',
     async render(root) {
-      const [, audit] = await Promise.all([ADM.load('news', 'documents', 'gallery', 'events', 'legal', 'programs', 'investments'), ADM.get('/api/admin/audit').catch(() => [])]);
+      const [, audit, settings] = await Promise.all([ADM.load('news', 'documents', 'gallery', 'events', 'legal', 'programs'), ADM.get('/api/admin/audit').catch(() => []), ADM.get('/api/admin/settings').catch(() => ADM.settings || {})]);
       const d = ADM.data;
+      const pr = (settings && settings.projects) || {};
+      const panels = (pr.video !== false ? 1 : 0) + (pr.pano !== false ? 1 : 0);
+      const panelNote = panels === 2 ? 'video și panoramă, cu legătura către site-ul cu proiecte' : panels ? (pr.video !== false ? 'doar panoul video' : 'doar panorama') : 'secțiunea este ascunsă';
       const drafts = d.news.filter(n => n.published === false).length;
       const sample = d.gallery.filter(g => g.sample).length;
-      const hidden = d.investments.filter(p => p.published === false).length;
       const stat = (href, n, label, note) => '<a class="stat" href="' + href + '"><span class="n">' + n + '</span><span class="l">' + label + '</span><span class="d">' + note + '</span></a>';
       root.innerHTML =
-        '<div class="page-head"><div><h1>Panou de control</h1><p class="sub">Bun venit, ' + esc(ADM.user) + '. De aici administrați conținutul paginii publice: știri, documente, fotografii, evenimente și textele paginii.</p></div>' +
+        '<div class="page-head"><div><h1>Panou de control</h1><p class="sub">Bun venit, ' + esc(ADM.user) + '. De aici administrați conținutul paginii publice: știri, documente, fotografii, evenimente, panourile „Proiecte investiționale” și textele paginii.</p></div>' +
         '<div class="acts"><a class="btn btn-line" href="../" target="_blank" rel="noopener">' + ico('ext') + 'Deschide pagina publică</a></div></div>' +
         (sample ? '<div class="alert alert-warn">' + ico('alert') + '<div><strong>Galeria conține ' + ADM.plural(sample, 'imagine de exemplu', 'imagini de exemplu') + '.</strong> Ștergeți-le după ce încărcați fotografiile reale, ca să nu apară vizitatorilor.</div><a class="btn btn-line btn-sm" href="#/gallery">Deschide galeria</a></div>' : '') +
         '<div class="stats">' +
@@ -59,7 +61,7 @@
         stat('#/gallery', d.gallery.length, 'Fotografii', 'în galeria foto') +
         stat('#/events', d.events.length, 'Evenimente', 'anunțate pe pagină') +
         stat('#/legal', d.legal.length, 'Acte normative', 'în cadrul legal') +
-        stat('#/investments', d.investments.length, 'Proiecte investiționale', hidden ? ADM.plural(hidden, 'ascuns', 'ascunse') : 'din Planul de creștere') +
+        stat('#/investments', panels, 'Panouri „Proiecte investiționale”', panelNote) +
         '</div><div class="two"><div>' +
         '<section class="panel"><div class="panel-h"><h2>Acțiuni rapide</h2></div><div class="panel-b"><div class="quick-acts">' +
         '<a class="btn btn-primary" href="#/news/new">' + ico('plus') + 'Adaugă știre</a>' +
@@ -80,12 +82,24 @@
     }
   };
 
-  /* ---------- texte pagină ---------- */
-  pages.texts = (function () {
+  /* ---------- pagini cu texte din „settings” ---------- */
+  // Textele paginii sunt un singur document (settings). Fiecare pagină de aici editează doar o parte din el; la salvare,
+  // partea editată se pune peste varianta salvată, ca restul textelor (și cele vechi, păstrate pentru actualizări) să rămână neatinse.
+  const isObj = x => !!x && typeof x === 'object' && !Array.isArray(x);
+  function mergeSettings(base, over) {
+    const out = Object.assign({}, base);
+    Object.keys(over).forEach(k => {
+      out[k] = isObj(base && base[k]) && isObj(over[k]) ? mergeSettings(base[k], over[k]) : over[k];
+    });
+    return out;
+  }
+
+  // o: { key, title, sub(s), fields(s), toast, acts?, top(s)?, values(s)?, wire(form, root)? }
+  function settingsPage(o) {
     let form = null;
     const guard = () => !!form && form.dirty();
-    return {
-      title: 'Texte pagină',
+    const page = {
+      title: o.title,
       leave() {
         const i = ADM.guards.indexOf(guard);
         if (i > -1) ADM.guards.splice(i, 1);
@@ -94,7 +108,73 @@
       async render(root) {
         const s = await ADM.get('/api/admin/settings');
         ADM.settings = s;
-        const fields = [
+        form = ADM.buildForm(o.fields(s), o.values ? o.values(s) : s);
+        if (ADM.guards.indexOf(guard) < 0) ADM.guards.push(guard);
+        const id = o.key;
+        root.innerHTML =
+          '<div class="page-head"><div><h1>' + esc(o.title) + '</h1><p class="sub">' + o.sub(s) + '</p></div>' + (o.acts ? '<div class="acts">' + o.acts + '</div>' : '') + '</div>' +
+          (o.top ? o.top(s) : '') +
+          '<form class="panel" id="' + id + 'Form" novalidate><div class="panel-b"><div class="alert alert-error" id="' + id + 'Err" role="alert" hidden></div><div id="' + id + 'Body"></div></div>' +
+          '<div class="savebar"><span class="muted" id="' + id + 'State">Nicio modificare nesalvată.</span><span class="grow"></span><button type="button" class="btn btn-line" id="' + id + 'Revert">Renunță la modificări</button><button type="submit" class="btn btn-primary" id="' + id + 'Save">Salvează modificările</button></div></form>';
+        $('#' + id + 'Body', root).appendChild(form.el);
+        const err = $('#' + id + 'Err', root);
+        const state = $('#' + id + 'State', root);
+        const save = $('#' + id + 'Save', root);
+        const mark = () => {
+          const d = form.dirty();
+          state.textContent = d ? 'Aveți modificări nesalvate.' : 'Nicio modificare nesalvată.';
+          state.style.color = d ? 'var(--orange)' : '';
+          state.style.fontWeight = d ? '700' : '';
+        };
+        form.el.addEventListener('input', mark);
+        form.el.addEventListener('change', mark);
+        if (o.wire) o.wire(form, root);
+        $('#' + id + 'Revert', root).addEventListener('click', async () => {
+          if (form.dirty() && !(await ADM.confirm({ title: 'Renunțați la modificări?', message: 'Textele revin la ultima variantă salvată.', ok: 'Renunță la modificări', danger: true }))) return;
+          form.markClean();
+          page.render(root);
+        });
+        $('#' + id + 'Form', root).addEventListener('submit', async e => {
+          e.preventDefault();
+          err.hidden = true;
+          if (!form.validate()) return;
+          save.disabled = true;
+          save.textContent = 'Se salvează…';
+          try {
+            const saved = await ADM.api('PUT', '/api/admin/settings', mergeSettings(ADM.settings, form.read()));
+            ADM.settings = saved;
+            form.markClean();
+            mark();
+            ADM.refreshOrg();
+            DG.toast(o.toast);
+          } catch (ex) {
+            err.textContent = ex.message;
+            err.hidden = false;
+            err.scrollIntoView({ block: 'center' });
+            form.markServerError(ex.message);
+          } finally {
+            save.disabled = false;
+            save.textContent = 'Salvează modificările';
+          }
+        });
+        root.addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+            e.preventDefault();
+            $('#' + id + 'Form', root).requestSubmit();
+          }
+        });
+      }
+    };
+    return page;
+  }
+
+  /* ---------- texte pagină ---------- */
+  pages.texts = settingsPage({
+    key: 'txt',
+    title: 'Texte pagină',
+    toast: 'Textele paginii au fost salvate.',
+    sub: () => 'Textele care nu fac parte din știri sau documente: antetul, prezentarea, atribuțiile, cooperarea externă și datele de contact. Secțiunea „Proiecte investiționale” are pagina ei în meniu. Modificările apar pe pagina publică imediat după salvare.',
+    fields: () => [
           { type: 'heading', label: 'Identitate', hint: 'Apar în antet, în subsol și în titlul filei din browser.' },
           { name: 'orgName', label: 'Denumirea direcției', type: 'text', required: true, max: 200 },
           { name: 'parentName', label: 'Instituția-părinte', type: 'text', max: 200 },
@@ -126,14 +206,6 @@
           },
           { name: 'rights', label: 'Drepturile direcției', type: 'lines', rows: 9, hint: 'Câte un drept pe rând.' },
           { name: 'responsibilities', label: 'Responsabilitățile direcției', type: 'lines', rows: 12, hint: 'Câte o responsabilitate pe rând.' },
-          { type: 'heading', label: 'Secțiunea „Proiecte investiționale”: texte', hint: 'Textele din jurul listei de proiecte. Proiectele în sine se administrează în meniul „Proiecte investiționale”.' },
-          { name: 'growth.asOf', label: 'Datele proiectelor sunt actualizate la data de', type: 'date', w: 'half' },
-          { name: 'growth.intro', label: 'Introducere', type: 'textarea', max: 1200, rows: 4 },
-          { name: 'growth.note', label: 'Notă explicativă', type: 'textarea', max: 1500, rows: 4, hint: 'Se afișează sub lista de proiecte: precizări despre valori și sursele lor.' },
-          {
-            name: 'growth.sources', label: 'Surse de date', type: 'repeater', max: 6, addLabel: 'Adaugă sursă', emptyText: 'Nicio sursă adăugată.',
-            sub: [{ name: 't', label: 'Text', w: 'half', max: 160 }, { name: 'u', label: 'Adresa', type: 'url', w: 'half', max: 1000, placeholder: 'https://…' }]
-          },
           { type: 'heading', label: 'Secțiunea „Cooperare externă”', hint: 'Rapoartele anuale și documentele Acordului cu România se administrează în meniul „Documente” (secțiunile „Raport anual” și „Acordul cu Guvernul României”). Aici se editează textele și cardul Platformei AMP.' },
           { name: 'coop.title', label: 'Titlul secțiunii', type: 'text', max: 120 },
           { name: 'coop.acordTitle', label: 'Acordul cu România: titlul cardului', type: 'text', max: 160, w: 'twothirds' },
@@ -164,62 +236,58 @@
           { name: 'contact.mapLink', label: 'Harta: legătura „Deschide în Google Maps”', type: 'url', max: 1000, placeholder: 'https://…' },
           { type: 'heading', label: 'Subsol' },
           { name: 'footerNote', label: 'Nota din subsol', type: 'textarea', max: 400, rows: 2 }
-        ].concat(ADM.trFields('settings'));
-        form = ADM.buildForm(fields, s);
-        if (ADM.guards.indexOf(guard) < 0) ADM.guards.push(guard);
-        root.innerHTML =
-          '<div class="page-head"><div><h1>Texte pagină</h1><p class="sub">Textele care nu fac parte din știri sau documente: antetul, prezentarea, atribuțiile și datele de contact. Modificările apar pe pagina publică imediat după salvare.</p></div></div>' +
-          '<form class="panel" id="txtForm" novalidate><div class="panel-b"><div class="alert alert-error" id="txtErr" role="alert" hidden></div><div id="txtBody"></div></div>' +
-          '<div class="savebar"><span class="muted" id="txtState">Nicio modificare nesalvată.</span><span class="grow"></span><button type="button" class="btn btn-line" id="txtRevert">Renunță la modificări</button><button type="submit" class="btn btn-primary" id="txtSave">Salvează modificările</button></div></form>';
-        $('#txtBody', root).appendChild(form.el);
-        const err = $('#txtErr', root);
-        const state = $('#txtState', root);
-        const save = $('#txtSave', root);
-        const mark = () => {
-          const d = form.dirty();
-          state.textContent = d ? 'Aveți modificări nesalvate.' : 'Nicio modificare nesalvată.';
-          state.style.color = d ? 'var(--orange)' : '';
-          state.style.fontWeight = d ? '700' : '';
-        };
-        form.el.addEventListener('input', mark);
-        form.el.addEventListener('change', mark);
-        $('#txtRevert', root).addEventListener('click', async () => {
-          if (form.dirty() && !(await ADM.confirm({ title: 'Renunțați la modificări?', message: 'Textele revin la ultima variantă salvată.', ok: 'Renunță la modificări', danger: true }))) return;
-          form.markClean();
-          pages.texts.render(root);
-        });
-        $('#txtForm', root).addEventListener('submit', async e => {
-          e.preventDefault();
-          err.hidden = true;
-          if (!form.validate()) return;
-          save.disabled = true;
-          save.textContent = 'Se salvează…';
-          try {
-            const saved = await ADM.api('PUT', '/api/admin/settings', form.read());
-            ADM.settings = saved;
-            form.markClean();
-            mark();
-            ADM.refreshOrg();
-            DG.toast('Textele paginii au fost salvate.');
-          } catch (ex) {
-            err.textContent = ex.message;
-            err.hidden = false;
-            err.scrollIntoView({ block: 'center' });
-            form.markServerError(ex.message);
-          } finally {
-            save.disabled = false;
-            save.textContent = 'Salvează modificările';
-          }
-        });
-        root.addEventListener('keydown', e => {
-          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-            e.preventDefault();
-            $('#txtForm', root).requestSubmit();
-          }
-        });
-      }
-    };
-  })();
+    ].concat(ADM.trFields('settings', k => k.indexOf('projects.') !== 0))
+  });
+
+  /* ---------- proiecte investiționale ---------- */
+  // Secțiunea de pe pagina publică (meniul „Investiții”) are două panouri late: animația video și panorama. Pe fiecare, titlul din
+  // colțul din stânga jos duce la site-ul separat cu proiectele. Aici se aleg panourile afișate, titlurile și adresa acelui site.
+  // Imaginile de mai jos sunt aceleași fișiere ca pe pagina publică (web/index.html); un test verifică să existe.
+  const PROJ_PANELS = [
+    { name: 'video', img: '../assets/img/proiecte-investitionale-38ad95aa.jpg', t: 'Panoul animat (video)', d: 'Filmare cu proiectele de-a lungul autostrăzii; pornește singură și are buton de pauză.' },
+    { name: 'pano', img: '../assets/img/proiecte-panorama-1600-7224854b.jpg', t: 'Panorama (imagine)', d: 'Imagine lată, sub panoul animat; pe telefon se derulează lent stânga-dreapta.' }
+  ];
+  const PROJ_URL = 'https://proiecte.pages.dev/';
+  pages.investments = settingsPage({
+    key: 'prj',
+    title: 'Proiecte investiționale',
+    toast: 'Secțiunea „Proiecte investiționale” a fost salvată.',
+    sub: () => 'Secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”): un panou animat și o panoramă, fiecare cu titlul în colțul din stânga jos. Apăsarea titlului deschide site-ul cu proiectele investiționale într-o filă nouă. Lista proiectelor nu se mai afișează în această pagină; ea este pe site-ul cu proiecte.',
+    acts: '<a class="btn btn-line" href="../#plan-crestere" target="_blank" rel="noopener">' + ico('ext') + 'Vezi secțiunea pe pagină</a>',
+    top: s => {
+      const pr = s.projects || {};
+      return '<section class="panel"><div class="panel-h"><h2>Panourile de pe pagină</h2></div><div class="panel-b"><div class="proj-prev">' +
+        PROJ_PANELS.map(p => {
+          const on = pr[p.name] !== false;
+          return '<figure class="proj-card' + (on ? '' : ' is-off') + '" data-panel="' + p.name + '"><img src="' + p.img + '" alt="" loading="lazy" decoding="async">' +
+            '<figcaption><strong>' + esc(p.t) + '</strong> <span class="badge ' + (on ? 'badge-ok">Afișat' : 'badge-draft">Ascuns') + '</span><span class="muted">' + esc(p.d) + '</span></figcaption></figure>';
+        }).join('') + '</div></div></section>';
+    },
+    // panourile lipsă din textele salvate înseamnă „afișat” (ca pe pagina publică)
+    values: s => mergeSettings(s, { projects: { video: (s.projects || {}).video !== false, pano: (s.projects || {}).pano !== false } }),
+    fields: () => [
+      { type: 'heading', label: 'Panourile afișate', hint: 'Dacă debifați ambele panouri, secțiunea dispare de pe pagină, împreună cu legăturile „Investiții” din meniu și din subsol.' },
+      { name: 'projects.video', label: 'Afișează panoul animat (video)', type: 'checkbox', w: 'half' },
+      { name: 'projects.pano', label: 'Afișează panorama (imaginea)', type: 'checkbox', w: 'half' },
+      { type: 'heading', label: 'Texte și legătură' },
+      { name: 'projects.title', label: 'Titlul secțiunii', type: 'text', max: 120, w: 'half', placeholder: 'Proiecte investiționale', hint: 'Titlul de deasupra panourilor. Gol = „Proiecte investiționale”.' },
+      { name: 'projects.label', label: 'Textul de pe panouri', type: 'text', max: 60, w: 'half', placeholder: 'Proiecte investiționale', hint: 'Apare în colțul din stânga jos al fiecărui panou. Gol = „Proiecte investiționale”.' },
+      { name: 'projects.url', label: 'Adresa site-ului cu proiectele', type: 'url', max: 1000, placeholder: PROJ_URL, hint: 'Se deschide la apăsarea textului de pe panouri. Gol = ' + PROJ_URL }
+    ].concat(ADM.trFields('settings', k => k.indexOf('projects.') === 0)),
+    // previzualizarea arată imediat ce panouri rămân pe pagină
+    wire: (form, root) => form.el.addEventListener('change', () => {
+      const v = (form.read().projects) || {};
+      PROJ_PANELS.forEach(p => {
+        const card = root.querySelector('.proj-card[data-panel="' + p.name + '"]');
+        if (!card) return;
+        const on = v[p.name] !== false;
+        card.classList.toggle('is-off', !on);
+        const b = card.querySelector('.badge');
+        b.className = 'badge ' + (on ? 'badge-ok' : 'badge-draft');
+        b.textContent = on ? 'Afișat' : (form.dirty() ? 'Ascuns după salvare' : 'Ascuns');
+      });
+    })
+  });
 
   /* ---------- jurnal ---------- */
   pages.audit = {

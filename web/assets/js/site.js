@@ -481,8 +481,27 @@
   }
 
   /* ================= Proiecte investiționale ================= */
-  // Rubrica este un card care duce la site-ul separat cu proiectele (nu mai există listă în această pagină).
-  function renderInvestments() {}
+  // Secțiunea are două panouri (video și panorama) care duc la site-ul separat cu proiectele; nu există listă în această pagină.
+  // Titlul secțiunii, textul de pe panouri, adresa site-ului și panourile afișate se editează din administrare (settings.projects);
+  // ce lipsește rămâne cum este în șablon. Aceleași reguli ca în lib/prerender.js (fillProjects).
+  function renderInvestments() {
+    var pr = D.settings.projects || {};
+    var sec = $('#plan-crestere');
+    if (!sec) return;
+    var url = /^https?:\/\//i.test(pr.url || '') ? pr.url : '';
+    if (pr.title) $('#h-plan').textContent = T(pr.title);
+    $$('.inv-film', sec).forEach(function (box) {
+      if (pr.label) box.querySelector('.inv-film-t').textContent = T(pr.label);
+      if (url) box.querySelector('.inv-film-a').setAttribute('href', url);
+      var off = box.id === 'projectsFilm' ? pr.video === false : pr.pano === false;
+      box.hidden = off;
+      var v = box.querySelector('video');
+      if (off && v) { v.preload = 'none'; if (typeof v.pause === 'function') v.pause(); }
+    });
+    var none = pr.video === false && pr.pano === false;
+    sec.hidden = none;
+    $$('a[href="#plan-crestere"]').forEach(function (a) { if (a.parentNode.tagName === 'LI') a.parentNode.hidden = none; });
+  }
 
   // Bannerele animate de sub card: fiecare pornește doar dacă vizitatorul nu a cerut mai puțină mișcare, se oprește cât timp nu se vede
   // și are buton de pauză propriu (animațiile automate mai lungi de 5 secunde trebuie să poată fi oprite).
@@ -494,7 +513,7 @@
     var btn = box.querySelector('.inv-film-btn');
     if (!v || !btn || typeof v.play !== 'function') return;
     var user = reduceMotion(); // true = oprit (de vizitator sau de setarea sistemului)
-    var seen = true;
+    var seen = !box.closest('[hidden]'); // un panou ascuns din administrare nu pornește (și nu descarcă) animația
     function sync() {
       var label = user ? T('Pornește animația') : T('Oprește animația');
       if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);

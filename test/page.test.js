@@ -148,6 +148,51 @@ test('proiectele investiționale: doar bannerul către site-ul dedicat, fără c
   assert.doesNotMatch(site, /invList|gpOverview|renderInvList|#proiect\//);
 });
 
+test('proiectele investiționale: titlul, textul de pe panouri, adresa și panourile afișate se aplică din setări (settings.projects), ca în prerandare', () => {
+  const fn = /function renderInvestments\(\) \{[\s\S]*?\n  \}\n/.exec(site)[0];
+  assert.match(fn, /D\.settings\.projects/);
+  assert.match(fn, /#h-plan/);
+  assert.match(fn, /\.inv-film-t/);
+  assert.match(fn, /\^https\?:/, 'doar adrese web');
+  assert.match(fn, /pr\.video === false/);
+  assert.match(fn, /pr\.pano === false/);
+  assert.match(fn, /a\[href="#plan-crestere"\]/, 'fără panouri dispar și legăturile din meniu și subsol');
+  // un panou ascuns nu pornește animația; între panouri, spațiu doar dacă primul se vede
+  assert.match(site, /var seen = !box\.closest\('\[hidden\]'\)/);
+  assert.match(css, /\.inv-film\[hidden\]\{display:none\}/);
+  assert.match(css, /\.inv-film:not\(\[hidden\]\)\+\.inv-film\{margin-top:1\.25rem\}/);
+});
+
+test('administrare: „Proiecte investiționale” editează panourile secțiunii, nu o listă de proiecte care nu se mai afișează', () => {
+  const adminHtml = read('admin', 'index.html');
+  const pagesJs = read('assets', 'js', 'admin-pages.js');
+  const sys = read('assets', 'js', 'admin-system.js');
+  const schemas = read('assets', 'js', 'admin-schemas.js');
+  assert.match(adminHtml, /<a href="#\/investments" data-page="investments">[\s\S]*?Proiecte investiționale<\/a>/);
+  // lista proiectelor a dispărut din administrare (datele rămân în conținutul salvat)
+  assert.doesNotMatch(pagesJs, /key: 'investments'|Adaugă proiect|ministerul care le promovează/);
+  assert.match(sys, /pages\.investments = settingsPage\(/);
+  for (const k of ['projects.video', 'projects.pano', 'projects.title', 'projects.label', 'projects.url']) assert.ok(sys.includes(`name: '${k}'`), k);
+  // „Texte pagină” nu mai are textele listei de proiecte; traducerile secțiunii sunt doar pe pagina ei
+  assert.doesNotMatch(sys, /growth\./);
+  assert.doesNotMatch(schemas, /'growth\.(intro|note)'/);
+  assert.match(sys, /trFields\('settings', k => k\.indexOf\('projects\.'\) !== 0\)/);
+  assert.match(sys, /trFields\('settings', k => k\.indexOf\('projects\.'\) === 0\)/);
+  // salvarea unei părți din texte nu le șterge pe celelalte
+  assert.match(sys, /mergeSettings\(ADM\.settings, form\.read\(\)\)/);
+  // panoul de control: panourile afișate, nu numărul de proiecte
+  assert.doesNotMatch(sys, /d\.investments|din Planul de creștere/);
+  assert.match(sys, /Panouri „Proiecte investiționale”/);
+  // previzualizările folosesc aceleași fișiere ca pagina publică
+  const imgs = sys.match(/\.\.\/assets\/img\/proiecte-[\w.-]+/g) || [];
+  assert.equal(imgs.length, 2);
+  for (const i of imgs) {
+    const f = i.replace('../', '');
+    assert.ok(fs.existsSync(path.join(WEB, f)), f);
+    assert.ok(html.includes(f), `${f} este folosit și pe pagina publică`);
+  }
+});
+
 test('proiectele investiționale: bannerul animat are titlul ca legătură către site-ul dedicat și buton de pauză', () => {
   const plan = sectionOf('plan-crestere');
   assert.match(plan, /<video class="inv-film-v"[^>]*\bmuted\b[^>]*\bplaysinline\b[^>]*aria-hidden="true"/);

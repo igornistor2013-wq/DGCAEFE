@@ -134,8 +134,9 @@ test('traducerile din administrare: validare, limite și ștergere', () => {
   // listele și câmpurile imbricate
   const ev = sc.events.clean({ title: 'T', start: '2026-02-01', summary: 'S', tr: { en: { details: 'a\n b\n\n', summary: 'Summary' } } }, null);
   assert.deepEqual(ev.tr, { en: { summary: 'Summary', details: ['a', 'b'] } });
-  const st = sc.cleanSettings({ orgName: 'Org', tr: { ru: { 'growth': { intro: 'Введение' }, contact: { address: 'Адрес' } } } });
-  assert.deepEqual(st.tr, { ru: { growth: { intro: 'Введение' }, contact: { address: 'Адрес' } } });
+  const st = sc.cleanSettings({ orgName: 'Org', tr: { ru: { projects: { title: 'Инвестиции' }, growth: { intro: 'Введение' }, contact: { address: 'Адрес' } } } });
+  // textele vechi ale listei de proiecte nu mai au traduceri (nu se mai afișează)
+  assert.deepEqual(st.tr, { ru: { projects: { title: 'Инвестиции' }, contact: { address: 'Адрес' } } });
 });
 
 test('rubrica „Cooperare externă” se editează din administrare, cu traduceri', () => {
