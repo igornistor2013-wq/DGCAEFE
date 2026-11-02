@@ -170,21 +170,18 @@ test('proiectele investiționale: un singur banner, înalt (1920×768), ca să s
   const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
   assert.match(css, /\.inv-film\{[^}]*aspect-ratio:1920\/768;/);
   assert.doesNotMatch(css, /inv-film--b/);
-  // în folder rămân doar fișierele bannerului afișat: AV1 (WebM) și H.264 (MP4), plus imaginea de așteptare
+  // în folder rămân doar fișierele bannerului afișat: un singur video H.264 (MP4) și imaginea de așteptare
   const vids = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'video')).filter(f => f.startsWith('proiecte-investitionale'));
   const imgs = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'img')).filter(f => f.startsWith('proiecte-investitionale'));
-  assert.deepEqual(vids.map(f => path.extname(f)).sort(), ['.mp4', '.webm']);
+  assert.deepEqual(vids.map(f => path.extname(f)), ['.mp4']);
   assert.equal(imgs.length, 1);
-  for (const f of vids) assert.ok(plan.includes('assets/video/' + f), f);
-  assert.ok(plan.includes('assets/img/' + imgs[0]));
+  assert.ok(plan.includes('assets/video/' + vids[0]) && plan.includes('assets/img/' + imgs[0]));
 });
 
-test('proiectele investiționale: AV1 (mai mic, mai curat) este oferit primul, H.264 rămâne pentru browserele fără AV1', () => {
+test('proiectele investiționale: o singură sursă video (H.264, redată de toate browserele) și umbra titlului în CSS', () => {
   const plan = sectionOf('plan-crestere');
-  const webm = /<source src="assets\/video\/proiecte-investitionale-[0-9a-f]{8}\.webm" type="video\/webm; codecs=av01\.[0-9.A-Z]+">/.exec(plan);
-  const mp4 = /<source src="assets\/video\/proiecte-investitionale-[0-9a-f]{8}\.mp4" type="video\/mp4">/.exec(plan);
-  assert.ok(webm && mp4);
-  assert.ok(webm.index < mp4.index, 'AV1 înaintea H.264');
+  assert.equal((plan.match(/<source /g) || []).length, 1);
+  assert.match(plan, /<source src="assets\/video\/proiecte-investitionale-[0-9a-f]{8}\.mp4" type="video\/mp4">/);
   // umbra din spatele titlului este în CSS (colțul din stânga jos), nu în video
   const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
   assert.match(css, /\.inv-film::after\{content:"";position:absolute;left:0;bottom:0;[^}]*radial-gradient\(farthest-side at 0 100%/);
