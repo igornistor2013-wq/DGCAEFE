@@ -174,7 +174,7 @@ test('proiectele investiționale: al doilea banner, sub primul, cu filmarea lui,
   assert.ok(vid && img);
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'video', vid[1])));
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'img', img[1])));
-  assert.match(fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8'), new RegExp('\\.inv-film--b\\{background-image:url\\("\\.\\./img/' + img[1].replace('.', '\\.') + '"\\)\\}'));
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8'), new RegExp('\\.inv-film--b\\{aspect-ratio:1920/768;background-image:url\\("\\.\\./img/' + img[1].replace('.', '\\.') + '"\\)\\}'));
   assert.match(b, /<a class="inv-film-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-film-t">Proiecte investiționale<\/span>/);
   assert.match(b, /<button class="inv-film-btn" id="projectsFilm2Play" type="button" aria-label="Oprește animația"/);
 });
