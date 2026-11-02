@@ -163,14 +163,15 @@ test('proiectele investiționale: bannerul animat are titlul ca legătură cătr
   assert.match(site, /function setupProjectsFilm\(\)[\s\S]*\.inv-film[\s\S]*reduceMotion\(\)[\s\S]*IntersectionObserver/);
 });
 
-test('proiectele investiționale: un singur banner, înalt (1920×768), ca să se vadă și autostrada, și clădirile întregi', () => {
+test('proiectele investiționale: bannerul video înalt (1920×768) și, sub el, panorama; fără alte bannere', () => {
   const plan = sectionOf('plan-crestere');
-  assert.equal(plan.split('<div class="inv-film').length - 1, 1);
+  assert.equal(plan.split('<div class="inv-film').length - 1, 2);
+  assert.match(plan, /<div class="inv-film" id="projectsFilm">[\s\S]*<\/div>\s*<div class="inv-film inv-film--pano" id="projectsPano">/);
   assert.doesNotMatch(plan, /projectsFilm2|inv-film--b/);
   const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
   assert.match(css, /\.inv-film\{[^}]*aspect-ratio:1920\/768;/);
   assert.doesNotMatch(css, /inv-film--b/);
-  // în folder rămân doar fișierele bannerului afișat: un singur video H.264 (MP4) și imaginea de așteptare
+  // în folder rămân doar fișierele bannerului video: un singur MP4 și imaginea lui de așteptare
   const vids = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'video')).filter(f => f.startsWith('proiecte-investitionale'));
   const imgs = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'img')).filter(f => f.startsWith('proiecte-investitionale'));
   assert.deepEqual(vids.map(f => path.extname(f)), ['.mp4']);
@@ -178,9 +179,29 @@ test('proiectele investiționale: un singur banner, înalt (1920×768), ca să s
   assert.ok(plan.includes('assets/video/' + vids[0]) && plan.includes('assets/img/' + imgs[0]));
 });
 
+test('proiectele investiționale: panorama are titlul ca legătură, text alternativ și variante WebP/JPEG pe mărimi', () => {
+  const plan = sectionOf('plan-crestere');
+  const pano = plan.slice(plan.indexOf('id="projectsPano"'));
+  assert.match(pano, /<a class="inv-film-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-film-t">Proiecte investiționale<\/span>/);
+  const alt = /<img class="inv-film-v"[^>]*\balt="([^"]+)"/.exec(pano);
+  assert.ok(alt && alt[1].length <= 100, 'text alternativ de cel mult 100 de caractere');
+  assert.match(pano, /\bloading="lazy"/);
+  const files = [...pano.matchAll(/assets\/img\/(proiecte-panorama-(\d+)-[0-9a-f]{8}\.(webp|jpg))/g)].map(m => m[1]);
+  for (const w of ['1600', '2560', '3840']) for (const ext of ['webp', 'jpg']) assert.ok(files.some(f => f.includes(`-${w}-`) && f.endsWith(ext)), w + ' ' + ext);
+  for (const f of new Set(files)) assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'img', f)), f);
+  // nicio panoramă veche rămasă în folder
+  const all = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'img')).filter(f => f.startsWith('proiecte-panorama'));
+  assert.deepEqual(all.sort(), [...new Set(files)].sort());
+  // pe telefon: panou 2:1, imaginea se plimbă lent, dar nu și dacă vizitatorul a cerut mai puțină mișcare
+  const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
+  assert.match(css, /\.inv-film--pano \.inv-film-v\{animation:inv-pano-pan /);
+  assert.match(css, /prefers-reduced-motion:reduce\)\{\.inv-film--pano \.inv-film-v\{animation:none/);
+});
+
 test('proiectele investiționale: o singură sursă video (H.264, redată de toate browserele) și umbra titlului în CSS', () => {
   const plan = sectionOf('plan-crestere');
-  assert.equal((plan.match(/<source /g) || []).length, 1);
+  const video = plan.slice(plan.indexOf('<video'), plan.indexOf('</video>'));
+  assert.equal((video.match(/<source /g) || []).length, 1);
   assert.match(plan, /<source src="assets\/video\/proiecte-investitionale-[0-9a-f]{8}\.mp4" type="video\/mp4">/);
   // umbra din spatele titlului este în CSS (colțul din stânga jos), nu în video
   const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
