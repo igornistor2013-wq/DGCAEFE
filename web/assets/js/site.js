@@ -508,24 +508,66 @@
   function setupProjectsFilm() {
     $$('.inv-film').forEach(setupFilm);
   }
+  // Filmul are două variante: cea din HTML (<source>, ușoară, 1920×768) și, în atributul data-hq, cea 4K (3840×1536). Varianta 4K se alege doar
+  // pe un ecran mare, cu conexiune bună și procesor cu cel puțin 4 fire; pe telefon, cu „economisire de date” sau cu conexiune lentă
+  // rămâne cea ușoară.
+  function filmWantsHq(box, v) {
+    if (!v.getAttribute('data-hq')) return false;
+    var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (c && (c.saveData || /(^|-)[23]g$/.test(c.effectiveType || '') || (c.downlink && c.downlink < 6))) return false;
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) return false;
+    var w = box.clientWidth || 0;
+    return w >= 900 && w * (window.devicePixelRatio || 1) >= 1100;
+  }
+  // Browserul spune dacă poate reda 4K fără sacadări (MediaCapabilities); fără răspuns sigur rămâne varianta ușoară.
+  function filmCanPlayHq(done) {
+    var mc = navigator.mediaCapabilities;
+    if (!mc || typeof mc.decodingInfo !== 'function') return done(false);
+    try {
+      mc.decodingInfo({ type: 'file', video: { contentType: 'video/mp4; codecs="avc1.640033"', width: 3840, height: 1536, bitrate: 3300000, framerate: 30 } })
+        .then(function (r) { done(!!(r && r.supported && r.smooth)); }, function () { done(false); });
+    } catch (e) { done(false); }
+  }
   function setupFilm(box) {
     var v = box.querySelector('.inv-film-v');
     var btn = box.querySelector('.inv-film-btn');
     if (!v || !btn || typeof v.play !== 'function') return;
     var user = reduceMotion(); // true = oprit (de vizitator sau de setarea sistemului)
-    var seen = !box.closest('[hidden]'); // un panou ascuns din administrare nu pornește (și nu descarcă) animația
+    // pornește abia când panoul ajunge pe ecran (observatorul de mai jos o spune imediat); un panou ascuns din administrare nu pornește
+    // (și nu descarcă) animația
+    var seen = !window.IntersectionObserver && !box.closest('[hidden]');
+    var src = v.querySelector('source');
+    var lite = src ? src.getAttribute('src') : '';
+    var tier = 0, picking = false; // 0 = varianta încă nealeasă, 1 = ușoară, 2 = 4K
+    function pickTier(done) {
+      if (tier) return done();
+      if (picking) return; // alegerea e în curs; ea pornește filmul când se termină
+      picking = true;
+      var go = function (hq) {
+        picking = false;
+        tier = hq ? 2 : 1;
+        if (hq) { src.setAttribute('src', v.getAttribute('data-hq')); v.load(); }
+        done();
+      };
+      if (!src || !filmWantsHq(box, v)) return go(false);
+      filmCanPlayHq(go);
+    }
     function sync() {
       var label = user ? T('Pornește animația') : T('Oprește animația');
       if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
       var use = btn.querySelector('use');
       var icon = user ? '#i-play' : '#i-pause';
       if (use && use.getAttribute('href') !== icon) use.setAttribute('href', icon);
-      if (!user && seen && !document.hidden) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      var active = function () { return !user && seen && !document.hidden; };
+      if (active()) pickTier(function () { if (active()) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } });
       else v.pause();
     }
     btn.hidden = false;
     btn.addEventListener('click', function () { user = !user; sync(); });
-    v.addEventListener('error', function () { btn.hidden = true; }, true);
+    v.addEventListener('error', function () {
+      if (tier === 2) { tier = 1; src.setAttribute('src', lite); v.load(); sync(); return; } // 4K nu s-a putut reda: se revine la varianta ușoară
+      btn.hidden = true;
+    }, true);
     document.addEventListener('visibilitychange', sync);
     if (window.IntersectionObserver) {
       new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { rootMargin: '200px 0px' }).observe(box);

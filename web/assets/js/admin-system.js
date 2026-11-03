@@ -244,7 +244,7 @@
   // colțul din stânga jos duce la site-ul separat cu proiectele. Aici se aleg panourile afișate, titlurile și adresa acelui site.
   // Imaginile de mai jos sunt aceleași fișiere ca pe pagina publică (web/index.html); un test verifică să existe.
   const PROJ_PANELS = [
-    { name: 'video', img: '../assets/img/proiecte-investitionale-38ad95aa.jpg', t: 'Panoul animat (video)', d: 'Filmare cu proiectele de-a lungul autostrăzii; pornește singură și are buton de pauză.' },
+    { name: 'video', img: '../assets/img/proiecte-investitionale-fae8ecde.jpg', t: 'Panoul animat (video)', d: 'Filmare cu proiectele de-a lungul autostrăzii; pornește singură și are buton de pauză.' },
     { name: 'pano', img: '../assets/img/proiecte-panorama-1600-7224854b.jpg', t: 'Panorama (imagine)', d: 'Imagine lată, sub panoul animat; pe telefon se derulează lent stânga-dreapta.' }
   ];
   const PROJ_URL = 'https://proiecte.pages.dev/';

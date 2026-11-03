@@ -2,6 +2,7 @@
 // Structura paginii publice (web/index.html, site.js, site.css): ce a fost mutat sau scos trebuie să rămână așa. Rulează cu: npm test
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -158,7 +159,7 @@ test('proiectele investiționale: titlul, textul de pe panouri, adresa și panou
   assert.match(fn, /pr\.pano === false/);
   assert.match(fn, /a\[href="#plan-crestere"\]/, 'fără panouri dispar și legăturile din meniu și subsol');
   // un panou ascuns nu pornește animația; între panouri, spațiu doar dacă primul se vede
-  assert.match(site, /var seen = !box\.closest\('\[hidden\]'\)/);
+  assert.match(site, /var seen = !window\.IntersectionObserver && !box\.closest\('\[hidden\]'\)/);
   assert.match(css, /\.inv-film\[hidden\]\{display:none\}/);
   assert.match(css, /\.inv-film:not\(\[hidden\]\)\+\.inv-film\{margin-top:1\.25rem\}/);
 });
@@ -200,6 +201,10 @@ test('proiectele investiționale: bannerul animat are titlul ca legătură cătr
   const vid = /<source src="assets\/video\/(proiecte-investitionale-[0-9a-f]{8}\.mp4)" type="video\/mp4">/.exec(plan);
   const img = /poster="assets\/img\/(proiecte-investitionale-[0-9a-f]{8}\.jpg)"/.exec(plan);
   assert.ok(vid && img, 'video și imagine cu amprentă în nume');
+  // varianta 4K a aceluiași film, în atributul data-hq (site.js o alege doar pe ecran mare)
+  const hq = /<video\b[^>]*\bdata-hq="assets\/video\/(proiecte-investitionale-4k-[0-9a-f]{8}\.mp4)"/.exec(plan);
+  assert.ok(hq, 'varianta 4K, cu amprentă în nume, în data-hq');
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'video', hq[1])));
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8'), new RegExp('url\\("\\.\\./img/' + img[1].replace('.', '\\.') + '"\\)'));
   assert.match(plan, /<a class="inv-film-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-film-t">Proiecte investiționale<\/span>/);
   assert.match(plan, /<button class="inv-film-btn" id="projectsFilmPlay" type="button" aria-label="Oprește animația"/);
@@ -216,12 +221,51 @@ test('proiectele investiționale: bannerul video înalt (1920×768) și, sub el,
   const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
   assert.match(css, /\.inv-film\{[^}]*aspect-ratio:1920\/768;/);
   assert.doesNotMatch(css, /inv-film--b/);
-  // în folder rămân doar fișierele bannerului video: un singur MP4 și imaginea lui de așteptare
-  const vids = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'video')).filter(f => f.startsWith('proiecte-investitionale'));
+  // în folder rămân doar fișierele bannerului video: cele două variante MP4 (ușoară și 4K) și imaginea de așteptare
+  const vdir = path.join(__dirname, '..', 'web', 'assets', 'video');
+  const vids = fs.readdirSync(vdir).filter(f => f.startsWith('proiecte-investitionale'));
   const imgs = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'img')).filter(f => f.startsWith('proiecte-investitionale'));
-  assert.deepEqual(vids.map(f => path.extname(f)), ['.mp4']);
+  assert.equal(vids.length, 2);
+  assert.ok(vids.every(f => f.endsWith('.mp4')));
   assert.equal(imgs.length, 1);
-  assert.ok(plan.includes('assets/video/' + vids[0]) && plan.includes('assets/img/' + imgs[0]));
+  assert.ok(vids.every(f => plan.includes('assets/video/' + f)) && plan.includes('assets/img/' + imgs[0]));
+  // mărimile: 4K sub 25 MB (limita pentru fișierele încărcate din interfața web GitHub), varianta ușoară cât mai mică
+  const size = f => fs.statSync(path.join(vdir, f)).size;
+  const big = vids.find(f => f.startsWith('proiecte-investitionale-4k-')), lite = vids.find(f => f !== big);
+  assert.ok(big && lite, 'o variantă 4K și una ușoară');
+  assert.ok(size(big) < 25 * 1024 * 1024, '4K sub 25 MB');
+  assert.ok(size(lite) < 15 * 1024 * 1024, 'varianta ușoară sub 15 MB');
+});
+
+test('proiectele investiționale: varianta 4K a filmului se alege doar pe ecran mare, cu conexiune bună; altfel rămâne cea ușoară', () => {
+  // aceeași funcție ca în site.js, rulată cu un browser simulat
+  const m = /  function filmWantsHq\(box, v\) \{[\s\S]*?\n  \}\n/.exec(site);
+  assert.ok(m, 'funcția filmWantsHq există');
+  const wants = (width, { dpr = 1, nav = {}, hq = 'assets/video/x.mp4' } = {}) => {
+    const ctx = vm.createContext({ navigator: nav, window: { devicePixelRatio: dpr } });
+    vm.runInContext(m[0], ctx);
+    return ctx.filmWantsHq({ clientWidth: width }, { getAttribute: n => (n === 'data-hq' ? hq : null) });
+  };
+  assert.equal(wants(1382), true, 'monitor Full HD: panou de 1382 px');
+  assert.equal(wants(1664), true, 'monitor mare');
+  assert.equal(wants(1142), true, 'laptop de 1366 px');
+  assert.equal(wants(976, { dpr: 2 }), true, 'tabletă în poziție orizontală');
+  assert.equal(wants(1664, { nav: { hardwareConcurrency: 8, connection: { effectiveType: '4g', downlink: 10 } } }), true);
+  assert.equal(wants(976), false, 'ecran de 1024 px: panoul are sub 1100 px');
+  assert.equal(wants(772, { dpr: 2 }), false, 'tabletă în poziție verticală');
+  assert.equal(wants(358), false, 'telefon');
+  assert.equal(wants(358, { dpr: 3 }), false, 'telefon cu ecran dens: contează lățimea panoului, nu pixelii fizici');
+  assert.equal(wants(880, { dpr: 3 }), false, 'telefon în poziție orizontală');
+  assert.equal(wants(1664, { nav: { connection: { saveData: true } } }), false, '„economisire de date”');
+  assert.equal(wants(1664, { nav: { connection: { effectiveType: '3g' } } }), false, 'conexiune lentă');
+  assert.equal(wants(1664, { nav: { connection: { effectiveType: 'slow-2g' } } }), false);
+  assert.equal(wants(1664, { nav: { connection: { effectiveType: '4g', downlink: 2.5 } } }), false, 'viteză estimată mică');
+  assert.equal(wants(1664, { nav: { hardwareConcurrency: 2 } }), false, 'procesor slab');
+  assert.equal(wants(1664, { hq: '' }), false, 'fără varianta 4K în pagină rămâne varianta din HTML');
+  // restul logicii: alegerea se face când panoul ajunge pe ecran, browserul trebuie să confirme redarea fără sacadări, iar la eroare se revine
+  assert.match(site, /var seen = !window\.IntersectionObserver && !box\.closest\('\[hidden\]'\)/);
+  assert.match(site, /navigator\.mediaCapabilities[\s\S]*decodingInfo\([\s\S]*r\.supported && r\.smooth/);
+  assert.match(site, /if \(tier === 2\) \{ tier = 1; src\.setAttribute\('src', lite\); v\.load\(\)/);
 });
 
 test('proiectele investiționale: panorama are titlul ca legătură, text alternativ și variante WebP/JPEG pe mărimi', () => {
@@ -243,7 +287,7 @@ test('proiectele investiționale: panorama are titlul ca legătură, text altern
   assert.match(css, /prefers-reduced-motion:reduce\)\{\.inv-film--pano \.inv-film-v\{animation:none/);
 });
 
-test('proiectele investiționale: o singură sursă video (H.264, redată de toate browserele) și umbra titlului în CSS', () => {
+test('proiectele investiționale: o singură sursă video în HTML (H.264, redată de toate browserele; 4K în data-hq) și umbra titlului în CSS', () => {
   const plan = sectionOf('plan-crestere');
   const video = plan.slice(plan.indexOf('<video'), plan.indexOf('</video>'));
   assert.equal((video.match(/<source /g) || []).length, 1);
