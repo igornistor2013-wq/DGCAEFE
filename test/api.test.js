@@ -105,8 +105,8 @@ test('conținutul public inițial este complet', async () => {
   const d = r.data;
   assert.equal(d.programs.length, 5);
   assert.equal(d.legal.length, 16);
-  assert.ok(!('investments' in d), 'lista proiectelor nu se mai trimite (pagina are doar panourile către site-ul cu proiecte)');
-  assert.deepEqual(d.settings.projects, { title: 'Proiecte investiționale', label: 'Proiecte investiționale', url: 'https://proiecte.pages.dev/', video: true, pano: true });
+  assert.ok(!('investments' in d), 'lista proiectelor nu se mai trimite (pagina are doar panoul către site-ul cu proiecte)');
+  assert.deepEqual(d.settings.projects, { title: 'Proiecte investiționale', label: 'Proiecte investiționale', url: 'https://proiecte.pages.dev/', pano: true });
   assert.equal(d.events.length, 6);
   assert.equal(d.documents.length, 43);
   assert.equal(d.gallery.length, 6);

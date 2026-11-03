@@ -46,13 +46,13 @@
       const [, audit, settings] = await Promise.all([ADM.load('news', 'documents', 'gallery', 'events', 'legal', 'programs'), ADM.get('/api/admin/audit').catch(() => []), ADM.get('/api/admin/settings').catch(() => ADM.settings || {})]);
       const d = ADM.data;
       const pr = (settings && settings.projects) || {};
-      const panels = (pr.video !== false ? 1 : 0) + (pr.pano !== false ? 1 : 0);
-      const panelNote = panels === 2 ? 'video și panoramă, cu legătura către site-ul cu proiecte' : panels ? (pr.video !== false ? 'doar panoul video' : 'doar panorama') : 'secțiunea este ascunsă';
+      const panels = pr.pano !== false ? 1 : 0;
+      const panelNote = panels ? 'panorama, cu legătura către site-ul cu proiecte' : 'secțiunea este ascunsă';
       const drafts = d.news.filter(n => n.published === false).length;
       const sample = d.gallery.filter(g => g.sample).length;
       const stat = (href, n, label, note) => '<a class="stat" href="' + href + '"><span class="n">' + n + '</span><span class="l">' + label + '</span><span class="d">' + note + '</span></a>';
       root.innerHTML =
-        '<div class="page-head"><div><h1>Panou de control</h1><p class="sub">Bun venit, ' + esc(ADM.user) + '. De aici administrați conținutul paginii publice: știri, documente, fotografii, evenimente, panourile „Proiecte investiționale” și textele paginii.</p></div>' +
+        '<div class="page-head"><div><h1>Panou de control</h1><p class="sub">Bun venit, ' + esc(ADM.user) + '. De aici administrați conținutul paginii publice: știri, documente, fotografii, evenimente, panoul „Proiecte investiționale” și textele paginii.</p></div>' +
         '<div class="acts"><a class="btn btn-line" href="../" target="_blank" rel="noopener">' + ico('ext') + 'Deschide pagina publică</a></div></div>' +
         (sample ? '<div class="alert alert-warn">' + ico('alert') + '<div><strong>Galeria conține ' + ADM.plural(sample, 'imagine de exemplu', 'imagini de exemplu') + '.</strong> Ștergeți-le după ce încărcați fotografiile reale, ca să nu apară vizitatorilor.</div><a class="btn btn-line btn-sm" href="#/gallery">Deschide galeria</a></div>' : '') +
         '<div class="stats">' +
@@ -61,7 +61,7 @@
         stat('#/gallery', d.gallery.length, 'Fotografii', 'în galeria foto') +
         stat('#/events', d.events.length, 'Evenimente', 'anunțate pe pagină') +
         stat('#/legal', d.legal.length, 'Acte normative', 'în cadrul legal') +
-        stat('#/investments', panels, 'Panouri „Proiecte investiționale”', panelNote) +
+        stat('#/investments', panels, 'Panou „Proiecte investiționale”', panelNote) +
         '</div><div class="two"><div>' +
         '<section class="panel"><div class="panel-h"><h2>Acțiuni rapide</h2></div><div class="panel-b"><div class="quick-acts">' +
         '<a class="btn btn-primary" href="#/news/new">' + ico('plus') + 'Adaugă știre</a>' +
@@ -240,41 +240,39 @@
   });
 
   /* ---------- proiecte investiționale ---------- */
-  // Secțiunea de pe pagina publică (meniul „Investiții”) are două panouri late: animația video și panorama. Pe fiecare, titlul din
-  // colțul din stânga jos duce la site-ul separat cu proiectele. Aici se aleg panourile afișate, titlurile și adresa acelui site.
-  // Imaginile de mai jos sunt aceleași fișiere ca pe pagina publică (web/index.html); un test verifică să existe.
+  // Secțiunea de pe pagina publică (meniul „Investiții”) are un singur panou lat, panorama; titlul din colțul din stânga jos duce
+  // la site-ul separat cu proiectele. Aici se alege dacă panoul se afișează, titlul secțiunii, textul de pe panou și adresa acelui site.
+  // Imaginea de mai jos este același fișier ca pe pagina publică (web/index.html); un test verifică să existe.
   const PROJ_PANELS = [
-    { name: 'video', img: '../assets/img/proiecte-investitionale-fae8ecde.jpg', t: 'Panoul animat (video)', d: 'Filmare cu proiectele de-a lungul autostrăzii; pornește singură și are buton de pauză.' },
-    { name: 'pano', img: '../assets/img/proiecte-panorama-1600-7224854b.jpg', t: 'Panorama (imagine)', d: 'Imagine lată, sub panoul animat; pe telefon se derulează lent stânga-dreapta.' }
+    { name: 'pano', img: '../assets/img/proiecte-panorama-1600-7224854b.jpg', t: 'Panorama (imagine)', d: 'Imagine lată cu proiectele de-a lungul autostrăzii; pe telefon se derulează lent stânga-dreapta.' }
   ];
   const PROJ_URL = 'https://proiecte.pages.dev/';
   pages.investments = settingsPage({
     key: 'prj',
     title: 'Proiecte investiționale',
     toast: 'Secțiunea „Proiecte investiționale” a fost salvată.',
-    sub: () => 'Secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”): un panou animat și o panoramă, fiecare cu titlul în colțul din stânga jos. Apăsarea titlului deschide site-ul cu proiectele investiționale într-o filă nouă. Lista proiectelor nu se mai afișează în această pagină; ea este pe site-ul cu proiecte.',
+    sub: () => 'Secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”): o panoramă, cu titlul în colțul din stânga jos. Apăsarea titlului deschide site-ul cu proiectele investiționale într-o filă nouă. Lista proiectelor nu se mai afișează în această pagină; ea este pe site-ul cu proiecte.',
     acts: '<a class="btn btn-line" href="../#plan-crestere" target="_blank" rel="noopener">' + ico('ext') + 'Vezi secțiunea pe pagină</a>',
     top: s => {
       const pr = s.projects || {};
-      return '<section class="panel"><div class="panel-h"><h2>Panourile de pe pagină</h2></div><div class="panel-b"><div class="proj-prev">' +
+      return '<section class="panel"><div class="panel-h"><h2>Panoul de pe pagină</h2></div><div class="panel-b"><div class="proj-prev">' +
         PROJ_PANELS.map(p => {
           const on = pr[p.name] !== false;
           return '<figure class="proj-card' + (on ? '' : ' is-off') + '" data-panel="' + p.name + '"><img src="' + p.img + '" alt="" loading="lazy" decoding="async">' +
             '<figcaption><strong>' + esc(p.t) + '</strong> <span class="badge ' + (on ? 'badge-ok">Afișat' : 'badge-draft">Ascuns') + '</span><span class="muted">' + esc(p.d) + '</span></figcaption></figure>';
         }).join('') + '</div></div></section>';
     },
-    // panourile lipsă din textele salvate înseamnă „afișat” (ca pe pagina publică)
-    values: s => mergeSettings(s, { projects: { video: (s.projects || {}).video !== false, pano: (s.projects || {}).pano !== false } }),
+    // panoul lipsă din textele salvate înseamnă „afișat” (ca pe pagina publică)
+    values: s => mergeSettings(s, { projects: { pano: (s.projects || {}).pano !== false } }),
     fields: () => [
-      { type: 'heading', label: 'Panourile afișate', hint: 'Dacă debifați ambele panouri, secțiunea dispare de pe pagină, împreună cu legăturile „Investiții” din meniu și din subsol.' },
-      { name: 'projects.video', label: 'Afișează panoul animat (video)', type: 'checkbox', w: 'half' },
-      { name: 'projects.pano', label: 'Afișează panorama (imaginea)', type: 'checkbox', w: 'half' },
+      { type: 'heading', label: 'Panoul afișat', hint: 'Dacă debifați panorama, secțiunea dispare de pe pagină, împreună cu legăturile „Investiții” din meniu și din subsol.' },
+      { name: 'projects.pano', label: 'Afișează panorama (imaginea)', type: 'checkbox' },
       { type: 'heading', label: 'Texte și legătură' },
-      { name: 'projects.title', label: 'Titlul secțiunii', type: 'text', max: 120, w: 'half', placeholder: 'Proiecte investiționale', hint: 'Titlul de deasupra panourilor. Gol = „Proiecte investiționale”.' },
-      { name: 'projects.label', label: 'Textul de pe panouri', type: 'text', max: 60, w: 'half', placeholder: 'Proiecte investiționale', hint: 'Apare în colțul din stânga jos al fiecărui panou. Gol = „Proiecte investiționale”.' },
-      { name: 'projects.url', label: 'Adresa site-ului cu proiectele', type: 'url', max: 1000, placeholder: PROJ_URL, hint: 'Se deschide la apăsarea textului de pe panouri. Gol = ' + PROJ_URL }
+      { name: 'projects.title', label: 'Titlul secțiunii', type: 'text', max: 120, w: 'half', placeholder: 'Proiecte investiționale', hint: 'Titlul de deasupra panoului. Gol = „Proiecte investiționale”.' },
+      { name: 'projects.label', label: 'Textul de pe panou', type: 'text', max: 60, w: 'half', placeholder: 'Proiecte investiționale', hint: 'Apare în colțul din stânga jos al panoului. Gol = „Proiecte investiționale”.' },
+      { name: 'projects.url', label: 'Adresa site-ului cu proiectele', type: 'url', max: 1000, placeholder: PROJ_URL, hint: 'Se deschide la apăsarea textului de pe panou. Gol = ' + PROJ_URL }
     ].concat(ADM.trFields('settings', k => k.indexOf('projects.') === 0)),
-    // previzualizarea arată imediat ce panouri rămân pe pagină
+    // previzualizarea arată imediat dacă panoul rămâne pe pagină
     wire: (form, root) => form.el.addEventListener('change', () => {
       const v = (form.read().projects) || {};
       PROJ_PANELS.forEach(p => {

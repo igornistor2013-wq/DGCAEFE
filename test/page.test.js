@@ -2,7 +2,6 @@
 // Structura paginii publice (web/index.html, site.js, site.css): ce a fost mutat sau scos trebuie să rămână așa. Rulează cu: npm test
 const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -141,30 +140,28 @@ test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documen
   assert.match(site, /addEventListener\('beforeprint'[\s\S]*PRINT_ALL\.forEach[\s\S]*addEventListener\('afterprint'/);
 });
 
-test('proiectele investiționale: doar bannerul către site-ul dedicat, fără card și fără listă în pagină', () => {
+test('proiectele investiționale: doar panorama, cu titlul ca legătură către site-ul dedicat, fără card și fără listă în pagină', () => {
   const plan = sectionOf('plan-crestere');
   assert.doesNotMatch(plan, /projectsCard|class="amp /);
-  assert.match(plan, /<\/header>\s*<div class="inv-film" id="projectsFilm">/);
+  assert.match(plan, /<\/header>\s*<div class="inv-pano" id="projectsPano">/);
+  assert.equal(plan.split('<div class="inv-pano').length - 1, 1, 'un singur panou în secțiune');
   assert.doesNotMatch(plan, /invList|invQ|gpOverview|invStat/);
   assert.doesNotMatch(site, /invList|gpOverview|renderInvList|#proiect\//);
 });
 
-test('proiectele investiționale: titlul, textul de pe panouri, adresa și panourile afișate se aplică din setări (settings.projects), ca în prerandare', () => {
+test('proiectele investiționale: titlul, textul de pe panou, adresa și afișarea panoului se aplică din setări (settings.projects), ca în prerandare', () => {
   const fn = /function renderInvestments\(\) \{[\s\S]*?\n  \}\n/.exec(site)[0];
   assert.match(fn, /D\.settings\.projects/);
   assert.match(fn, /#h-plan/);
-  assert.match(fn, /\.inv-film-t/);
+  assert.match(fn, /\.inv-pano-t/);
   assert.match(fn, /\^https\?:/, 'doar adrese web');
-  assert.match(fn, /pr\.video === false/);
   assert.match(fn, /pr\.pano === false/);
-  assert.match(fn, /a\[href="#plan-crestere"\]/, 'fără panouri dispar și legăturile din meniu și subsol');
-  // un panou ascuns nu pornește animația; între panouri, spațiu doar dacă primul se vede
-  assert.match(site, /var seen = !window\.IntersectionObserver && !box\.closest\('\[hidden\]'\)/);
-  assert.match(css, /\.inv-film\[hidden\]\{display:none\}/);
-  assert.match(css, /\.inv-film:not\(\[hidden\]\)\+\.inv-film\{margin-top:1\.25rem\}/);
+  assert.doesNotMatch(fn, /pr\.video/, 'panoul video a fost scos');
+  assert.match(fn, /a\[href="#plan-crestere"\]/, 'fără panou dispar și legăturile din meniu și subsol');
+  assert.match(css, /\.inv-pano\[hidden\]\{display:none\}/);
 });
 
-test('administrare: „Proiecte investiționale” editează panourile secțiunii, nu o listă de proiecte care nu se mai afișează', () => {
+test('administrare: „Proiecte investiționale” editează panoul secțiunii, nu o listă de proiecte care nu se mai afișează', () => {
   const adminHtml = read('admin', 'index.html');
   const pagesJs = read('assets', 'js', 'admin-pages.js');
   const sys = read('assets', 'js', 'admin-system.js');
@@ -173,7 +170,8 @@ test('administrare: „Proiecte investiționale” editează panourile secțiuni
   // lista proiectelor a dispărut din administrare (datele rămân în conținutul salvat)
   assert.doesNotMatch(pagesJs, /key: 'investments'|Adaugă proiect|ministerul care le promovează/);
   assert.match(sys, /pages\.investments = settingsPage\(/);
-  for (const k of ['projects.video', 'projects.pano', 'projects.title', 'projects.label', 'projects.url']) assert.ok(sys.includes(`name: '${k}'`), k);
+  for (const k of ['projects.pano', 'projects.title', 'projects.label', 'projects.url']) assert.ok(sys.includes(`name: '${k}'`), k);
+  assert.ok(!sys.includes("name: 'projects.video'"), 'bifa pentru video a dispărut odată cu video-ul');
   // „Texte pagină” nu mai are textele listei de proiecte; traducerile secțiunii sunt doar pe pagina ei
   assert.doesNotMatch(sys, /growth\./);
   assert.doesNotMatch(schemas, /'growth\.(intro|note)'/);
@@ -181,12 +179,12 @@ test('administrare: „Proiecte investiționale” editează panourile secțiuni
   assert.match(sys, /trFields\('settings', k => k\.indexOf\('projects\.'\) === 0\)/);
   // salvarea unei părți din texte nu le șterge pe celelalte
   assert.match(sys, /mergeSettings\(ADM\.settings, form\.read\(\)\)/);
-  // panoul de control: panourile afișate, nu numărul de proiecte
+  // panoul de control: panoul afișat, nu numărul de proiecte
   assert.doesNotMatch(sys, /d\.investments|din Planul de creștere/);
-  assert.match(sys, /Panouri „Proiecte investiționale”/);
-  // previzualizările folosesc aceleași fișiere ca pagina publică
+  assert.match(sys, /Panou „Proiecte investiționale”/);
+  // previzualizarea folosește același fișier ca pagina publică
   const imgs = sys.match(/\.\.\/assets\/img\/proiecte-[\w.-]+/g) || [];
-  assert.equal(imgs.length, 2);
+  assert.equal(imgs.length, 1);
   for (const i of imgs) {
     const f = i.replace('../', '');
     assert.ok(fs.existsSync(path.join(WEB, f)), f);
@@ -194,107 +192,40 @@ test('administrare: „Proiecte investiționale” editează panourile secțiuni
   }
 });
 
-test('proiectele investiționale: bannerul animat are titlul ca legătură către site-ul dedicat și buton de pauză', () => {
-  const plan = sectionOf('plan-crestere');
-  assert.match(plan, /<video class="inv-film-v"[^>]*\bmuted\b[^>]*\bplaysinline\b[^>]*aria-hidden="true"/);
-  // numele fișierelor conțin o amprentă a conținutului: o versiune nouă are alt nume, deci browserul nu arată copia veche (assets se păstrează 7 zile)
-  const vid = /<source src="assets\/video\/(proiecte-investitionale-[0-9a-f]{8}\.mp4)" type="video\/mp4">/.exec(plan);
-  const img = /poster="assets\/img\/(proiecte-investitionale-[0-9a-f]{8}\.jpg)"/.exec(plan);
-  assert.ok(vid && img, 'video și imagine cu amprentă în nume');
-  // varianta 4K a aceluiași film, în atributul data-hq (site.js o alege doar pe ecran mare)
-  const hq = /<video\b[^>]*\bdata-hq="assets\/video\/(proiecte-investitionale-4k-[0-9a-f]{8}\.mp4)"/.exec(plan);
-  assert.ok(hq, 'varianta 4K, cu amprentă în nume, în data-hq');
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'video', hq[1])));
-  assert.match(fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8'), new RegExp('url\\("\\.\\./img/' + img[1].replace('.', '\\.') + '"\\)'));
-  assert.match(plan, /<a class="inv-film-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-film-t">Proiecte investiționale<\/span>/);
-  assert.match(plan, /<button class="inv-film-btn" id="projectsFilmPlay" type="button" aria-label="Oprește animația"/);
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'video', vid[1])));
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'img', img[1])));
-  assert.match(site, /function setupProjectsFilm\(\)[\s\S]*\.inv-film[\s\S]*reduceMotion\(\)[\s\S]*IntersectionObserver/);
-});
-
-test('proiectele investiționale: bannerul video înalt (1920×768) și, sub el, panorama; fără alte bannere', () => {
-  const plan = sectionOf('plan-crestere');
-  assert.equal(plan.split('<div class="inv-film').length - 1, 2);
-  assert.match(plan, /<div class="inv-film" id="projectsFilm">[\s\S]*<\/div>\s*<div class="inv-film inv-film--pano" id="projectsPano">/);
-  assert.doesNotMatch(plan, /projectsFilm2|inv-film--b/);
-  const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
-  assert.match(css, /\.inv-film\{[^}]*aspect-ratio:1920\/768;/);
-  assert.doesNotMatch(css, /inv-film--b/);
-  // în folder rămân doar fișierele bannerului video: cele două variante MP4 (ușoară și 4K) și imaginea de așteptare
-  const vdir = path.join(__dirname, '..', 'web', 'assets', 'video');
-  const vids = fs.readdirSync(vdir).filter(f => f.startsWith('proiecte-investitionale'));
-  const imgs = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'img')).filter(f => f.startsWith('proiecte-investitionale'));
-  assert.equal(vids.length, 2);
-  assert.ok(vids.every(f => f.endsWith('.mp4')));
-  assert.equal(imgs.length, 1);
-  assert.ok(vids.every(f => plan.includes('assets/video/' + f)) && plan.includes('assets/img/' + imgs[0]));
-  // mărimile: 4K sub 25 MB (limita pentru fișierele încărcate din interfața web GitHub), varianta ușoară cât mai mică
-  const size = f => fs.statSync(path.join(vdir, f)).size;
-  const big = vids.find(f => f.startsWith('proiecte-investitionale-4k-')), lite = vids.find(f => f !== big);
-  assert.ok(big && lite, 'o variantă 4K și una ușoară');
-  assert.ok(size(big) < 25 * 1024 * 1024, '4K sub 25 MB');
-  assert.ok(size(lite) < 15 * 1024 * 1024, 'varianta ușoară sub 15 MB');
-});
-
-test('proiectele investiționale: varianta 4K a filmului se alege doar pe ecran mare, cu conexiune bună; altfel rămâne cea ușoară', () => {
-  // aceeași funcție ca în site.js, rulată cu un browser simulat
-  const m = /  function filmWantsHq\(box, v\) \{[\s\S]*?\n  \}\n/.exec(site);
-  assert.ok(m, 'funcția filmWantsHq există');
-  const wants = (width, { dpr = 1, nav = {}, hq = 'assets/video/x.mp4' } = {}) => {
-    const ctx = vm.createContext({ navigator: nav, window: { devicePixelRatio: dpr } });
-    vm.runInContext(m[0], ctx);
-    return ctx.filmWantsHq({ clientWidth: width }, { getAttribute: n => (n === 'data-hq' ? hq : null) });
-  };
-  assert.equal(wants(1382), true, 'monitor Full HD: panou de 1382 px');
-  assert.equal(wants(1664), true, 'monitor mare');
-  assert.equal(wants(1142), true, 'laptop de 1366 px');
-  assert.equal(wants(976, { dpr: 2 }), true, 'tabletă în poziție orizontală');
-  assert.equal(wants(1664, { nav: { hardwareConcurrency: 8, connection: { effectiveType: '4g', downlink: 10 } } }), true);
-  assert.equal(wants(976), false, 'ecran de 1024 px: panoul are sub 1100 px');
-  assert.equal(wants(772, { dpr: 2 }), false, 'tabletă în poziție verticală');
-  assert.equal(wants(358), false, 'telefon');
-  assert.equal(wants(358, { dpr: 3 }), false, 'telefon cu ecran dens: contează lățimea panoului, nu pixelii fizici');
-  assert.equal(wants(880, { dpr: 3 }), false, 'telefon în poziție orizontală');
-  assert.equal(wants(1664, { nav: { connection: { saveData: true } } }), false, '„economisire de date”');
-  assert.equal(wants(1664, { nav: { connection: { effectiveType: '3g' } } }), false, 'conexiune lentă');
-  assert.equal(wants(1664, { nav: { connection: { effectiveType: 'slow-2g' } } }), false);
-  assert.equal(wants(1664, { nav: { connection: { effectiveType: '4g', downlink: 2.5 } } }), false, 'viteză estimată mică');
-  assert.equal(wants(1664, { nav: { hardwareConcurrency: 2 } }), false, 'procesor slab');
-  assert.equal(wants(1664, { hq: '' }), false, 'fără varianta 4K în pagină rămâne varianta din HTML');
-  // restul logicii: alegerea se face când panoul ajunge pe ecran, browserul trebuie să confirme redarea fără sacadări, iar la eroare se revine
-  assert.match(site, /var seen = !window\.IntersectionObserver && !box\.closest\('\[hidden\]'\)/);
-  assert.match(site, /navigator\.mediaCapabilities[\s\S]*decodingInfo\([\s\S]*r\.supported && r\.smooth/);
-  assert.match(site, /if \(tier === 2\) \{ tier = 1; src\.setAttribute\('src', lite\); v\.load\(\)/);
+test('proiectele investiționale: video-ul a fost scos (fără element <video>, fără fișiere filmate, fără cod de redare)', () => {
+  assert.doesNotMatch(html, /<video\b|<source\b[^>]*video\/|assets\/video\/|projectsFilm|inv-film/);
+  assert.doesNotMatch(css, /inv-film|proiecte-investitionale-/);
+  assert.doesNotMatch(site, /setupProjectsFilm|setupFilm|filmWantsHq|filmCanPlayHq|projectsFilm|inv-film|mediaCapabilities/);
+  const vdir = path.join(WEB, 'assets', 'video');
+  assert.ok(!fs.existsSync(vdir) || fs.readdirSync(vdir).length === 0, 'niciun fișier video în web/assets/video');
+  assert.deepEqual(fs.readdirSync(path.join(WEB, 'assets', 'img')).filter(f => f.startsWith('proiecte-investitionale')), [], 'nicio imagine de așteptare a filmului');
+  assert.doesNotMatch(read('assets', 'js', 'admin-system.js'), /projects\.video|Panoul animat|proiecte-investitionale-/);
+  assert.doesNotMatch(read('assets', 'js', 'admin-schemas.js'), /pr\.video/);
 });
 
 test('proiectele investiționale: panorama are titlul ca legătură, text alternativ și variante WebP/JPEG pe mărimi', () => {
   const plan = sectionOf('plan-crestere');
   const pano = plan.slice(plan.indexOf('id="projectsPano"'));
-  assert.match(pano, /<a class="inv-film-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-film-t">Proiecte investiționale<\/span>/);
-  const alt = /<img class="inv-film-v"[^>]*\balt="([^"]+)"/.exec(pano);
+  assert.match(pano, /<a class="inv-pano-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-pano-t">Proiecte investiționale<\/span>/);
+  assert.match(pano, /<span class="sr">\(se deschide site-ul cu proiectele într-o filă nouă\)<\/span>/);
+  const alt = /<img class="inv-pano-img"[^>]*\balt="([^"]+)"/.exec(pano);
   assert.ok(alt && alt[1].length <= 100, 'text alternativ de cel mult 100 de caractere');
   assert.match(pano, /\bloading="lazy"/);
   const files = [...pano.matchAll(/assets\/img\/(proiecte-panorama-(\d+)-[0-9a-f]{8}\.(webp|jpg))/g)].map(m => m[1]);
   for (const w of ['1600', '2560', '3840']) for (const ext of ['webp', 'jpg']) assert.ok(files.some(f => f.includes(`-${w}-`) && f.endsWith(ext)), w + ' ' + ext);
-  for (const f of new Set(files)) assert.ok(fs.existsSync(path.join(__dirname, '..', 'web', 'assets', 'img', f)), f);
+  for (const f of new Set(files)) assert.ok(fs.existsSync(path.join(WEB, 'assets', 'img', f)), f);
   // nicio panoramă veche rămasă în folder
-  const all = fs.readdirSync(path.join(__dirname, '..', 'web', 'assets', 'img')).filter(f => f.startsWith('proiecte-panorama'));
+  const all = fs.readdirSync(path.join(WEB, 'assets', 'img')).filter(f => f.startsWith('proiecte-panorama'));
   assert.deepEqual(all.sort(), [...new Set(files)].sort());
   // pe telefon: panou 2:1, imaginea se plimbă lent, dar nu și dacă vizitatorul a cerut mai puțină mișcare
-  const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
-  assert.match(css, /\.inv-film--pano \.inv-film-v\{animation:inv-pano-pan /);
-  assert.match(css, /prefers-reduced-motion:reduce\)\{\.inv-film--pano \.inv-film-v\{animation:none/);
+  assert.match(css, /\.inv-pano-img\{animation:inv-pano-pan /);
+  assert.match(css, /prefers-reduced-motion:reduce\)\{\.inv-pano-img\{animation:none/);
+  assert.match(css, /@media \(max-width:820px\)\{\s*\.inv-pano\{aspect-ratio:2\/1;/);
 });
 
-test('proiectele investiționale: o singură sursă video în HTML (H.264, redată de toate browserele; 4K în data-hq) și umbra titlului în CSS', () => {
-  const plan = sectionOf('plan-crestere');
-  const video = plan.slice(plan.indexOf('<video'), plan.indexOf('</video>'));
-  assert.equal((video.match(/<source /g) || []).length, 1);
-  assert.match(plan, /<source src="assets\/video\/proiecte-investitionale-[0-9a-f]{8}\.mp4" type="video\/mp4">/);
-  // umbra din spatele titlului este în CSS (colțul din stânga jos), nu în video
-  const css = fs.readFileSync(path.join(__dirname, '..', 'web', 'assets', 'css', 'site.css'), 'utf8');
-  assert.match(css, /\.inv-film::after\{content:"";position:absolute;left:0;bottom:0;[^}]*radial-gradient\(farthest-side at 0 100%/);
+test('proiectele investiționale: panoul are raportul imaginii (3840/679), iar umbra din spatele titlului este în CSS, nu în imagine', () => {
+  assert.match(css, /\.inv-pano\{[^}]*aspect-ratio:3840\/679;/);
+  assert.match(css, /\.inv-pano::after\{content:"";position:absolute;left:0;bottom:0;[^}]*radial-gradient\(farthest-side at 0 100%/);
 });
 
 test('textul nu mai este strâns în partea stângă: nicio limită de lățime pe textele secțiunilor', () => {

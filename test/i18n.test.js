@@ -108,7 +108,7 @@ test('buildPublic: aceleași date, în fiecare limbă; câmpurile de logică ră
   assert.match(en.settings.orgName, /^General Directorate/);
   assert.deepEqual(ru.programs.map(p => p.id), ro.programs.map(p => p.id));
   assert.deepEqual(ru.settings.projects.url, ro.settings.projects.url);
-  assert.deepEqual([ru.settings.projects.video, ru.settings.projects.pano], [ro.settings.projects.video, ro.settings.projects.pano]);
+  assert.equal(ru.settings.projects.pano, ro.settings.projects.pano);
   assert.deepEqual(en.documents.map(d => d.section), ro.documents.map(d => d.section));
   assert.deepEqual(ru.news.map(n => n.date), ro.news.map(n => n.date));
 });

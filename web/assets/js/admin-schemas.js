@@ -102,7 +102,7 @@
     settings: {
       orgName: { label: 'Denumirea direcției', max: 200 }, parentName: { label: 'Instituția-părinte', max: 200 }, heroTitle: { label: 'Titlul din prima pagină', max: 160 },
       heroLead: { label: 'Text de prezentare', max: 800 }, aboutP1: { label: 'Despre direcție, primul paragraf', max: 1200 }, aboutP2: { label: 'Despre direcție, al doilea paragraf', max: 1200 },
-      'projects.title': { label: 'Proiecte investiționale, titlul secțiunii', max: 120 }, 'projects.label': { label: 'Proiecte investiționale, textul de pe panouri', max: 60 },
+      'projects.title': { label: 'Proiecte investiționale, titlul secțiunii', max: 120 }, 'projects.label': { label: 'Proiecte investiționale, textul de pe panou', max: 60 },
       'coop.title': { label: 'Cooperare externă, titlul secțiunii', max: 120 }, 'coop.acordTitle': { label: 'Acordul cu România, titlul cardului', max: 160 },
       'coop.acordAmount': { label: 'Acordul cu România, suma', max: 60 }, 'coop.acordIntro': { label: 'Acordul cu România, descrierea', max: 800 },
       'coop.ampTitle': { label: 'Platforma AMP, titlul cardului', max: 200 }, 'coop.ampText': { label: 'Platforma AMP, descrierea', max: 1200 },
@@ -441,12 +441,12 @@
         }),
         rights: strList(b.rights, 'Drepturile direcției', { max: 20, item: 700 }),
         responsibilities: strList(b.responsibilities, 'Responsabilitățile direcției', { max: 25, item: 700 }),
-        // secțiunea „Proiecte investiționale”: panoul video și panorama, ambele cu titlul în colț, care duce la site-ul cu proiectele
+        // secțiunea „Proiecte investiționale”: panorama, cu titlul în colț, care duce la site-ul cu proiectele
+        // (panoul video a fost scos; o cheie „video” rămasă în textele salvate nu se mai păstrează)
         projects: {
           title: str(pr.title, 'Proiecte investiționale, titlul secțiunii', { max: 120 }),
-          label: str(pr.label, 'Proiecte investiționale, textul de pe panouri', { max: 60 }),
+          label: str(pr.label, 'Proiecte investiționale, textul de pe panou', { max: 60 }),
           url: url(pr.url, 'Proiecte investiționale, adresa site-ului cu proiectele'),
-          video: pr.video === undefined ? true : bool(pr.video),
           pano: pr.pano === undefined ? true : bool(pr.pano)
         },
         // textele vechi ale listei de proiecte (nu se mai afișează și nu se mai editează); se păstrează neatinse,
