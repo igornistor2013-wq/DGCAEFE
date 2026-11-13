@@ -385,3 +385,15 @@ dialog.dlg::backdrop{background:rgba(4,20,70,.62)}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .dlg-foot .btn{flex:1}
 }
+
+/* „Proiecte investiționale”: previzualizarea celor două panouri de pe pagina publică */
+.proj-prev{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.proj-card{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper);transition:opacity .2s}
+.proj-card img{display:block;width:100%;aspect-ratio:1920/768;object-fit:cover;background:#0b2545}
+.proj-card figcaption{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .6rem;padding:.7rem .85rem .8rem}
+.proj-card figcaption .muted{flex-basis:100%;font-size:.875rem}
+.proj-card.is-off{opacity:.55}
+.proj-card.is-off img{filter:grayscale(1)}
+@media (max-width:720px){
+  .proj-prev{grid-template-columns:1fr}
+}

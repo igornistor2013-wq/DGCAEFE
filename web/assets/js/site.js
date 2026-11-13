@@ -468,20 +468,70 @@
       return b.year - a.year;
     });
     $('#lawCount').textContent = T('%1 din %2 acte', items.length, D.legal.length);
-    // Un rând pe act: tipul și numărul, denumirea tot rândul este o legătură către act (legis.md sau fișierul actului), fără buton separat.
+    // Un rând pe act: tipul și numărul, denumirea și legătura către legis.md (sau către fișierul actului, dacă nu are link).
     var shown = moreSlice('law', items);
     $('#lawBody').innerHTML = shown.length ? shown.map(function (l) {
       var href = l.url || (l.file && l.file.path) || '';
       var inner = '<span class="law-ico" aria-hidden="true">' + ico('gavel') + '</span><span class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + T('nr.') + ' ' + esc(l.nr) + '/' + l.year + '</strong></span>' +
-        '<span class="law-title"><span>' + esc(l.title) + '</span>' + (l.topic ? '<span class="law-topic">' + esc(l.topic) + '</span>' : '') + '</span>';
+        '<span class="law-title"><span>' + esc(l.title) + '</span>' + (l.topic ? '<span class="law-topic">' + esc(l.topic) + '</span>' : '') + '</span>' +
+        (href ? '<span class="law-open">' + T(/legis\.md/.test(href) ? 'legis.md' : 'Deschide') + ' ' + ico('ext') + '</span>' : '');
       return '<li class="law-row">' + (href ? '<a class="law-a" href="' + esc(href) + '" target="_blank" rel="noopener" title="' + esc(T(/legis\.md/.test(href) ? 'Deschide pe legis.md' : 'Deschide')) + '">' + inner + '</a>' : '<div class="law-a">' + inner + '</div>') + editLink('legal', l.id) + '</li>';
     }).join('') : '<li class="empty-row">' + T('Niciun act nu corespunde căutării%1. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu.', law.q ? ' „' + esc(law.q) + '”' : '') + ' <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></li>';
     moreBox('law');
   }
 
   /* ================= Proiecte investiționale ================= */
-  // Rubrica este un card care duce la site-ul separat cu proiectele (nu mai există listă în această pagină).
-  function renderInvestments() {}
+  // Secțiunea are două panouri (video și panorama) care duc la site-ul separat cu proiectele; nu există listă în această pagină.
+  // Titlul secțiunii, textul de pe panouri, adresa site-ului și panourile afișate se editează din administrare (settings.projects);
+  // ce lipsește rămâne cum este în șablon. Aceleași reguli ca în lib/prerender.js (fillProjects).
+  function renderInvestments() {
+    var pr = D.settings.projects || {};
+    var sec = $('#plan-crestere');
+    if (!sec) return;
+    var url = /^https?:\/\//i.test(pr.url || '') ? pr.url : '';
+    if (pr.title) $('#h-plan').textContent = T(pr.title);
+    $$('.inv-film', sec).forEach(function (box) {
+      if (pr.label) box.querySelector('.inv-film-t').textContent = T(pr.label);
+      if (url) box.querySelector('.inv-film-a').setAttribute('href', url);
+      var off = box.id === 'projectsFilm' ? pr.video === false : pr.pano === false;
+      box.hidden = off;
+      var v = box.querySelector('video');
+      if (off && v) { v.preload = 'none'; if (typeof v.pause === 'function') v.pause(); }
+    });
+    var none = pr.video === false && pr.pano === false;
+    sec.hidden = none;
+    $$('a[href="#plan-crestere"]').forEach(function (a) { if (a.parentNode.tagName === 'LI') a.parentNode.hidden = none; });
+  }
+
+  // Bannerele animate de sub card: fiecare pornește doar dacă vizitatorul nu a cerut mai puțină mișcare, se oprește cât timp nu se vede
+  // și are buton de pauză propriu (animațiile automate mai lungi de 5 secunde trebuie să poată fi oprite).
+  function setupProjectsFilm() {
+    $$('.inv-film').forEach(setupFilm);
+  }
+  function setupFilm(box) {
+    var v = box.querySelector('.inv-film-v');
+    var btn = box.querySelector('.inv-film-btn');
+    if (!v || !btn || typeof v.play !== 'function') return;
+    var user = reduceMotion(); // true = oprit (de vizitator sau de setarea sistemului)
+    var seen = !box.closest('[hidden]'); // un panou ascuns din administrare nu pornește (și nu descarcă) animația
+    function sync() {
+      var label = user ? T('Pornește animația') : T('Oprește animația');
+      if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
+      var use = btn.querySelector('use');
+      var icon = user ? '#i-play' : '#i-pause';
+      if (use && use.getAttribute('href') !== icon) use.setAttribute('href', icon);
+      if (!user && seen && !document.hidden) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      else v.pause();
+    }
+    btn.hidden = false;
+    btn.addEventListener('click', function () { user = !user; sync(); });
+    v.addEventListener('error', function () { btn.hidden = true; }, true);
+    document.addEventListener('visibilitychange', sync);
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { rootMargin: '200px 0px' }).observe(box);
+    }
+    sync();
+  }
 
   /* ================= Cooperare externă ================= */
 
@@ -1426,7 +1476,6 @@
     watchTranslations();
     syncLangLinks();
     window.addEventListener('hashchange', syncLangLinks);
-    D.investments = D.investments || [];
     setupChrome();
     setupEvents();
     setupMore();
@@ -1444,6 +1493,7 @@
   }
 
   // Înainte de date există doar structura; panourile de filtrare nu au sens fără conținut.
+  setupProjectsFilm();
   loadData().then(init).catch(function (err) {
     if (window.console) console.error(err);
     showError();

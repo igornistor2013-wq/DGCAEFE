@@ -365,9 +365,10 @@ test('versiunea 5: introducerea secțiunii „Investiții” se înlocuiește do
 
   // nota despre Regulament mai rămâne în fișierul salvat (se pierde la prima salvare a textelor), dar nu se publică
   assert.equal(r.content.settings.aboutNote, REV4_ABOUT_NOTE);
-  assert.deepEqual(LEGACY_SETTINGS_KEYS, ['aboutNote']);
+  assert.deepEqual(LEGACY_SETTINGS_KEYS, ['aboutNote', 'growth']);
   const pub = buildPublic(name => r.content[name]);
   assert.ok(!('aboutNote' in pub.settings), 'nota veche nu iese în pagina publică');
+  assert.ok(!('growth' in pub.settings), 'textele vechi ale listei de proiecte nu ies în pagina publică');
   assert.ok(!JSON.stringify(pub).includes('provin din Regulamentul de activitate'));
 });
 
@@ -475,30 +476,42 @@ test('conținutul livrat nu poartă legături către rapoarte interne', () => {
 });
 
 /* ---------- ce se publică ---------- */
-test('conținutul public: proiectele ascunse nu se publică, ordinea este cea din Raport, „seedRev” nu iese din sistem', () => {
+test('conținutul public: lista proiectelor investiționale nu se trimite (nici cu câmpurile vechi), „seedRev” nu iese din sistem', () => {
   const { seed } = seedDefs();
   const data = clone(seed);
-  data.investments[4].published = false;
-  data.investments.reverse();
-  const get = name => data[name];
-  const pub = buildPublic(get);
-  assert.equal(pub.investments.length, 18);
-  assert.deepEqual(pub.investments.map(p => p.order), pub.investments.map(p => p.order).slice().sort((a, b) => a - b));
-  assert.ok(!pub.investments.some(p => p.id === seed.investments[4].id));
+  Object.assign(data.investments[0], { cluster: 'semnat', status: 'termen', progress: 50, stage: 1, refStage: 2, totalStages: 77, delays: 'Întârzieri.', next: 'Pasul următor.', theme: 'export' });
+  const pub = buildPublic(name => data[name]);
+  assert.ok(!('investments' in pub), 'pagina are doar panourile către site-ul cu proiecte');
+  assert.ok(!JSON.stringify(pub).includes(seed.investments[0].name), 'nici denumirile proiectelor nu ies');
+  assert.deepEqual(LEGACY_INVESTMENT_FIELDS.slice().sort(), LEGACY.slice().sort());
+  assert.equal(data.investments[0].status, 'termen', 'conținutul intern nu este modificat de publicare');
+  assert.equal(data.investments.length, 19, 'proiectele rămân în conținutul salvat');
   assert.ok(!('seedRev' in pub.settings));
   assert.equal(data.settings.seedRev, seed.settings.seedRev, 'conținutul intern își păstrează „seedRev”');
   assert.ok(pub.lastUpdated >= seed.settings.updatedAt);
 });
 
-test('conținutul public nu trimite câmpuri de stare, de progres sau „obiectivul economic”, nici dacă au rămas într-un fișier salvat de o versiune anterioară', () => {
-  const { seed } = seedDefs();
-  const data = clone(seed);
-  Object.assign(data.investments[0], { cluster: 'semnat', status: 'termen', progress: 50, stage: 1, refStage: 2, totalStages: 77, delays: 'Întârzieri.', next: 'Pasul următor.', theme: 'export' });
-  const pub = buildPublic(name => data[name]);
-  assert.equal(pub.investments.length, 19);
-  for (const p of pub.investments) for (const k of LEGACY_INVESTMENT_FIELDS) assert.ok(!(k in p), `„${k}” nu iese în pagina publică`);
-  assert.deepEqual(LEGACY_INVESTMENT_FIELDS.slice().sort(), LEGACY.slice().sort());
-  const first = pub.investments.find(p => p.id === data.investments[0].id);
-  for (const k of ['name', 'ministry', 'financier', 'amount', 'text', 'results']) assert.deepEqual(first[k], data.investments[0][k], k);
-  assert.equal(data.investments[0].status, 'termen', 'conținutul intern nu este modificat de publicare');
+test('versiunea 9: secțiunea „Proiecte investiționale” primește setările panourilor (settings.projects), fără să se atingă ce a scris omul', () => {
+  const { seed, upgrades } = seedDefs();
+  assert.equal(seed.settings.seedRev, 9);
+  assert.ok(upgrades.some(u => u.rev === 9));
+  assert.deepEqual(seed.settings.projects, { title: 'Proiecte investiționale', label: 'Proiecte investiționale', url: 'https://proiecte.pages.dev/', video: true, pano: true });
+  // conținut salvat de o versiune veche: setările lipsesc și se completează din seed
+  const old = rev4Content();
+  delete old.settings.projects;
+  const r = overlay.apply(old, seed, upgrades);
+  assert.deepEqual(r.content.settings.projects, seed.settings.projects);
+  // ce a ales omul rămâne
+  const mine = { title: 'Investiții', label: 'Vezi proiectele', url: 'https://exemplu.md/', video: false, pano: true };
+  const r2 = overlay.apply({ ...clone(seed), settings: { ...clone(seed.settings), seedRev: 8, projects: clone(mine) } }, seed, upgrades);
+  assert.deepEqual(r2.content.settings.projects, mine);
+  // validarea: panourile lipsă rămân afișate, adresa trebuie să fie web
+  const sc = AdminSchemas.create({ bad: m => new Error(m) });
+  assert.deepEqual(sc.cleanSettings({ orgName: 'Org' }).projects, { title: '', label: '', url: '', video: true, pano: true });
+  assert.deepEqual(sc.cleanSettings({ orgName: 'Org', projects: { ...mine, pano: 'false' } }).projects, { ...mine, pano: false });
+  assert.throws(() => sc.cleanSettings({ orgName: 'Org', projects: { url: 'javascript:alert(1)' } }), /adresa site-ului cu proiectele/);
+  // public: setările ies, textele vechi ale listei nu
+  const pub = buildPublic(name => r.content[name]);
+  assert.deepEqual(pub.settings.projects, seed.settings.projects);
+  assert.ok(!('growth' in pub.settings));
 });

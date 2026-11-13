@@ -86,6 +86,30 @@ test('fillIndex: textele din setări ajung în HTML, cu semnele speciale scrise 
   assert.equal(inner(prerender.fillIndex(template, { settings: { orgName: 'Una Două Trei Patru' } }), 'introTitle'), 'Una Două <span class="h1-b">Trei Patru</span>');
 });
 
+test('secțiunea „Proiecte investiționale”: titlul, textul de pe panouri, adresa site-ului și panourile afișate vin din setări (settings.projects)', () => {
+  const sec = h => /<section class="sec" id="plan-crestere"[\s\S]*?<\/section>/.exec(h)[0];
+  // cu conținutul de pornire, șablonul rămâne neschimbat
+  assert.equal(sec(prerender.fillIndex(template, seedData())), sec(template));
+  const html = prerender.fillIndex(template, { settings: { projects: { title: 'Investiții <noi>', label: 'Vezi proiectele', url: 'https://exemplu.md/proiecte?a=1&b=2', video: false, pano: true } } });
+  const s = sec(html);
+  assert.equal(inner(html, 'h-plan'), 'Investiții &lt;noi&gt;');
+  assert.equal((s.match(/<span class="inv-film-t">Vezi proiectele<\/span>/g) || []).length, 2, 'textul pe ambele panouri');
+  assert.equal((s.match(/href="https:\/\/exemplu\.md\/proiecte\?a=1&amp;b=2"/g) || []).length, 2, 'adresa pe ambele panouri');
+  assert.match(s, /id="projectsFilm" hidden/);
+  assert.match(s, /<video [^>]*preload="none"/, 'panoul ascuns nu descarcă filmarea');
+  assert.doesNotMatch(s, /id="projectsPano" hidden/);
+  assert.match(html, /<section class="sec" id="plan-crestere"/);
+  // o adresă care nu e http(s) nu se folosește
+  assert.match(sec(prerender.fillIndex(template, { settings: { projects: { url: 'javascript:alert(1)' } } })), /href="https:\/\/proiecte\.pages\.dev\/"/);
+  // fără niciun panou: secțiunea și legăturile din meniu și din subsol se ascund
+  const none = prerender.fillIndex(template, { settings: { projects: { video: false, pano: false } } });
+  assert.match(none, /<section hidden class="sec" id="plan-crestere"/);
+  assert.equal((none.match(/<li hidden><a href="#plan-crestere">/g) || []).length, (template.match(/<li><a href="#plan-crestere">/g) || []).length);
+  // în rusă, titlul implicit rămâne tradus
+  const ru = prerender.fillIndex(template, seedData(), { lang: 'ru' });
+  assert.equal(inner(ru, 'h-plan'), 'Инвестиционные проекты');
+});
+
 test('adresa paginii: se curăță, iar ce nu este adresă este respins', () => {
   const n = prerender.normalizeSiteUrl;
   assert.equal(n('https://utilizator.github.io/depozit'), 'https://utilizator.github.io/depozit');

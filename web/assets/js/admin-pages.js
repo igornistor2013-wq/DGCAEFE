@@ -25,8 +25,6 @@
   const LEVEL_LABEL = { cross: 'Transfrontalier', trans: 'Transnațional', inter: 'Interregional' };
   const LEGAL_TYPES = [['Lege', 'Lege'], ['HG', 'Hotărâre de Guvern'], ['Ordin', 'Ordin'], ['Altele', 'Alt act normativ']];
   const LEGAL_SHORT = { Lege: 'Legea', HG: 'HG', Ordin: 'Ordinul', Altele: 'Act' };
-  const money = p => (p.amount == null ? '' : [p.amountQual, String(p.amount).replace('.', ','), 'mil.', p.currency || 'EUR'].filter(Boolean).join(' '));
-  const nextOrder = () => (ADM.data.investments || []).reduce((m, x) => Math.max(m, x.order || 0), 0) + 1;
 
   const programName = id => {
     const p = (ADM.data.programs || []).find(x => x.id === id);
@@ -245,52 +243,6 @@
         { name: 'topic', label: 'Domeniul', type: 'text', max: 100, list: ADM.distinct(ADM.data.legal || [], 'topic'), hint: 'Actele din același domeniu sunt grupate pe pagina publică.' },
         { name: 'url', label: 'Adresa actului (de exemplu pe legis.md)', type: 'url', max: 1000, placeholder: 'https://…' },
         { name: 'file', label: 'Sau fișierul actului', type: 'doc' }
-      ]
-    },
-
-    investments: {
-      key: 'investments',
-      title: 'Proiecte investiționale',
-      intro: 'Proiectele din Planul de creștere afișate în secțiunea „Proiecte investiționale” a paginii publice (meniul „Investiții”). Proiectele se grupează pe pagină după ministerul care le promovează. Pentru fiecare proiect se completează numai date generale: ministerul, partenerul de finanțare, valoarea, perioada, localizarea, obiectivul și rezultatele. Un proiect cu „Publicat” debifat rămâne aici, dar nu apare vizitatorilor.',
-      add: 'Adaugă proiect',
-      editTitle: it => 'Editare proiect investițional',
-      count: ['proiect', 'proiecte'],
-      names: { saved: 'Proiectul a fost salvat.', created: 'Proiectul a fost adăugat.', deleted: 'Proiectul a fost șters.', delTitle: 'Ștergeți proiectul?' },
-      emptyTitle: 'Nu există încă niciun proiect.',
-      emptyText: 'Apăsați „Adaugă proiect” pentru a-l introduce pe primul.',
-      load: ['investments'],
-      defaults: () => ({ order: nextOrder(), currency: 'EUR', published: true }),
-      sort: (a, b) => (a.order || 0) - (b.order || 0) || String(a.name).localeCompare(String(b.name), 'ro'),
-      search: p => [p.name, p.ministry, p.financier, p.implementer, p.location, p.text].join(' '),
-      filters: [{ key: 'ministry', label: 'Ministerul', options: () => [['', 'Toate ministerele']].concat(ADM.distinct(ADM.data.investments || [], 'ministry').map(x => [x, x])), test: (p, v) => p.ministry === v }],
-      columns: [
-        { label: 'Proiect', cell: p => '<div class="t">' + (p.order ? '<span class="nr" title="Numărul de ordine">' + esc(p.order) + '</span>' : '') + '<a href="#/investments/' + esc(p.id) + '">' + esc(p.name) + '</a>' + (p.published === false ? ' <span class="badge badge-draft">Ascuns</span>' : '') + '</div>' + (money(p) ? '<div class="s">' + esc(money(p)) + '</div>' : '') },
-        { label: 'Ministerul', cell: p => esc(p.ministry || '') || '<span class="muted">—</span>' },
-        { label: 'Partener de finanțare', cell: p => esc(p.financier || '') || '<span class="muted">—</span>' }
-      ],
-      view: p => (p.published === false ? '' : ADM.pubUrl('/#proiect/' + p.id)),
-      fields: () => [
-        { name: 'name', label: 'Denumirea proiectului', type: 'text', required: true, max: 300 },
-        { name: 'order', label: 'Numărul de ordine', type: 'number', min: 0, maxv: 9999, w: 'third', hint: 'Ordinea în lista de pe pagină: numerele mici apar primele.' },
-        { name: 'published', label: 'Publicat (vizibil vizitatorilor)', type: 'checkbox', w: 'twothirds', hint: 'Debifați ca să ascundeți proiectul de pe pagina publică.' },
-        { type: 'heading', label: 'Date generale', hint: 'Completați numai ce se știe din documentele proiectului; câmpurile goale nu apar pe pagină.' },
-        { name: 'ministry', label: 'Ministerul responsabil', type: 'text', max: 100, w: 'third', list: ADM.distinct(ADM.data.investments || [], 'ministry'), hint: 'Prescurtarea, de exemplu MEC, MIDR, MEN. Pe pagină, proiectele se grupează după acest câmp.' },
-        { name: 'financier', label: 'Partenerul de finanțare', type: 'text', max: 300, w: 'twothirds', list: ADM.distinct(ADM.data.investments || [], 'financier'), hint: 'Denumirea completă, urmată de prescurtare între paranteze, de exemplu: Banca Europeană de Investiții (BEI).' },
-        { name: 'implementer', label: 'Instituția de implementare', type: 'text', max: 300, list: ADM.distinct(ADM.data.investments || [], 'implementer') },
-        { name: 'amount', label: 'Valoarea indicativă (milioane)', type: 'decimal', w: 'third', placeholder: '151,5', hint: 'În milioane, în moneda aleasă alături. Ex.: 151,5 înseamnă 151,5 milioane.' },
-        { name: 'currency', label: 'Moneda', type: 'select', options: [['EUR', 'EUR'], ['USD', 'USD'], ['MDL', 'MDL']], w: 'third' },
-        { name: 'amountQual', label: 'Precizarea valorii', type: 'select', options: [['', 'Fără precizare'], ['max.', 'maximum (max.)'], ['circa', 'aproximativ (circa)']], w: 'third', showIf: v => String(v.amount == null ? '' : v.amount).trim() !== '' },
-        { name: 'financing', label: 'Structura finanțării', type: 'textarea', max: 1500, rows: 3, hint: 'De exemplu: împrumut BEI de 40 mil. EUR, buget de stat de 8 mil. EUR, grant NIP de 2 mil. EUR.' },
-        { name: 'period', label: 'Perioada de implementare', type: 'text', max: 200, w: 'third', placeholder: '2026–2032' },
-        { name: 'location', label: 'Localizarea', type: 'textarea', max: 500, rows: 2, w: 'twothirds', hint: 'Municipiul, raioanele sau regiunea în care se realizează proiectul.' },
-        { name: 'beneficiaries', label: 'Beneficiarii', type: 'textarea', max: 800, rows: 2 },
-        { type: 'heading', label: 'Descriere', hint: 'Textele pot avea liste (rânduri care încep cu „- ” sau „1. ”), **text aldin** și legături scrise direct (https://…).' },
-        { name: 'text', label: 'Obiectivul și descrierea proiectului', type: 'textarea', max: 5000, rows: 8 },
-        { name: 'results', label: 'Rezultate preconizate', type: 'lines', rows: 7, hint: 'Câte un rezultat pe rând. Se afișează ca listă.' },
-        {
-          name: 'links', label: 'Legături utile', type: 'repeater', max: 6, addLabel: 'Adaugă legătură', emptyText: 'Nicio legătură adăugată.',
-          sub: [{ name: 't', label: 'Text', w: 'half', max: 160 }, { name: 'u', label: 'Adresa', type: 'url', w: 'half', max: 1000, placeholder: 'https://…' }]
-        }
       ]
     },
 

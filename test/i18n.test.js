@@ -101,13 +101,14 @@ test('buildPublic: aceleași date, în fiecare limbă; câmpurile de logică ră
   const ro = buildPublic(reader());
   const ru = buildPublic(reader(), 'ru');
   const en = buildPublic(reader(), 'en');
-  assert.equal(ro.investments.length, ru.investments.length);
+  assert.equal(ro.programs.length, ru.programs.length);
   assert.equal(ro.news.length, en.news.length);
   assert.notEqual(ru.settings.orgName, ro.settings.orgName);
   assert.match(ru.settings.orgName, /[А-Яа-я]/);
   assert.match(en.settings.orgName, /^General Directorate/);
-  assert.deepEqual(ru.investments.map(p => p.id), ro.investments.map(p => p.id));
-  assert.deepEqual(ru.investments.map(p => p.ministry), ro.investments.map(p => p.ministry));
+  assert.deepEqual(ru.programs.map(p => p.id), ro.programs.map(p => p.id));
+  assert.deepEqual(ru.settings.projects.url, ro.settings.projects.url);
+  assert.deepEqual([ru.settings.projects.video, ru.settings.projects.pano], [ro.settings.projects.video, ro.settings.projects.pano]);
   assert.deepEqual(en.documents.map(d => d.section), ro.documents.map(d => d.section));
   assert.deepEqual(ru.news.map(n => n.date), ro.news.map(n => n.date));
 });
@@ -134,8 +135,9 @@ test('traducerile din administrare: validare, limite și ștergere', () => {
   // listele și câmpurile imbricate
   const ev = sc.events.clean({ title: 'T', start: '2026-02-01', summary: 'S', tr: { en: { details: 'a\n b\n\n', summary: 'Summary' } } }, null);
   assert.deepEqual(ev.tr, { en: { summary: 'Summary', details: ['a', 'b'] } });
-  const st = sc.cleanSettings({ orgName: 'Org', tr: { ru: { 'growth': { intro: 'Введение' }, contact: { address: 'Адрес' } } } });
-  assert.deepEqual(st.tr, { ru: { growth: { intro: 'Введение' }, contact: { address: 'Адрес' } } });
+  const st = sc.cleanSettings({ orgName: 'Org', tr: { ru: { projects: { title: 'Инвестиции' }, growth: { intro: 'Введение' }, contact: { address: 'Адрес' } } } });
+  // textele vechi ale listei de proiecte nu mai au traduceri (nu se mai afișează)
+  assert.deepEqual(st.tr, { ru: { projects: { title: 'Инвестиции' }, contact: { address: 'Адрес' } } });
 });
 
 test('rubrica „Cooperare externă” se editează din administrare, cu traduceri', () => {
