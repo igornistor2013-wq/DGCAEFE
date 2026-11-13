@@ -140,92 +140,11 @@ test('liste lungi: maximum 5 elemente, apoi butonul „Vezi mai mult” (documen
   assert.match(site, /addEventListener\('beforeprint'[\s\S]*PRINT_ALL\.forEach[\s\S]*addEventListener\('afterprint'/);
 });
 
-test('proiectele investiționale: doar panorama, cu titlul ca legătură către site-ul dedicat, fără card și fără listă în pagină', () => {
+test('proiectele investiționale: doar un card către site-ul dedicat, fără listă în pagină', () => {
   const plan = sectionOf('plan-crestere');
-  assert.doesNotMatch(plan, /projectsCard|class="amp /);
-  assert.match(plan, /<\/header>\s*<div class="inv-pano" id="projectsPano">/);
-  assert.equal(plan.split('<div class="inv-pano').length - 1, 1, 'un singur panou în secțiune');
+  assert.match(plan, /<a class="amp ext-card" id="projectsCard" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">/);
   assert.doesNotMatch(plan, /invList|invQ|gpOverview|invStat/);
   assert.doesNotMatch(site, /invList|gpOverview|renderInvList|#proiect\//);
-});
-
-test('proiectele investiționale: titlul, textul de pe panou, adresa și afișarea panoului se aplică din setări (settings.projects), ca în prerandare', () => {
-  const fn = /function renderInvestments\(\) \{[\s\S]*?\n  \}\n/.exec(site)[0];
-  assert.match(fn, /D\.settings\.projects/);
-  assert.match(fn, /#h-plan/);
-  assert.match(fn, /\.inv-pano-t/);
-  assert.match(fn, /\^https\?:/, 'doar adrese web');
-  assert.match(fn, /pr\.pano === false/);
-  assert.doesNotMatch(fn, /pr\.video/, 'panoul video a fost scos');
-  assert.match(fn, /a\[href="#plan-crestere"\]/, 'fără panou dispar și legăturile din meniu și subsol');
-  assert.match(css, /\.inv-pano\[hidden\]\{display:none\}/);
-});
-
-test('administrare: „Proiecte investiționale” editează panoul secțiunii, nu o listă de proiecte care nu se mai afișează', () => {
-  const adminHtml = read('admin', 'index.html');
-  const pagesJs = read('assets', 'js', 'admin-pages.js');
-  const sys = read('assets', 'js', 'admin-system.js');
-  const schemas = read('assets', 'js', 'admin-schemas.js');
-  assert.match(adminHtml, /<a href="#\/investments" data-page="investments">[\s\S]*?Proiecte investiționale<\/a>/);
-  // lista proiectelor a dispărut din administrare (datele rămân în conținutul salvat)
-  assert.doesNotMatch(pagesJs, /key: 'investments'|Adaugă proiect|ministerul care le promovează/);
-  assert.match(sys, /pages\.investments = settingsPage\(/);
-  for (const k of ['projects.pano', 'projects.title', 'projects.label', 'projects.url']) assert.ok(sys.includes(`name: '${k}'`), k);
-  assert.ok(!sys.includes("name: 'projects.video'"), 'bifa pentru video a dispărut odată cu video-ul');
-  // „Texte pagină” nu mai are textele listei de proiecte; traducerile secțiunii sunt doar pe pagina ei
-  assert.doesNotMatch(sys, /growth\./);
-  assert.doesNotMatch(schemas, /'growth\.(intro|note)'/);
-  assert.match(sys, /trFields\('settings', k => k\.indexOf\('projects\.'\) !== 0\)/);
-  assert.match(sys, /trFields\('settings', k => k\.indexOf\('projects\.'\) === 0\)/);
-  // salvarea unei părți din texte nu le șterge pe celelalte
-  assert.match(sys, /mergeSettings\(ADM\.settings, form\.read\(\)\)/);
-  // panoul de control: panoul afișat, nu numărul de proiecte
-  assert.doesNotMatch(sys, /d\.investments|din Planul de creștere/);
-  assert.match(sys, /Panou „Proiecte investiționale”/);
-  // previzualizarea folosește același fișier ca pagina publică
-  const imgs = sys.match(/\.\.\/assets\/img\/proiecte-[\w.-]+/g) || [];
-  assert.equal(imgs.length, 1);
-  for (const i of imgs) {
-    const f = i.replace('../', '');
-    assert.ok(fs.existsSync(path.join(WEB, f)), f);
-    assert.ok(html.includes(f), `${f} este folosit și pe pagina publică`);
-  }
-});
-
-test('proiectele investiționale: video-ul a fost scos (fără element <video>, fără fișiere filmate, fără cod de redare)', () => {
-  assert.doesNotMatch(html, /<video\b|<source\b[^>]*video\/|assets\/video\/|projectsFilm|inv-film/);
-  assert.doesNotMatch(css, /inv-film|proiecte-investitionale-/);
-  assert.doesNotMatch(site, /setupProjectsFilm|setupFilm|filmWantsHq|filmCanPlayHq|projectsFilm|inv-film|mediaCapabilities/);
-  const vdir = path.join(WEB, 'assets', 'video');
-  assert.ok(!fs.existsSync(vdir) || fs.readdirSync(vdir).length === 0, 'niciun fișier video în web/assets/video');
-  assert.deepEqual(fs.readdirSync(path.join(WEB, 'assets', 'img')).filter(f => f.startsWith('proiecte-investitionale')), [], 'nicio imagine de așteptare a filmului');
-  assert.doesNotMatch(read('assets', 'js', 'admin-system.js'), /projects\.video|Panoul animat|proiecte-investitionale-/);
-  assert.doesNotMatch(read('assets', 'js', 'admin-schemas.js'), /pr\.video/);
-});
-
-test('proiectele investiționale: panorama are titlul ca legătură, text alternativ și variante WebP/JPEG pe mărimi', () => {
-  const plan = sectionOf('plan-crestere');
-  const pano = plan.slice(plan.indexOf('id="projectsPano"'));
-  assert.match(pano, /<a class="inv-pano-a" href="https:\/\/proiecte\.pages\.dev\/" target="_blank" rel="noopener">[\s\S]*<span class="inv-pano-t">Proiecte investiționale<\/span>/);
-  assert.match(pano, /<span class="sr">\(se deschide site-ul cu proiectele într-o filă nouă\)<\/span>/);
-  const alt = /<img class="inv-pano-img"[^>]*\balt="([^"]+)"/.exec(pano);
-  assert.ok(alt && alt[1].length <= 100, 'text alternativ de cel mult 100 de caractere');
-  assert.match(pano, /\bloading="lazy"/);
-  const files = [...pano.matchAll(/assets\/img\/(proiecte-panorama-(\d+)-[0-9a-f]{8}\.(webp|jpg))/g)].map(m => m[1]);
-  for (const w of ['1600', '2560', '3840']) for (const ext of ['webp', 'jpg']) assert.ok(files.some(f => f.includes(`-${w}-`) && f.endsWith(ext)), w + ' ' + ext);
-  for (const f of new Set(files)) assert.ok(fs.existsSync(path.join(WEB, 'assets', 'img', f)), f);
-  // nicio panoramă veche rămasă în folder
-  const all = fs.readdirSync(path.join(WEB, 'assets', 'img')).filter(f => f.startsWith('proiecte-panorama'));
-  assert.deepEqual(all.sort(), [...new Set(files)].sort());
-  // pe telefon: panou 2:1, imaginea se plimbă lent, dar nu și dacă vizitatorul a cerut mai puțină mișcare
-  assert.match(css, /\.inv-pano-img\{animation:inv-pano-pan /);
-  assert.match(css, /prefers-reduced-motion:reduce\)\{\.inv-pano-img\{animation:none/);
-  assert.match(css, /@media \(max-width:820px\)\{\s*\.inv-pano\{aspect-ratio:2\/1;/);
-});
-
-test('proiectele investiționale: panoul are raportul imaginii (3840/679), iar umbra din spatele titlului este în CSS, nu în imagine', () => {
-  assert.match(css, /\.inv-pano\{[^}]*aspect-ratio:3840\/679;/);
-  assert.match(css, /\.inv-pano::after\{content:"";position:absolute;left:0;bottom:0;[^}]*radial-gradient\(farthest-side at 0 100%/);
 });
 
 test('textul nu mai este strâns în partea stângă: nicio limită de lățime pe textele secțiunilor', () => {
@@ -530,7 +449,7 @@ test('aliniere la design: titluri, filtre-pastile, rânduri de listă și varian
   assert.match(css, /\.input,\.select,[^{]*\{[^}]*min-height:3\.25rem[^}]*border-radius:1rem/);
   // rândurile: document (48 px pictogramă), act normativ (4 coloane), proiect (5 coloane, 56 / 190 / 170 / 28 px)
   assert.match(css, /--inv-cols:3\.5rem minmax\(0,1fr\) 11\.875rem 10\.625rem 1\.75rem/);
-  assert.match(css, /\.law-a\{[^}]*grid-template-columns:3rem 11\.5rem minmax\(0,1fr\) auto/);
+  assert.match(css, /\.law-a\{[^}]*grid-template-columns:3rem 11\.5rem minmax\(0,1fr\);/);
   // telefon: filtrele pe un singur rând care alunecă, până la marginea ecranului; pictograma actelor rămâne vizibilă
   const mobile = /@media \(max-width:47\.99rem\)\{([\s\S]*?)\n\}\n@media \(max-width:30rem\)/.exec(css);
   assert.ok(mobile, 'blocul pentru telefon există');

@@ -238,13 +238,7 @@
     "note": "Valorile sunt indicative și provin din fișele proiectelor și din prezentările ministerelor; ele se pot modifica pe parcursul pregătirii proiectelor. Sumele sunt exprimate în milioane, în moneda indicată pentru fiecare proiect.",
     "sources": []
   },
-  "projects": {
-    "title": "Proiecte investiționale",
-    "label": "Proiecte investiționale",
-    "url": "https://proiecte.pages.dev/",
-    "pano": true
-  },
-  "seedRev": 9,
+  "seedRev": 8,
   "coop": {
     "title": "Cooperare externă",
     "acordTitle": "Acordul cu Guvernul României",

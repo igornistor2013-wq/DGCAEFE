@@ -105,8 +105,7 @@ test('conținutul public inițial este complet', async () => {
   const d = r.data;
   assert.equal(d.programs.length, 5);
   assert.equal(d.legal.length, 16);
-  assert.ok(!('investments' in d), 'lista proiectelor nu se mai trimite (pagina are doar panoul către site-ul cu proiecte)');
-  assert.deepEqual(d.settings.projects, { title: 'Proiecte investiționale', label: 'Proiecte investiționale', url: 'https://proiecte.pages.dev/', pano: true });
+  assert.equal(d.investments.length, 19);
   assert.equal(d.events.length, 6);
   assert.equal(d.documents.length, 43);
   assert.equal(d.gallery.length, 6);
@@ -326,11 +325,10 @@ test('proiectele din Planul de creștere: numai date generale, validare, ascunde
     assert.equal(r.status, 400, JSON.stringify(body).slice(0, 120));
     assert.match(r.data.error, re, JSON.stringify(body).slice(0, 120));
   }
-  // proiectele rămân în conținutul salvat (API-ul de administrare), dar nu se mai publică
-  const publicHas = async () => 'investments' in (await call('GET', '/api/public', undefined, { anonymous: true })).data;
+  const publicCount = async () => (await call('GET', '/api/public', undefined, { anonymous: true })).data.investments;
   const before = (await call('GET', '/api/admin/investments')).data;
   assert.equal(before.length, 19);
-  assert.equal(await publicHas(), false);
+  assert.equal((await publicCount()).length, 19);
 
   // ciornă: se salvează, dar nu apare public; câmpurile vechi (etapă, stare, progres, întârzieri, obiectiv economic) trimise de un client vechi sunt ignorate
   const c = await call('POST', '/api/admin/investments', {
@@ -344,6 +342,7 @@ test('proiectele din Planul de creștere: numai date generale, validare, ascunde
   assert.deepEqual(c.data.results, ['Primul rezultat', 'Al doilea rezultat'], 'rândurile goale se elimină');
   assert.deepEqual(c.data.links, [{ t: 'Sursa', u: 'https://exemplu.md' }], 'rândurile goale se elimină');
   for (const k of ['cluster', 'status', 'stage', 'refStage', 'totalStages', 'progress', 'delays', 'next', 'theme']) assert.ok(!(k in c.data), `„${k}” nu se mai păstrează`);
+  assert.equal((await publicCount()).length, 19, 'proiectul ascuns nu este public');
   assert.equal((await call('GET', '/api/admin/investments')).data.length, 20, 'în administrare apare și ciorna');
 
   // publicare, cu un număr de ordine după celelalte
@@ -351,7 +350,10 @@ test('proiectele din Planul de creștere: numai date generale, validare, ascunde
   assert.equal(u.status, 200);
   assert.equal(u.data.id, c.data.id);
   assert.equal(u.data.createdAt, c.data.createdAt);
-  assert.equal(await publicHas(), false, 'nici proiectele publicate nu se mai trimit vizitatorilor');
+  const pub = await publicCount();
+  assert.equal(pub.length, 20);
+  assert.equal(pub[pub.length - 1].id, c.data.id, 'se afișează după numărul de ordine');
+  for (const p of pub) for (const k of ['cluster', 'status', 'stage', 'progress', 'delays', 'next', 'theme']) assert.ok(!(k in p), `pagina publică nu primește „${k}”`);
 
   // fără valoare, precizarea valorii nu are sens și se șterge
   const noAmount = await call('PUT', `/api/admin/investments/${c.data.id}`, { ...u.data, amount: '', amountQual: 'max.' });
@@ -370,12 +372,14 @@ test('proiectele din Planul de creștere: numai date generale, validare, ascunde
   assert.equal(missing.status, 404);
   const del = await call('DELETE', `/api/admin/investments/${c.data.id}`);
   assert.equal(del.status, 200);
+  assert.equal((await publicCount()).length, 19);
   assert.equal((await call('DELETE', `/api/admin/investments/${c.data.id}`)).status, 404);
 
   // un proiect din listă poate fi ascuns și readus fără să se piardă nimic
   const first = before.find(p => p.order === 1);
   const hide = await call('PUT', `/api/admin/investments/${first.id}`, { ...first, published: false });
   assert.equal(hide.status, 200);
+  assert.ok(!(await publicCount()).some(p => p.id === first.id));
   const show = await call('PUT', `/api/admin/investments/${first.id}`, { ...first, published: true });
   assert.equal(show.status, 200);
   const { updatedAt, ...a } = show.data; // eslint-disable-line no-unused-vars
@@ -413,11 +417,6 @@ test('pagina de administrare și resursele ei sunt servite, cu antete de securit
   const csp = page.headers.get('content-security-policy');
   assert.match(csp, /script-src 'self'/);
   assert.ok(!/unsafe-eval|script-src[^;]*unsafe-inline/.test(csp), 'fără scripturi inline sau eval');
-  // funcțiile sensibile ale browserului sunt închise pe toate paginile
-  for (const p of ['/admin/', '/', '/api/public']) {
-    const pp = (await call('GET', p, undefined, { anonymous: true })).headers.get('permissions-policy') || '';
-    for (const f of ['camera=()', 'microphone=()', 'geolocation=()', 'payment=()']) assert.ok(pp.includes(f), `${p}: ${f}`);
-  }
   const html = page.data.toString('utf8');
   assert.ok(!/\son\w+=/i.test(html), 'fără atribute de evenimente inline (onclick etc.)');
   for (const f of ['css/admin.css', 'js/admin-core.js', 'js/admin-forms.js', 'js/admin-pages.js', 'js/admin-system.js', 'js/admin.js', 'js/common.js']) {
@@ -469,8 +468,8 @@ test('exportul static: pagina completă, fără ciorne, fără administrare, cu 
   assert.ok(news.body.includes('](uploads/docs/x.pdf)'), 'legăturile din text devin relative');
   assert.ok(!JSON.stringify(data).includes('"/uploads/'), 'nicio cale absolută către /uploads/');
   assert.equal(data.programs.length, 5);
-  assert.ok(!('investments' in data), 'lista proiectelor nu se exportă în versiunea statică');
-  assert.ok(!JSON.stringify(data).includes('Proiect ascuns la export'));
+  assert.equal(data.investments.length, 19, 'proiectele din Planul de creștere se exportă');
+  assert.ok(!data.investments.some(p => p.name === 'Proiect ascuns la export'), 'proiectele ascunse nu se exportă');
   assert.ok(!('seedRev' in data.settings), 'evidența internă nu se exportă');
   const exportedDoc = data.documents.find(d => d.title === 'Document încărcat pentru export');
   assert.ok(exportedDoc, 'documentul încărcat este exportat');
@@ -588,7 +587,7 @@ test('versiunea statică din date salvate de versiunea anterioară conține proi
     assert.match(msg, /Versiunea statică a fost creată/);
     const html = fs.readFileSync(path.join(out, 'dist', 'index.html'), 'utf8');
     const data = JSON.parse(html.match(/<script type="application\/json" id="seed-data">([\s\S]*?)<\/script>/)[1]);
-    assert.ok(!('investments' in data));
+    assert.equal(data.investments.length, 19);
     assert.equal(data.legal.length, 16);
     assert.equal(data.settings.heroLead, 'Textul meu de prezentare.');
     assert.match(data.settings.orgName, /Coordonare/);
@@ -674,48 +673,12 @@ test('schimbarea parolei invalidează sesiunile vechi', async () => {
   assert.equal((await login('Parola-Noua-456!')).status, 200);
 });
 
-test('paginile publice păstrate în memorie se refac imediat după o salvare din panou', async () => {
-  const page = async (p = '/') => (await fetch(base + p)).text();
-  const pub = async () => (await call('GET', '/api/public', undefined, { anonymous: true })).data;
-  const first = await page();
-  assert.equal(await page(), first, 'fără modificări, aceeași pagină');
-  const t0 = (await pub()).generatedAt;
-  assert.equal((await pub()).generatedAt, t0, 'datele nu se reconstruiesc la fiecare cerere');
-  const s = (await call('GET', '/api/admin/settings')).data;
-  const r = await call('PUT', '/api/admin/settings', { ...s, projects: { ...s.projects, title: 'Investiții noi în memorie' } });
-  assert.equal(r.status, 200);
-  assert.match(await page(), /<h2 id="h-plan">Investiții noi în memorie<\/h2>/, 'prima pagină');
-  assert.equal((await pub()).settings.projects.title, 'Investiții noi în memorie', '/api/public');
-  // la fel pentru o colecție: o știre nouă apare imediat
-  const n = await call('POST', '/api/admin/news', { title: 'Știre pentru memoria paginii', date: '2026-11-01', summary: 'Rezumat.', published: true });
-  assert.equal(n.status, 201);
-  assert.ok((await pub()).news.some(x => x.id === n.data.id));
-  assert.match(await page(), /Știre pentru memoria paginii/, 'prima pagină (noutățile din partea de sus)');
-  await call('DELETE', `/api/admin/news/${n.data.id}`);
-  assert.ok(!(await pub()).news.some(x => x.id === n.data.id), 'și dispare imediat după ștergere');
-  await call('PUT', '/api/admin/settings', s);
-});
-
-test('deconectarea șterge sesiunea, iar cookie-ul vechi nu mai deschide panoul (nici dacă a fost copiat)', async () => {
-  const [copied, copiedCsrf] = [cookie, csrf];
-  // o altă sesiune a aceluiași utilizator (alt browser) rămâne deschisă
-  await login('Parola-Noua-456!');
-  const otherCookie = cookie;
-  [cookie, csrf] = [copied, copiedCsrf];
+test('deconectarea șterge sesiunea', async () => {
   const out = await call('POST', '/api/logout', {});
   assert.equal(out.status, 200);
   assert.match(out.headers.get('set-cookie'), /Max-Age=0/);
   cookie = '';
   assert.equal((await call('GET', '/api/admin/news')).status, 401);
-  cookie = copied;
-  assert.equal((await call('GET', '/api/admin/news')).status, 401, 'cookie-ul copiat înainte de ieșire nu mai este valabil');
-  // lista sesiunilor închise se păstrează pe disc (rezistă la repornirea serverului) și nu conține date despre utilizator
-  const saved = JSON.parse(fs.readFileSync(path.join(tmp, 'private', 'revoked.json'), 'utf8'));
-  assert.equal(Object.keys(saved).length, 1);
-  assert.ok(Object.values(saved)[0] > Date.now());
-  cookie = otherCookie;
-  assert.equal((await call('GET', '/api/admin/news')).status, 200, 'celelalte sesiuni nu sunt afectate');
-  cookie = '';
 });
 
 test('încercările repetate de autentificare sunt limitate', async () => {

@@ -208,9 +208,5 @@
   {
     "rev": 8,
     "note": "Cooperare externă: textele secțiunii și cardul Platformei AMP pot fi editate din administrare (settings.coop)."
-  },
-  {
-    "rev": 9,
-    "note": "Proiecte investiționale: secțiunea are un singur panou, panorama, care duce la site-ul cu proiecte; titlul secțiunii, textul de pe panou, adresa site-ului și afișarea panoului se editează din administrare (settings.projects). Lista proiectelor și textele ei nu se mai afișează."
   }
 ]
