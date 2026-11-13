@@ -413,7 +413,7 @@ a.fn-btn:hover .fn-t,.acc-btn:hover .acc-t{color:var(--blue)}
 .law-list{background:#fff;border-radius:1.75rem;overflow:hidden;box-shadow:var(--shadow)}
 .law-row{display:flex;align-items:center;gap:1rem;border-top:1px solid var(--line2)}
 .law-row:first-child{border-top:0}
-.law-a{flex:1;min-width:0;display:grid;grid-template-columns:3rem 11.5rem minmax(0,1fr) auto;gap:1.25rem;align-items:center;padding:1.125rem 1.5rem;color:var(--ink);text-decoration:none}
+.law-a{flex:1;min-width:0;display:grid;grid-template-columns:3rem 11.5rem minmax(0,1fr);gap:1.25rem;align-items:center;padding:1.125rem 1.5rem;color:var(--ink);text-decoration:none}
 a.law-a:hover{background:var(--row);color:var(--ink);text-decoration:none}
 .law-ico{display:grid;place-items:center;width:3rem;height:3rem;border-radius:.875rem;background:var(--tint);color:var(--blue)}
 .law-ico .ico{width:1.375rem;height:1.375rem;stroke-width:1.9}
@@ -422,7 +422,6 @@ a.law-a:hover{background:var(--row);color:var(--ink);text-decoration:none}
 .law-no strong{font-size:1.0625rem;font-weight:700;font-variant-numeric:tabular-nums}
 .law-title{display:flex;flex-direction:column;gap:.1875rem;font-size:1rem;font-weight:500;line-height:1.45}
 .law-topic{font-size:.875rem;color:var(--muted);font-weight:400}
-.law-open{display:inline-flex;align-items:center;justify-content:center;gap:.375rem;padding:.4rem .95rem;border-radius:999px;background:var(--tint);color:var(--blue);font-size:.875rem;font-weight:600;white-space:nowrap}
 .law-row .edit-link{margin-right:1rem}
 .empty-row{padding:2rem 1rem;text-align:center;color:var(--muted)}
 .callout{display:flex;gap:1rem 2rem;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:1.25rem 1.5rem;background:var(--amber-bg);border-radius:var(--rc);margin-bottom:1.5rem}
@@ -804,7 +803,7 @@ body.nf-page main{flex:1 0 auto}
   .inv-head{padding-inline:1rem;font-size:.625rem;letter-spacing:.06em}
   .inv-btn{padding-inline:1rem}
   .inv-panel{padding-left:calc(1rem + 2.5rem + .875rem);padding-right:1rem}
-  .law-a{grid-template-columns:2.5rem 8.5rem minmax(0,1fr) auto;gap:1rem;padding-inline:1rem}
+  .law-a{grid-template-columns:2.5rem 8.5rem minmax(0,1fr);gap:1rem;padding-inline:1rem}
   .toolbar>.tools{flex:1 1 100%}
   .toolbar>.tools .field-icon{flex:1 1 16rem}
 }
@@ -888,8 +887,7 @@ body.nf-page main{flex:1 0 auto}
   .law-no strong{font-size:1rem}
   .law-title{gap:.25rem;font-size:.9375rem;line-height:1.5}
   .law-topic{font-size:.84375rem}
-  .law-open{display:none}
-  .law-row{align-items:flex-start}
+    .law-row{align-items:flex-start}
   .lb-stage{padding:0 .25rem}
   .lb-nav{top:auto;bottom:.5rem;transform:none}
   .gallery{grid-template-columns:repeat(2,minmax(0,1fr))}

@@ -530,7 +530,7 @@ test('aliniere la design: titluri, filtre-pastile, rânduri de listă și varian
   assert.match(css, /\.input,\.select,[^{]*\{[^}]*min-height:3\.25rem[^}]*border-radius:1rem/);
   // rândurile: document (48 px pictogramă), act normativ (4 coloane), proiect (5 coloane, 56 / 190 / 170 / 28 px)
   assert.match(css, /--inv-cols:3\.5rem minmax\(0,1fr\) 11\.875rem 10\.625rem 1\.75rem/);
-  assert.match(css, /\.law-a\{[^}]*grid-template-columns:3rem 11\.5rem minmax\(0,1fr\) auto/);
+  assert.match(css, /\.law-a\{[^}]*grid-template-columns:3rem 11\.5rem minmax\(0,1fr\);/);
   // telefon: filtrele pe un singur rând care alunecă, până la marginea ecranului; pictograma actelor rămâne vizibilă
   const mobile = /@media \(max-width:47\.99rem\)\{([\s\S]*?)\n\}\n@media \(max-width:30rem\)/.exec(css);
   assert.ok(mobile, 'blocul pentru telefon există');

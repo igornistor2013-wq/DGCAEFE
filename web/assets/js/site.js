@@ -468,14 +468,13 @@
       return b.year - a.year;
     });
     $('#lawCount').textContent = T('%1 din %2 acte', items.length, D.legal.length);
-    // Un rând pe act: tipul și numărul, denumirea și legătura către legis.md (sau către fișierul actului, dacă nu are link).
+    // Un rând pe act: tipul și numărul, denumirea; tot rândul este o legătură către act, fără buton separat și fără mențiunea sursei.
     var shown = moreSlice('law', items);
     $('#lawBody').innerHTML = shown.length ? shown.map(function (l) {
       var href = l.url || (l.file && l.file.path) || '';
       var inner = '<span class="law-ico" aria-hidden="true">' + ico('gavel') + '</span><span class="law-no"><span class="type">' + T((LAW_TYPE[l.type] || LAW_TYPE.Altele).one) + '</span><strong>' + T('nr.') + ' ' + esc(l.nr) + '/' + l.year + '</strong></span>' +
-        '<span class="law-title"><span>' + esc(l.title) + '</span>' + (l.topic ? '<span class="law-topic">' + esc(l.topic) + '</span>' : '') + '</span>' +
-        (href ? '<span class="law-open">' + T(/legis\.md/.test(href) ? 'legis.md' : 'Deschide') + ' ' + ico('ext') + '</span>' : '');
-      return '<li class="law-row">' + (href ? '<a class="law-a" href="' + esc(href) + '" target="_blank" rel="noopener" title="' + esc(T(/legis\.md/.test(href) ? 'Deschide pe legis.md' : 'Deschide')) + '">' + inner + '</a>' : '<div class="law-a">' + inner + '</div>') + editLink('legal', l.id) + '</li>';
+        '<span class="law-title"><span>' + esc(l.title) + '</span>' + (l.topic ? '<span class="law-topic">' + esc(l.topic) + '</span>' : '') + '</span>';
+      return '<li class="law-row">' + (href ? '<a class="law-a" href="' + esc(href) + '" target="_blank" rel="noopener" title="' + esc(T('Deschide')) + '">' + inner + '</a>' : '<div class="law-a">' + inner + '</div>') + editLink('legal', l.id) + '</li>';
     }).join('') : '<li class="empty-row">' + T('Niciun act nu corespunde căutării%1. Încercați numărul actului (de exemplu 377) sau un cuvânt din titlu.', law.q ? ' „' + esc(law.q) + '”' : '') + ' <button class="btn btn-line btn-sm" type="button" id="lawReset">Arată toate actele</button></li>';
     moreBox('law');
   }
