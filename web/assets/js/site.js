@@ -834,7 +834,8 @@
 
   /* ================= Contacte ================= */
   var contactTo = '';
-  var mapOn = false; // harta Google se încarcă doar după ce vizitatorul o cere (Google primește atunci adresa IP a vizitatorului)
+  function consent(cat) { return !!(window.DGConsent && window.DGConsent.has && window.DGConsent.has(cat)); }
+  var mapOn = false; // harta Google se încarcă doar după acordul pentru „conținut al altor furnizori” (setările cookie) sau după ce vizitatorul o cere (Google primește atunci adresa IP a vizitatorului)
 
   function mapFrame(src) {
     return '<iframe class="map" title="Harta: sediul Cancelariei de Stat, Chișinău" tabindex="-1" referrerpolicy="no-referrer-when-downgrade" src="' + esc(src) + '"></iframe>';
@@ -861,10 +862,16 @@
       (c.hotlinePhone ? item('Linia anticorupție', '<p><a href="' + esc(telHref(c.hotlinePhone)) + '">' + esc(c.hotlinePhone) + '</a>' + (c.hotlineHours ? ', ' + esc(c.hotlineHours) : '') + '</p>', 'phone') : '');
     var map = $('#contactMap');
     map.hidden = !c.mapEmbed;
-    map.innerHTML = c.mapEmbed ? (mapOn ? mapFrame(c.mapEmbed) : mapGate(c)) : '';
+    map.innerHTML = c.mapEmbed ? ((mapOn || consent('external')) ? mapFrame(c.mapEmbed) : mapGate(c)) : '';
     $('#toAddr').textContent = contactTo;
     $('#contactForm').hidden = !contactTo;
   }
+
+  // schimbarea alegerii privind fișierele cookie: harta Google apare sau dispare după acordul pentru „conținut al altor furnizori”
+  document.addEventListener('dg:consent', function () {
+    if (!consent('external')) mapOn = false;
+    if (D) renderContact();
+  });
 
   function setupForm() {
     var form = $('#contactForm');

@@ -384,7 +384,7 @@ test('secțiunea „Informații despre acest site” și linia „Pagina a fost 
   assert.doesNotMatch(html, /INFORMAȚII DESPRE SITE|Informații despre acest site|Declarația de accesibilitate|Harta site-ului/);
   // linia de jos din subsol: fără data actualizării și fără legătura către administrare; rămâne doar nota de licență
   assert.doesNotMatch(foot, /id="updated"|footAdmin|foot-admin|Pagina a fost actualizată|Administrare/);
-  assert.match(foot, /<div class="foot-bottom">\s*<p id="footNote"><\/p>\s*<\/div>/);
+  assert.match(foot, /<div class="foot-bottom">\s*<p id="footNote"><\/p>\s*<button class="foot-link" type="button" data-cc="open">Setări cookie<\/button>\s*<\/div>/, 'nota de licență și linkul „Setări cookie”');
   // codul paginii nu mai are nimic din ele
   for (const re of [/INFO_IDS/, /goInfo/, /renderSiteMap/, /siteMap/, /harta-site/, /date-personale/, /accesibilitate/, /informatii/, /#updated/, /footAdmin/, /Pagina a fost actualizată/]) assert.doesNotMatch(site, re, String(re));
   assert.doesNotMatch(css, /\.sm-|\.sm\{|\.info-date|\.foot-admin/);

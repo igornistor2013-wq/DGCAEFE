@@ -385,6 +385,8 @@ Când o versiune nouă a paginii aduce conținut nou (de exemplu proiectele din 
 - Publicarea pe GitHub Pages instalează uneltele de comprimare (`sharp`, `esbuild`) în versiuni fixe (`.github/workflows/pages.yml`), ca o versiune nouă sau compromisă să nu ajungă singură în pagină.
 - Pe GitHub Pages panoul rulează cu o politică de securitate proprie (scripturi doar din pagină, conexiuni doar către `api.github.com`), se ascunde singur dacă este încadrat în altă pagină și păstrează jetonul doar în browser (vezi 5.3).
 
+**Fișierele cookie (Legea nr. 195 din 25.07.2024).** La prima vizită, pagina publică arată o bandă cu „Respinge toate”, „Configurează” și „Acceptă toate”; „Configurează” deschide categoriile (strict necesare, mereu active; statistică; conținut al altor furnizori), toate cele care nu sunt necesare fiind oprite implicit. Alegerea se păstrează 12 luni în browser (`localStorage`, cheia `dgaefe.consent`; nu se trimite nicăieri) și se poate schimba oricând din „Setări cookie”, în subsolul paginii. Fără acord, harta Google din „Contacte” nu se încarcă automat (rămâne cererea „Afișează harta”); cu acord se încarcă singură, iar la retragerea acordului dispare. Codul este în `web/assets/js/cookie-consent.js`. Dacă va fi adăugat vreodată un instrument de statistică sau alt conținut extern, el se marchează `<script type="text/plain" data-consent="analytics" data-src="…">` (sau `<iframe data-consent="external" data-src="…">`) și pornește doar după acord; în același timp, `connect-src`/`script-src` din politica de securitate (`server.js`) trebuie lărgite pentru furnizorul respectiv. Dacă se schimbă categoriile, se mărește `VERSION` din acel fișier, ca toți vizitatorii să fie întrebați din nou.
+
 Bune practici: dacă serverul și-a generat singur parola la prima pornire, ea apare în jurnalul serverului (de exemplu `docker compose logs`): schimbați-o după prima autentificare sau setați `ADMIN_PASSWORD` înainte de pornire. Pe GitHub Pages folosiți un domeniu propriu și un jeton cu acces doar la acest depozit (vezi 5.3), fără „Ține-mă minte” pe calculatoare comune. Schimbați parola generată, folosiți o parolă lungă și unică, serviți pagina doar prin HTTPS, faceți copii de siguranță și țineți Node.js și dependențele actualizate (`npm audit`, `npm update`).
 
 ---
@@ -400,7 +402,7 @@ lib/                   logica serverului: api.js (rutele de administrare), auth.
 web/index.html         pagina publică (șablon; titlul, prezentarea, noutățile și linkurile rapide se completează din setări și din știri)
 web/404.html           pagina „404” (șablon)
 web/admin/             panoul de administrare (index.html)
-web/assets/            css/, js/ (site.js, common.js, hero-news.js, admin-*.js), fonts/ (Onest; Golos Text pentru administrare), img/ (siglele)
+web/assets/            css/, js/ (site.js, common.js, hero-news.js, cookie-consent.js, admin-*.js), fonts/ (Onest; Golos Text pentru administrare), img/ (siglele)
                        hero-news.js (noutățile derulate în partea de sus; același cod scrie diapozitivele în HTML la
                        construirea paginii și în browser)
                        admin-schemas.js (validările, comune serverului și browserului), admin-github-core.js

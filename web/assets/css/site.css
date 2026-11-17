@@ -932,8 +932,52 @@ body.nf-page main{flex:1 0 auto}
 }
 
 /* ---------- Tipărire ---------- */
+
+/* Fișiere cookie: banda de consimțământ, fereastra cu setări, comutatoarele */
+.foot-bottom{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem 1.5rem}
+.foot-link{border:0;background:none;padding:.25rem 0;font:inherit;font-weight:600;color:#fff;text-decoration:underline;text-underline-offset:.2em;cursor:pointer}
+.foot-link:hover{color:var(--yellow)}
+.cc{position:fixed;z-index:90;left:1rem;right:1rem;bottom:1rem;margin-inline:auto;width:min(58rem,100%);background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:var(--rc);box-shadow:0 18px 56px rgba(2,12,42,.28)}
+.cc[hidden]{display:none}
+.cc-in{padding:1.25rem 1.5rem 1.375rem}
+.cc-t{margin:0 0 .5rem;font-size:1.25rem;line-height:1.25}
+.cc-in p{margin:0 0 .5rem;font-size:.9375rem;line-height:1.55;color:var(--body)}
+.cc-in .cc-sub{margin-bottom:1rem}
+.cc-link{border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--blue);text-decoration:underline;text-underline-offset:.2em;cursor:pointer}
+.cc-btns,.cc-foot{display:flex;flex-wrap:wrap;gap:.625rem}
+.cc-btns .btn,.cc-foot .btn{flex:1 1 11rem}
+body.cc-open .totop{display:none}
+.cc-dlg{overflow:auto;width:min(46rem,100% - 1.5rem)}
+.cc-dlg-t{margin:0;font-size:1.125rem}
+.cc-body{padding:1.25rem clamp(1.1rem,4vw,2rem) .5rem}
+.cc-body>p{margin:0 0 1.25rem;font-size:.9375rem;line-height:1.6;color:var(--body)}
+.cc-cat{margin:0 0 .875rem;padding:1rem 1.125rem;border:1px solid var(--line);border-radius:1.125rem;background:var(--paper)}
+.cc-cat-h{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.375rem}
+.cc-cat-h h3{margin:0;font-size:1.0625rem}
+.cc-cat>p{margin:0;font-size:.9375rem;line-height:1.55;color:var(--body)}
+.cc-on{font-size:.8125rem;font-weight:600;color:var(--navy);background:var(--tint);border-radius:999px;padding:.2rem .7rem;white-space:nowrap}
+.cc-cat details{margin-top:.625rem;font-size:.9375rem}
+.cc-cat summary{cursor:pointer;font-weight:600;color:var(--blue)}
+.cc-list{margin:.5rem 0 0;padding-left:1.1rem;color:var(--body);line-height:1.55}
+.cc-list li+li{margin-top:.375rem}
+.cc-note{font-size:.875rem!important;color:var(--body)}
+.cc-foot{position:sticky;bottom:0;padding:1rem clamp(1.1rem,4vw,2rem);border-top:1px solid var(--line);background:#fff}
+.cc-sw{position:relative;display:inline-block;flex:none;width:3rem;height:1.75rem;cursor:pointer}
+.cc-sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
+.cc-sw-ui{position:absolute;inset:0;border-radius:999px;background:#8b95b0;transition:background-color .15s}
+.cc-sw-ui::after{content:"";position:absolute;top:.1875rem;left:.1875rem;width:1.375rem;height:1.375rem;border-radius:50%;background:#fff;transition:transform .15s}
+.cc-sw input:checked+.cc-sw-ui{background:var(--blue)}
+.cc-sw input:checked+.cc-sw-ui::after{transform:translateX(1.25rem)}
+.cc-sw input:focus-visible+.cc-sw-ui{outline:.1875rem solid var(--focus);outline-offset:.1875rem}
+@media (max-width:47.99rem){
+  .cc{left:.5rem;right:.5rem;bottom:.5rem}
+  .cc-in{padding:1rem 1.125rem 1.125rem;max-height:calc(100dvh - 1rem);overflow:auto}
+  .cc-btns .btn,.cc-foot .btn{flex-basis:100%}
+}
+@media (prefers-reduced-motion:reduce){.cc-sw-ui,.cc-sw-ui::after{transition:none}}
+
 @media print{
-  .inv-pano,.topbar,.lang,.mainnav,.nav-ov,.nav-toggle,.adminbar,.search-open,.search-box,.quick,.toolbar,.doc-bar,.ev-filters,.chips,.more-row,.totop,.toasts,.edit-link,.contact-map,.maplink,.form,.skip,.hero-news,.amp-go,.prog-links button,.doc-tabs,.inv-ctl,.inv-fp,.inv-head,#fnToggle,#invToggle,.fold,.about-cta,.fn-chev,.inv-chev,.ev-go{display:none!important}
+  .cc,.cc-dlg,.foot-link,.inv-pano,.topbar,.lang,.mainnav,.nav-ov,.nav-toggle,.adminbar,.search-open,.search-box,.quick,.toolbar,.doc-bar,.ev-filters,.chips,.more-row,.totop,.toasts,.edit-link,.contact-map,.maplink,.form,.skip,.hero-news,.amp-go,.prog-links button,.doc-tabs,.inv-ctl,.inv-fp,.inv-head,#fnToggle,#invToggle,.fold,.about-cta,.fn-chev,.inv-chev,.ev-go{display:none!important}
   body{font-size:11pt;color:#000;background:#fff}
   .masthead{position:static;margin:0}
   .masthead-in{box-shadow:none;border-bottom:1px solid #000;border-radius:0}

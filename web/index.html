@@ -407,6 +407,7 @@
     </div>
     <div class="foot-bottom">
       <p id="footNote"></p>
+      <button class="foot-link" type="button" data-cc="open">Setări cookie</button>
     </div>
   </div>
 </footer>
@@ -429,8 +430,76 @@
   <div class="sd-foot"><span><kbd>↑</kbd> <kbd>↓</kbd> navigare</span><span><kbd>Enter</kbd> deschide</span><span><kbd>Esc</kbd> închide</span></div>
 </dialog>
 
+<div class="cc" id="cc" role="region" aria-labelledby="ccTitle" hidden>
+  <div class="cc-in">
+    <h2 class="cc-t" id="ccTitle">Fișiere cookie</h2>
+    <p>Pagina folosește fișiere cookie strict necesare funcționării. Cele care nu sunt strict necesare (statistica vizitelor, conținutul altor furnizori, de exemplu harta Google) se activează numai cu acordul dvs., conform Legii nr. 195 din 25.07.2024 privind protecția datelor cu caracter personal.</p>
+    <p class="cc-sub">Puteți accepta, respinge sau configura alegerea și o puteți schimba oricând din „Setări cookie”, din subsolul paginii. <button class="cc-link" type="button" data-cc="open">Detalii și politica cookie</button></p>
+    <div class="cc-btns">
+      <button class="btn btn-primary" type="button" data-cc="reject">Respinge toate</button>
+      <button class="btn btn-line" type="button" data-cc="open">Configurează</button>
+      <button class="btn btn-primary" type="button" data-cc="accept">Acceptă toate</button>
+    </div>
+  </div>
+</div>
+
+<dialog class="dlg cc-dlg" id="ccDlg" aria-labelledby="ccDlgTitle">
+  <div class="dlg-head">
+    <h2 class="cc-dlg-t" id="ccDlgTitle">Setări fișiere cookie</h2>
+    <button class="icon-btn" type="button" data-cc="close" aria-label="Închide fereastra"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="cc-body">
+    <p>Fișierele cookie și tehnologiile asemănătoare (de exemplu stocarea locală din browser) sunt mici fișiere salvate pe dispozitivul dvs. când vizitați o pagină. Unele sunt necesare ca pagina să funcționeze; altele depind de alegerea dvs. Operatorul este Cancelaria de Stat a Republicii Moldova (Direcția Generală Coordonare Asistență Externă și Fonduri Europene), iar prelucrarea se face potrivit Legii nr. 195 din 25.07.2024 privind protecția datelor cu caracter personal.</p>
+
+    <div class="cc-cat">
+      <div class="cc-cat-h">
+        <h3>Strict necesare</h3>
+        <span class="cc-on">Mereu active</span>
+      </div>
+      <p>Fără ele pagina nu poate funcționa în siguranță. Nu necesită acordul dvs. și nu sunt folosite pentru urmărire.</p>
+      <details>
+        <summary>Ce conțin</summary>
+        <ul class="cc-list">
+          <li><strong>dgaefe.consent</strong> (stocare locală, 12 luni): alegerea dvs. privind fișierele cookie, ca să nu fiți întrebat la fiecare vizită.</li>
+          <li><strong>dgaefe_session</strong> (cookie HttpOnly, până la încheierea sesiunii): autentificarea persoanelor care administrează pagina; nu se creează pentru vizitatorii obișnuiți.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="cc-cat">
+      <div class="cc-cat-h">
+        <h3>Statistică</h3>
+        <label class="cc-sw"><input type="checkbox" id="cc-analytics" aria-label="Statistică"><span class="cc-sw-ui" aria-hidden="true"></span></label>
+      </div>
+      <p>Ne-ar ajuta să înțelegem cum este folosită pagina (numărul de vizite, secțiunile consultate), în formă agregată. În prezent pagina nu folosește niciun instrument de statistică; dacă va fi introdus, nu va fi pornit fără acordul dvs.</p>
+    </div>
+
+    <div class="cc-cat">
+      <div class="cc-cat-h">
+        <h3>Conținut al altor furnizori</h3>
+        <label class="cc-sw"><input type="checkbox" id="cc-external" aria-label="Conținut al altor furnizori"><span class="cc-sw-ui" aria-hidden="true"></span></label>
+      </div>
+      <p>Harta sediului din secțiunea „Contacte” este furnizată de Google. Când este afișată, browserul dvs. se conectează la serverele Google, care primesc adresa IP și date tehnice despre dispozitiv și pot salva propriile fișiere cookie. Fără acordul dvs. harta nu se încarcă automat; o puteți afișa oricând, la cerere, din secțiunea „Contacte”.</p>
+      <details>
+        <summary>Ce conțin</summary>
+        <ul class="cc-list">
+          <li><strong>Google Maps</strong> (Google LLC): fișiere cookie și date stabilite de Google, după propria politică. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Politica de confidențialitate Google</a></li>
+        </ul>
+      </details>
+    </div>
+
+    <p class="cc-note">Puteți retrage acordul oricând din „Setări cookie”, din subsolul paginii, la fel de ușor cum l-ați dat. Alegerea se păstrează 12 luni, apoi vi se cere din nou. Dacă ștergeți datele paginii din browser, alegerea se șterge și ea.</p>
+  </div>
+  <div class="cc-foot">
+    <button class="btn btn-primary" type="button" data-cc="reject">Respinge toate</button>
+    <button class="btn btn-line" type="button" data-cc="save">Salvează alegerea</button>
+    <button class="btn btn-primary" type="button" data-cc="accept">Acceptă toate</button>
+  </div>
+</dialog>
+
 <script src="assets/js/i18n.js" defer></script>
 <script src="assets/js/common.js" defer></script>
+<script src="assets/js/cookie-consent.js" defer></script>
 <script src="assets/js/hero-news.js" defer></script>
 <script src="assets/js/site.js" defer></script>
 </body>
